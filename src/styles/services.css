@@ -1,0 +1,102 @@
+@layer components {
+  .services .section__head {
+    margin-block-end: var(--s-64);
+  }
+
+  .service {
+    display: grid;
+    gap: var(--s-32);
+  }
+
+  .service__copy {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .service__lede {
+    /* 服务标题：视觉 36px，但语义上不是标题层级 —— 见 docs/DECISIONS.md */
+    font-size: var(--fs-service);
+    line-height: var(--lh-service);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    margin-block-start: var(--s-12);
+  }
+
+  .service__body {
+    color: var(--c-text-2);
+    margin-block-start: var(--s-16);
+    max-width: 52ch;
+  }
+
+  .capabilities {
+    margin-block-start: var(--s-32);
+    display: grid;
+    gap: var(--s-16);
+  }
+
+  .capability {
+    padding-inline-start: var(--s-16);
+    border-inline-start: 2px solid var(--c-divider);
+    transition: border-color var(--t-hover) var(--ease);
+  }
+
+  .capability:hover {
+    border-inline-start-color: var(--c-brand);
+  }
+
+  .capability dt {
+    font-size: var(--fs-eyebrow);
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .capability dd {
+    color: var(--c-text-2);
+    font-size: var(--fs-body);
+  }
+
+  .service__fit {
+    margin-block-start: var(--s-24);
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    color: var(--c-text-3);
+  }
+
+  .service__fit-label {
+    display: inline-block;
+    margin-inline-end: var(--s-8);
+    padding: 2px var(--s-8);
+    border: 1px solid var(--c-control);
+    border-radius: var(--r-btn);
+    color: var(--c-text-2);
+  }
+
+  .service__figure {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-16);
+    min-width: 0;
+  }
+
+  .service__divider {
+    /* 组间使用留白和短分隔线（文档 §AI 服务） */
+    margin-block: 56px;
+  }
+
+  @media (min-width: 1024px) {
+    .service {
+      /* 左侧文字 5 列、右侧示意 7 列，同向排列，不左右交替（文档 §AI 服务） */
+      grid-template-columns: 5fr 7fr;
+      gap: var(--s-48);
+      align-items: center;
+    }
+
+    .capabilities {
+      gap: var(--s-24);
+    }
+
+    .service__divider {
+      margin-block: var(--s-64);
+    }
+  }
+}

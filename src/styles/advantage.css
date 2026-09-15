@@ -1,0 +1,118 @@
+@layer components {
+  /* ══════════════════════════════════════════════════════════════════════
+     数据统计 —— 照搬 ssw.com.au 首页 "The SSW Advantage"。
+     线上根字号 18px：p-8 = 36px、text-2xl = 27px、text-6xl = 67.5px、
+     text-4xl = 40.5px、text-lg = 20.25px。
+     没有卡片底色，栅格间距为 0，结构完全由发丝分隔线表达。
+
+     ── 分隔线宽度是 0.5px，不是 0.75px ──────────────────────────────────
+     线上的工具类叫 `border-0.75`，但**计算值是 0.5px**（实测四格皆然）。
+     之前照类名写成 0.75px，是抄了名字没抄取值 —— 与办公室面板内边距
+     那次是同一类错误（见 §27）。
+
+     ── 每一格的边在三个断点各不相同，下面逐格照搬线上的类 ──────────────
+       <768  ：cell0 无边；cell1-3 上边线
+       768+  ：cell0 右+下；cell1 下；cell2 右；cell3 无
+       1024+ ：cell0 无边；cell1-3 左边线
+     ══════════════════════════════════════════════════════════════════════ */
+
+  .advantage__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0; /* 线上是 gap: normal ⇒ 各格贴合，分隔线即栅格线 */
+  }
+
+  /* 四条边先归零，再按断点逐格开启。颜色随主题（深 #212121 / 浅 #e5e7eb）。 */
+  .advantage__cell {
+    display: flex;
+    flex-direction: column;
+    padding: 36px;
+    border: 0 solid var(--c-hairline);
+  }
+
+  /* 三个断点的边框规则用**互斥的区间**写，不用 min-width 叠加覆盖：
+     `.advantage__cell:nth-child(1)` 的特异度高于 `.advantage__cell`，
+     若靠后面的 min-width 区块去 reset，前面的逐格规则反而会赢 —— 实测就是这样
+     漏到了 1024px 以上（详见 docs/DECISIONS.md §32）。 */
+
+  /* <768px 单栏：除第一格外都画上边线 */
+  @media (max-width: 767px) {
+    .advantage__cell + .advantage__cell {
+      border-block-start-width: 0.5px;
+    }
+  }
+
+  .advantage__cell--head {
+    justify-content: center;
+  }
+
+  .advantage__title {
+    font-size: 27px;
+    line-height: 1.3;
+    font-weight: 600;
+  }
+
+  .advantage__figure {
+    display: flex;
+    align-items: baseline;
+  }
+
+  /* 数字不做滚动计数（交接文档 §4 明确禁止）。 */
+  .advantage__number {
+    font-size: 67.5px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .advantage__suffix {
+    margin-inline-start: 4.5px;
+    font-size: 40.5px;
+    font-weight: 300;
+  }
+
+  .advantage__label {
+    margin-block-start: var(--s-8);
+    font-size: 20.25px;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+
+  .advantage__note {
+    color: var(--c-text-2);
+    font-size: var(--fs-body);
+  }
+
+  @media (min-width: 768px) {
+    .advantage__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* 768–1023px 两栏：cell0 右+下、cell1 下、cell2 右、cell3 无 */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .advantage__cell:nth-child(1) {
+      border-inline-end-width: 0.5px;
+      border-block-end-width: 0.5px;
+    }
+
+    .advantage__cell:nth-child(2) {
+      border-block-end-width: 0.5px;
+    }
+
+    .advantage__cell:nth-child(3) {
+      border-inline-end-width: 0.5px;
+    }
+  }
+
+  /* ≥1024px 四栏：cell0 无边，其余各画一条左边线 */
+  @media (min-width: 1024px) {
+    .advantage__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .advantage__cell + .advantage__cell {
+      border-inline-start-width: 0.5px;
+    }
+  }
+}

@@ -1,0 +1,208 @@
+@layer components {
+  /* ══════════════════════════════════════════════════════════════════════
+     为什么选择 SSW —— 照搬 ssw.com.au 的 "Why choose SSW?"。
+     线上取值（18px 根字号）：区块上下内边距 144px、栅格 gap 36px、
+     卡片圆角 18px / 1px 发丝边 / 内边距 36px、标题 40.5px/45px 400、
+     引言 18px/27px 300（上边距 27px）、
+     要点标题 22.5px/31.5px 600、要点正文 18px/27px 300（上边距 13.5px）、
+     两条要点之间 72px、下排上边距 45px、
+     徽章胶囊 min-height 40.5px / 内边距 9px 18px / 15.75px / 图标 18px。
+     ══════════════════════════════════════════════════════════════════════ */
+
+  .whyus {
+    padding-block: var(--section-y);
+  }
+
+  .whyus__top {
+    display: grid;
+    gap: 36px;
+  }
+
+  /* ── 左栏：16:9 配图，可选播放按钮 ─────────────────────────────────── */
+  .whyus__media {
+    position: relative;
+    /* 必须显式写宽 —— 否则在 ≥1024 的等高栅格里，块向尺寸由 stretch 撑到行高，
+       aspect-ratio 会**反过来由高推宽**（495 × 16/9 = 880px），冲出 span 3 的
+       705px 栏宽压到右侧卡片上。宽度定死后比例只在窄屏（行高由内容决定）生效。 */
+    inline-size: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 18px;
+  }
+
+  .whyus__img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  /* videoUrl 为 null 时整块不渲染 —— 不留点了没反应的播放按钮 */
+  .whyus__play {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 76.5px;
+    block-size: 76.5px;
+    border: 1px solid rgb(255 255 255 / 40%);
+    border-radius: 999px;
+    /* 线上：from-sswRed/80 to-sswRed/40 + backdrop-blur-md */
+    background: linear-gradient(180deg, rgb(204 65 65 / 80%), rgb(204 65 65 / 40%));
+    backdrop-filter: blur(12px);
+    color: #fff;
+    text-decoration: none;
+    transition: transform var(--t-gesture) var(--ease-io);
+  }
+
+  .whyus__play:hover,
+  .whyus__play:focus-visible {
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+
+  .whyus__play-icon {
+    /* 三角形视觉重心偏左，右移 1px 才居中（线上也加了 ml-1） */
+    margin-inline-start: 1px;
+    /* 用户要求放大：27px → 34px。圆角由 SVG 上的同色描边 + round 连接实现。 */
+    inline-size: 34px;
+    block-size: 34px;
+  }
+
+  /* ── 右栏：说明卡 ─────────────────────────────────────────────────── */
+  .whyus__card {
+    display: flex;
+    flex-direction: column;
+    padding: var(--s-24);
+    border: 1px solid var(--c-hairline);
+    border-radius: 18px;
+    background: var(--c-surface-deep);
+  }
+
+  .whyus__title {
+    font-size: 40.5px;
+    /* 字重 500，不是线上的 400 —— 用户 2026-09-09 要求标题更粗。
+       中文回退字体（PingFang SC）最重只到 Semibold(600)，600→700 对中文无效。
+       用户 2026-09-09 又要求再粗一号 ⇒ 500 → 600，**这是中文的上限**，
+       不要再往上调，700/800/900 渲染结果与 600 完全相同。详见 DECISIONS §49／§51。 */
+    line-height: 45px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .whyus__intro + .whyus__intro {
+    margin-block-start: var(--s-12);
+  }
+
+  .whyus__intro {
+    /* 线上是 27px；这里收到 18px —— 用户要求这个框矮一些 */
+    margin-block-start: var(--s-16);
+    font-size: 18px;
+    line-height: 27px;
+    font-weight: 300;
+    color: var(--c-text-2);
+  }
+
+  /* caption 为 null 时整行不渲染。这里仍要是 grid ——
+     ≥1024 的 grid-template-columns 靠它才生效（此前漏了 display，
+     那条栏定义是死的）。 */
+  .whyus__caption-row {
+    display: grid;
+    gap: 36px;
+    margin-block-start: 18px;
+  }
+
+  .whyus__caption {
+    font-size: 15.75px;
+    line-height: 22.5px;
+    color: var(--c-text-2);
+  }
+
+  /* 资质徽章现在住在说明卡内部（原先是下方独立一栏），用一条发丝线与上方正文分开
+     （这条线原本是与 CTA 分开的，CTA 已按用户要求删除）。
+     曾写过 margin-block-start: auto 想把它顶到卡片底部，但同一条规则里后面还有一个
+     固定值把它覆盖了 —— 且这一栏本就是决定行高的那一侧，没有多余空间可顶，
+     auto 恒等于 0。已删除，只保留固定间距。 */
+  .whyus__recognition {
+    display: flex;
+    flex-direction: column;
+    /* 用户要求居中（此前跟随卡片左对齐） */
+    align-items: center;
+    gap: 13.5px;
+    margin-block-start: var(--s-16);
+    padding-block-start: var(--s-16);
+    border-block-start: 1px solid var(--c-hairline);
+  }
+
+  .whyus__recognition-label {
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--c-text-2);
+  }
+
+  .whyus__badges {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .whyus__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-block-size: 40.5px;
+    padding: 9px 18px;
+    border: 1px solid var(--c-badge-border);
+    border-radius: 999px;
+    background: var(--c-surface-deep);
+    font-size: 15.75px;
+    line-height: 22.5px;
+    text-align: center;
+  }
+
+  .whyus__badge-icon {
+    inline-size: 18px;
+    block-size: 18px;
+    flex-shrink: 0;
+    object-fit: contain;
+  }
+
+  @media (min-width: 768px) {
+    .whyus__card {
+      /* 线上是 36px；这里收到 27px —— 同上，为了压低整个框的高度 */
+      padding: 27px;
+    }
+  }
+
+  /* ≥1024px：上下两排都是五等分，配图与要点占 3，卡片与徽章占 2 */
+  @media (min-width: 1024px) {
+    .whyus {
+      padding-block: 144px;
+    }
+
+    .whyus__top,
+    .whyus__caption-row {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      /* stretch：左右两栏等高（用户要求）。较高的一侧决定行高 ——
+         卡片内容此前已收紧过间距，因此不会再出现大片空白。 */
+      align-items: stretch;
+    }
+
+    .whyus__media,
+    .whyus__caption-row > * {
+      grid-column: span 3;
+    }
+
+    .whyus__card {
+      grid-column: span 2;
+    }
+  }
+}

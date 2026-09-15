@@ -1,0 +1,80 @@
+@layer components {
+  /* ══════════════════════════════════════════════════════════════════════
+     客户标识跑马灯 —— 照搬 ssw.com.au。线上取值（18px 根字号）：
+     视口 padding 9px（p-2）、轨道与项间距 13.5px（sm:--gap:0.75rem）、
+     卡片 min-width 216px（min-w-48）、高 90px（h-20）→ md 起 117px（h-26）、
+     发丝边 0.5px、圆角 9px（rounded-utility）、标识滤镜转白。
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* 这是一条标识带，不是完整区块 —— 上下留白比 --section-y（56/72/96px）
+     收一半，用户要求间隔变小。 */
+  .clients {
+    padding-block: var(--s-32);
+  }
+
+  .clients__viewport {
+    display: flex;
+    justify-content: center;
+    gap: 13.5px;
+    padding: 9px;
+    overflow: hidden;
+  }
+
+  .clients__track {
+    display: flex;
+    flex-shrink: 0;
+    justify-content: space-around;
+    gap: 13.5px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    /* 关键帧住在 motion.css（全站唯一存放 @keyframes 的地方）。
+       时长与线上一致：20s linear infinite。 */
+    animation: marquee 20s linear infinite;
+  }
+
+  /* 指针移入暂停整条 —— 线上同样如此，也是这条无限动效唯一的暂停手段 */
+  .clients__viewport:hover .clients__track {
+    animation-play-state: paused;
+  }
+
+  .clients__item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-inline-size: 216px;
+    block-size: 90px;
+    padding: var(--s-16);
+    border: 0.5px solid var(--c-hairline);
+    border-radius: 9px;
+  }
+
+  .clients__item img {
+    max-inline-size: 100%;
+    max-block-size: 100%;
+    inline-size: auto;
+    block-size: auto;
+    object-fit: contain;
+    /* 与线上一致：单色转白，原图配色不影响呈现 */
+    filter: brightness(0) invert(1);
+  }
+
+  /* 浅色主题下白色标识会消失 —— 反过来转黑 */
+  :root[data-theme='light'] .clients__item img {
+    filter: brightness(0);
+  }
+
+  @media (min-width: 768px) {
+    .clients__item {
+      block-size: 117px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .clients {
+      padding-block: var(--s-48);
+    }
+  }
+}

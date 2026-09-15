@@ -1,0 +1,230 @@
+@layer components {
+  /* ══════════════════════════════════════════════════════════════════════
+     落地中国（/chinafy/）—— 内容取自 ssw.cn 现有的同名页面，
+     版式全部改用本站既有元素：page-head、section__head、core-card、capabilities。
+     本文件只放该页需要的三个修饰类，没有新的组件。
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* 标题上方的团队署名。page-head 的 accent-rule 已占了上方留白，这里只收紧间距。 */
+  .chinafy__eyebrow {
+    margin-block-end: var(--s-8);
+  }
+
+  /* 「进入中国市场…」一节有三段引言，段间需要间距（section__intro 本身不带 margin）。 */
+  .chinafy-why .section__intro + .section__intro {
+    margin-block-start: var(--s-16);
+  }
+
+  /* 四项服务是 2×2，不是首页那种三栏。窄屏仍由 core-cards 的吸附轮播承担。 */
+  @media (min-width: 1024px) {
+    .core-cards--pair .core-cards__track {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* 这四张卡片不是链接、没有右下角箭头，
+     core-card__text 原本为箭头预留的下外边距要收掉。 */
+  .core-card__text:last-child {
+    margin-block-end: 0;
+  }
+
+  /* 涉及领域：四条短说明，桌面分两栏，避免单栏拉得过长。 */
+  @media (min-width: 768px) {
+    .capabilities--two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--s-24);
+    }
+  }
+}
+
+@layer components {
+  .chinafy-page .section {
+    padding-block: clamp(56px, 7.5vw, 112px);
+  }
+  .chinafy-page .page-head {
+    margin-block-start: 24px;
+    padding-block: clamp(64px, 8vw, 120px);
+    background: var(--c-surface-deep);
+  }
+  .chinafy-page .page-head__inner {
+    display: grid;
+    align-items: center;
+    gap: 32px;
+    max-width: var(--container);
+  }
+  .chinafy-page .chinafy__eyebrow {
+    margin-block-end: 24px;
+  }
+  .chinafy-page h1 {
+    max-inline-size: none;
+    text-wrap: balance;
+    line-height: 1.25;
+    font-weight: 600;
+  }
+  .chinafy-page .page-head__lede {
+    margin: 0;
+    font-size: var(--fs-lead);
+    line-height: 1.85;
+    color: var(--c-text);
+  }
+  .chinafy-page .page-head__body {
+    margin-block-start: 24px;
+    line-height: 1.85;
+  }
+  .chinafy-page .page-head__actions {
+    margin-block-start: 32px;
+  }
+  .chinafy-page .section__head {
+    max-width: none;
+  }
+  .chinafy-page .section__head h2 {
+    text-wrap: balance;
+    font-weight: 600;
+  }
+  .chinafy-page .chinafy-why .section__head {
+    display: grid;
+    gap: 0 80px;
+  }
+  .chinafy-page .chinafy-why__copy .section__intro {
+    line-height: 1.85;
+  }
+  .chinafy-page .chinafy-why__copy .section__intro:last-child {
+    padding-block-start: 24px;
+    margin-block-start: 24px;
+    border-block-start: 1px solid var(--c-divider);
+    color: var(--c-text);
+  }
+  .chinafy-page .chinafy-offer {
+    background: var(--c-surface-deep);
+  }
+  .chinafy-page .core-cards {
+    margin-block-start: 40px;
+  }
+  .chinafy-page .core-cards__track {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+  .chinafy-page .core-card {
+    display: grid;
+    align-content: start;
+    gap: 24px;
+    padding: 28px;
+    border: 1px solid var(--c-divider);
+    border-radius: var(--r-panel);
+    background: var(--c-bg);
+    transition: border-color var(--t-hover) var(--ease);
+  }
+  .chinafy-page .core-card::before {
+    display: none;
+  }
+  .chinafy-page .core-card:hover {
+    border-color: var(--c-brand);
+  }
+  .chinafy-page .core-card__media {
+    inline-size: 64px;
+    block-size: 64px;
+    aspect-ratio: 1;
+    padding: 12px;
+    background: var(--c-surface-deep);
+    color: var(--c-brand-text);
+    border: 1px solid var(--c-divider);
+    border-radius: 8px;
+  }
+  .chinafy-page .core-card__media svg {
+    inline-size: 40px;
+    max-inline-size: 100%;
+  }
+  .chinafy-page .core-card__body {
+    padding: 0;
+  }
+  .chinafy-page .core-card__title {
+    font-size: var(--fs-h3);
+    line-height: 1.4;
+  }
+  .chinafy-page .core-card__text {
+    margin: 16px 0 0;
+    font-size: var(--fs-body);
+    line-height: 1.85;
+    font-weight: 400;
+  }
+  .chinafy-page .chinafy-scope > .container {
+    display: grid;
+    gap: 24px 80px;
+    align-items: start;
+  }
+  .chinafy-page .capabilities {
+    margin: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    counter-reset: chinafy-scope;
+  }
+  .chinafy-page .capability {
+    counter-increment: chinafy-scope;
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 8px 16px;
+    padding: 24px 0;
+    border: 0;
+    border-block-start: 1px solid var(--c-divider);
+  }
+  .chinafy-page .capability::before {
+    content: '0' counter(chinafy-scope);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--c-brand-text);
+    padding-block-start: 4px;
+  }
+  .chinafy-page .capability dt {
+    font-size: var(--fs-lead);
+    font-weight: 600;
+  }
+  .chinafy-page .capability dd {
+    grid-column: 2;
+    line-height: 1.8;
+  }
+  @media (min-width: 768px) {
+    .chinafy-page .core-cards__track {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .chinafy-page .core-card {
+      padding: 32px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .chinafy-page .page-head__inner {
+      grid-template-columns: 1.1fr 1fr;
+      gap: 96px;
+    }
+    .chinafy-page .chinafy-why .section__head {
+      grid-template-columns: 0.9fr 1.1fr;
+    }
+    .chinafy-page .chinafy-why .accent-rule {
+      grid-column: 1;
+    }
+    .chinafy-page .chinafy-why h2 {
+      grid-column: 1;
+    }
+    .chinafy-page .chinafy-why__copy {
+      grid-column: 2;
+      grid-row: 1 / 3;
+    }
+    .chinafy-page .chinafy-scope > .container {
+      grid-template-columns: 0.65fr 1.35fr;
+    }
+    .chinafy-page .chinafy-scope .section__head {
+      position: sticky;
+      top: calc(var(--nav-h) + 32px);
+    }
+  }
+}
+
+@layer components {
+  .chinafy-page h1 span {
+    display: block;
+  }
+}

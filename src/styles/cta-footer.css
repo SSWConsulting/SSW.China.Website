@@ -1,0 +1,170 @@
+@layer components {
+  .cta {
+    position: relative;
+    overflow: hidden;
+    /* 手机上下留白 64px，桌面 96px（文档 §咨询收尾） */
+    padding-block: var(--s-64);
+    border-block-start: 1px solid var(--c-divider);
+  }
+
+  .cta__inner {
+    /* 左对齐大标题与按钮（文档 §咨询收尾）。不切换成整屏红底。 */
+    text-align: start;
+  }
+
+  .cta__rule {
+    width: 64px;
+  }
+
+  .cta__title {
+    max-width: 20ch;
+  }
+
+  .cta__lead {
+    margin-block-start: var(--s-16);
+  }
+
+  .cta__actions {
+    margin-block-start: var(--s-32);
+  }
+
+  /* 一次性斜向扫光：局部高亮，不是整屏红底 */
+  .cta__sheen {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: -40%;
+    width: 40%;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(
+      100deg,
+      transparent 0%,
+      rgb(204 65 65 / 10%) 45%,
+      rgb(245 245 245 / 6%) 55%,
+      transparent 100%
+    );
+  }
+
+  @media (min-width: 1024px) {
+    .cta {
+      padding-block: var(--s-96);
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     页脚 —— 参考 ssw.com.au：#212121 深色带、标识在左、下方链接分栏、
+     底部一行法律信息左右分置。线上根字号 18px：pt-20 = 90px、
+     栏目标题 text-lg = 20.25px/600、链接 18px/27px、底部 text-sm = 15.75px。
+     配色固定深色，两套主题相同（线上 bg-sswBorder 也是固定色）。
+     ══════════════════════════════════════════════════════════════════════ */
+  .footer {
+    background: var(--c-footer-bg);
+    color: var(--c-footer-text);
+  }
+
+  .footer__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-48);
+    padding-block-start: var(--s-64);
+    padding-block-end: 0;
+  }
+
+  .footer__brand {
+    display: inline-block;
+  }
+
+  .footer__logo {
+    inline-size: 200px;
+    block-size: auto;
+  }
+
+  .footer__nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+  }
+
+  .footer__col-title {
+    font-size: 20.25px;
+    line-height: 1.4;
+    font-weight: 600;
+    color: var(--c-footer-head);
+    margin-block-end: 18px;
+  }
+
+  .footer__col li + li {
+    margin-block-start: 2px;
+  }
+
+  .footer__col a {
+    display: inline-block;
+    font-size: 18px;
+    line-height: 27px;
+    color: var(--c-footer-text);
+    text-decoration: none;
+    transition: color var(--t-hover) var(--ease);
+  }
+
+  .footer__col a:hover {
+    color: var(--c-footer-head);
+  }
+
+  .footer__legal {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-12);
+    padding-block: 27px;
+    border-block-start: 1px solid rgb(255 255 255 / 10%);
+  }
+
+  .footer__legal-main,
+  .footer__legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-8) var(--s-24);
+  }
+
+  .footer__line {
+    font-size: 15.75px;
+    line-height: 1.6;
+    color: var(--c-footer-text-2);
+  }
+
+  .footer__line a {
+    color: var(--c-footer-text-2);
+    text-decoration: none;
+    border-block-end: 1px solid rgb(255 255 255 / 20%);
+    transition:
+      color var(--t-hover) var(--ease),
+      border-color var(--t-hover) var(--ease);
+  }
+
+  .footer__line a:hover {
+    color: var(--c-footer-head);
+    border-block-end-color: var(--c-brand);
+  }
+
+  @media (min-width: 768px) {
+    .footer__nav {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .footer__legal {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .footer__inner {
+      padding-block-start: 90px;
+    }
+
+    /* 五栏，与 ssw.com.au 的 md:grid-cols-3 lg:grid-cols-5 同档 */
+    .footer__nav {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+}

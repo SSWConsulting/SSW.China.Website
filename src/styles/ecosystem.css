@@ -1,0 +1,394 @@
+@layer components {
+  .ecosystem .section__head {
+    margin-block-end: var(--s-48);
+  }
+
+  .ecosystem__products {
+    display: grid;
+    gap: 27px; /* ssw.com.au: md:gap-6，18px 根字号 ⇒ 27px */
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     产品卡片 —— 照搬 ssw.com.au/products 上 TinaCMS 与 YakShaver 两张卡片。
+     线上根字号 18px，故 rounded-card 1rem = 18px、p-6 = 27px、pr-10 = 45px、
+     gap-4 = 18px、h-12 = 54px、text-sm = 15.75px、text-xs = 13.5px、
+     rounded-control = 6.75px。
+     整张卡片是一个链接；配色固定深色，不随明暗主题翻转（线上该页强制 dark）。
+     ══════════════════════════════════════════════════════════════════════ */
+  .product-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 18px;
+    overflow: hidden;
+    padding: 27px 45px 27px 27px;
+    border: 0.5px solid var(--c-product-line);
+    border-radius: 18px;
+    color: var(--c-product-text);
+    text-decoration: none;
+    transition:
+      background-color var(--t-hover) var(--ease),
+      border-color var(--t-hover) var(--ease);
+  }
+
+  .product-card:hover {
+    border-color: var(--c-brand);
+  }
+
+  .product-card--tina {
+    background: var(--c-tina);
+  }
+
+  .product-card--tina:hover {
+    background: var(--c-tina-hover);
+  }
+
+  .product-card--yak {
+    background: var(--c-product-bg);
+  }
+
+  .product-card--yak:hover {
+    background: var(--c-product-bg-hover);
+  }
+
+  /* 装饰图：纯背景，不承载任何信息，永不进入可达性树。 */
+  .product-card__art {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* Tina：右下角大水印。素材是 Tina 橙 #EC4815 的单色矢量，
+     这里用滤镜转白（与线上 brightness-0 invert 相同），不修改原始素材。 */
+  .product-card--tina .product-card__art {
+    inset-block-end: -18px;
+    inset-inline-end: 18px;
+    block-size: 75%;
+    inline-size: auto;
+    opacity: 0.15;
+    filter: brightness(0) invert(1);
+    transition: opacity var(--t-hover) var(--ease);
+  }
+
+  .product-card--tina:hover .product-card__art {
+    opacity: 0.25;
+  }
+
+  /* YakShaver：渐变底贴右边缘满高铺开。 */
+  .product-card--yak .product-card__art {
+    inset-block: 0;
+    inset-inline-end: 0;
+    block-size: 100%;
+    inline-size: auto;
+    max-inline-size: none; /* 覆盖 base.css 的 img{max-width:100%} */
+  }
+
+  /* 正文与按钮必须压在装饰图之上 */
+  .product-card__body,
+  .product-card__cta {
+    position: relative;
+  }
+
+  .product-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: flex-start;
+  }
+
+  .product-card__logo {
+    block-size: 54px;
+    inline-size: auto;
+    /* YakShaver 的横向标识在 54px 高时宽 279px，窄屏卡片内容宽只有 ~278px。
+       base.css 的 img{max-width:100%} 会压扁它 —— object-fit 让它等比缩小并左对齐。 */
+    max-inline-size: 100%;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .product-card--tina .product-card__logo {
+    filter: brightness(0) invert(1);
+  }
+
+  /* 没有真实标识时的降级：不留空图框，真实名称纯文字呈现。 */
+  .product-card__name {
+    font-size: var(--fs-h3);
+    line-height: var(--lh-h3);
+  }
+
+  .product-card__desc {
+    max-inline-size: 42ch;
+    font-size: 15.75px;
+    line-height: 21.66px;
+    font-weight: 300;
+  }
+
+  .product-card--yak .product-card__desc {
+    color: var(--c-product-text-2);
+  }
+
+  .product-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6.75px;
+  }
+
+  .product-card__tags li {
+    flex: none;
+    padding: 4.5px 9px;
+    border: 0.5px solid;
+    border-radius: 4.5px;
+    font-size: 13.5px;
+    line-height: 1;
+    font-weight: 500;
+  }
+
+  .product-card--tina .product-card__tags li {
+    border-color: rgb(255 255 255 / 40%);
+  }
+
+  .product-card--yak .product-card__tags li {
+    border-color: var(--c-brand);
+    background: rgb(204 65 65 / 16%);
+  }
+
+  .product-card__cta {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: var(--touch);
+    padding: 9px 18px;
+    border-radius: 6.75px;
+    background: var(--c-product-text);
+    color: var(--c-product-bg);
+    font-size: 15.75px;
+    font-weight: 500;
+    transition: transform var(--t-gesture) var(--ease-io);
+  }
+
+  .product-card:hover .product-card__cta,
+  .product-card:focus-visible .product-card__cta {
+    /* 位移乘以动效总开关 ⇒ 减少动效时自动归零 */
+    transform: scale(1.05);
+  }
+
+  .entry {
+    position: relative;
+    padding: var(--s-24);
+    background: var(--c-panel);
+    border: 1px solid var(--c-charcoal);
+    border-radius: var(--r-panel);
+    transition:
+      border-color var(--t-hover) var(--ease),
+      transform var(--t-hover) var(--ease);
+  }
+
+  .entry:hover {
+    border-color: var(--c-control);
+    transform: translateY(-2px);
+  }
+
+  .entry__kind {
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    color: var(--c-text-3);
+    letter-spacing: 0.06em;
+  }
+
+  /* 未提供真实标识时，以真实名称纯文字呈现（文档 §产品与社区）。
+     不预留空的标识框、不自制替代 Logo。 */
+  .entry__name {
+    margin-block-start: var(--s-8);
+    font-size: var(--fs-h3);
+    line-height: var(--lh-h3);
+  }
+
+  .entry__logo {
+    margin-block-start: var(--s-8);
+    height: 32px;
+    width: auto;
+  }
+
+  .entry__desc {
+    margin-block-start: var(--s-12);
+    color: var(--c-text-2);
+  }
+
+  .entry__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-block-start: var(--s-16);
+    min-height: var(--touch);
+    font-weight: 600;
+    color: var(--c-text);
+    text-decoration: none;
+    border-block-end: 1px solid var(--c-control);
+    transition:
+      color var(--t-hover) var(--ease),
+      border-color var(--t-hover) var(--ease);
+  }
+
+  /* 悬停只改下边框颜色 —— 红色文字在深底上仅 3.72:1，达不到正文 4.5:1 */
+  .entry__link:hover {
+    border-block-end-color: var(--c-brand);
+  }
+
+  .entry__link-icon {
+    transition: transform var(--t-gesture) var(--ease-io);
+  }
+
+  .entry__link:hover .entry__link-icon {
+    transform: translate(2px, -2px);
+  }
+
+  @media (min-width: 768px) {
+    /* 两个产品并列占上行，社区占下方窄行（文档 §产品与社区） */
+    .ecosystem__products {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     FireUG 社区卡片。设计方向参考 fireusergroup.com —— 深底、品牌红斜切光、
+     平台入口按钮、三格数据；实现全部用本站令牌，未取用对方素材。
+     ══════════════════════════════════════════════════════════════════════ */
+  .community {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    margin-block-start: 27px;
+    padding: var(--s-24);
+    border: 1px solid var(--c-hairline);
+    border-radius: 18px;
+    background: var(--c-surface-deep);
+  }
+
+  /* 右上角的品牌红斜切辉光，对应对方页面上的红色斜块。纯装饰。 */
+  .community__glow {
+    position: absolute;
+    z-index: -1;
+    inset-block-start: -40%;
+    inset-inline-end: -10%;
+    inline-size: 55%;
+    aspect-ratio: 1;
+    background: radial-gradient(circle, rgb(204 65 65 / 22%), transparent 68%);
+    pointer-events: none;
+  }
+
+  .community__name {
+    margin-block-start: var(--s-8);
+    font-size: var(--fs-h2);
+    line-height: var(--lh-h2);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .community__logo {
+    margin-block-start: var(--s-8);
+    /* 48px 让图里的 FireUG 字样解析到约 32px，接近它替代的 .community__name。 */
+    block-size: 48px;
+    inline-size: auto;
+    max-inline-size: 100%;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .community__tagline {
+    margin-block-start: var(--s-8);
+    font-size: var(--fs-lead);
+    line-height: 1.5;
+    color: var(--c-brand-text);
+  }
+
+  .community__desc {
+    margin-block-start: var(--s-12);
+    max-inline-size: 52ch;
+    color: var(--c-text-2);
+  }
+
+  .community__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-12);
+    margin-block-start: var(--s-24);
+  }
+
+  /* 平台入口：描边胶囊，悬停转品牌红边 */
+  .community__channel {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-8);
+    min-block-size: var(--touch);
+    padding: 9px 18px;
+    border: 1px solid var(--c-control);
+    border-radius: 999px;
+    color: var(--c-text);
+    font-size: var(--fs-body);
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      border-color var(--t-hover) var(--ease),
+      background-color var(--t-hover) var(--ease);
+  }
+
+  .community__channel:hover {
+    border-color: var(--c-brand);
+    background: rgb(204 65 65 / 10%);
+  }
+
+  .community__channel-icon {
+    inline-size: 20px;
+    block-size: 20px;
+    flex-shrink: 0;
+    color: var(--c-brand); /* 图标：非文字内容，≥3:1 */
+  }
+
+  /* 三格数据。数字不做滚动计数（交接文档 §4）。 */
+  .community__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    margin-block-start: var(--s-24);
+    padding-block-start: var(--s-24);
+    border-block-start: 1px solid var(--c-hairline);
+  }
+
+  .community__stat + .community__stat {
+    padding-inline-start: var(--s-16);
+    border-inline-start: 1px solid var(--c-hairline);
+  }
+
+  .community__stat dt {
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    color: var(--c-text-3);
+  }
+
+  .community__stat dd {
+    margin: 0;
+    font-size: var(--fs-h3);
+    line-height: 1.2;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (min-width: 768px) {
+    .community {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: var(--s-48);
+      padding: 36px;
+    }
+
+    .community__stats {
+      margin-block-start: 0;
+      padding-block-start: 0;
+      border-block-start: 0;
+      min-inline-size: 320px;
+    }
+  }
+}

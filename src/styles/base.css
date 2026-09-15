@@ -1,0 +1,147 @@
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    /* 弹层隐藏滚动条时不产生 15px 横向跳动 */
+    scrollbar-gutter: stable;
+    /* scroll-behavior 刻意不在 CSS 设置 —— 平滑滚动由 JS 读取同一个动效开关，
+       避免出现第二处需要为「减少动态效果」维护的配置。 */
+    -webkit-text-size-adjust: 100%;
+    background-color: var(--c-bg);
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--c-bg);
+    color: var(--c-text);
+    font-family:
+      'Inter Variable',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      'PingFang SC',
+      'Hiragino Sans GB',
+      'Microsoft YaHei',
+      'Source Han Sans SC',
+      sans-serif;
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    font-synthesis-weight: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* 溢出用 clip 而非 hidden：hidden 会静默破坏 position:sticky */
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  figure,
+  dl,
+  dd,
+  ol,
+  ul {
+    margin: 0;
+  }
+
+  /* hidden 属性必须真正生效。
+     本文件之外的类选择器（如 .wecom__qr{display:inline-block}）优先级高于
+     UA 的 [hidden]{display:none}，若不加这条，JS 设置的 hidden 只改属性、
+     元素仍在版面与 Tab 序列中 —— 弹层的焦点循环会落到不可见的控件上。 */
+  [hidden] {
+    display: none !important;
+  }
+
+  ul,
+  ol {
+    padding: 0;
+    list-style: none;
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  h1 {
+    font-size: var(--fs-h1);
+    line-height: var(--lh-h1);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  h2 {
+    font-size: var(--fs-h2);
+    line-height: var(--lh-h2);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+
+  h3 {
+    font-size: var(--fs-h3);
+    line-height: var(--lh-h3);
+    font-weight: 600;
+  }
+
+  /* 键盘焦点：文档 §3 —— #F5F5F5，2px 外描边、3px 间隔。
+     用 outline 而非 box-shadow，以便在 forced-colors 下依然存在。 */
+  :focus-visible {
+    outline: 2px solid var(--c-focus);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* 锚点定位后标题与固定导航之间保留 24px（文档 §2） */
+  :where(main, main [id], footer[id]) {
+    scroll-margin-top: calc(var(--nav-h) + var(--s-24));
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* 页面首个键盘入口（文档 §2）。z-index 必须高于吸顶导航，
+     否则跳转链接会出现在导航栏后面。 */
+  .skip-link {
+    position: fixed;
+    inset-block-start: var(--s-8);
+    inset-inline-start: var(--s-8);
+    z-index: 200;
+    padding: var(--s-12) var(--s-16);
+    background: var(--c-brand);
+    color: var(--c-on-brand);
+    border-radius: var(--r-btn);
+    font-size: var(--fs-small);
+    text-decoration: none;
+    transform: translateY(-250%);
+    transition: transform var(--t-hover) var(--ease);
+  }
+
+  .skip-link:focus-visible {
+    transform: none;
+  }
+}

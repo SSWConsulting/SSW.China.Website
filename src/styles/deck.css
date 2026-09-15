@@ -1,0 +1,455 @@
+/* 演示轮播页（/deck/）的完整样式表 —— 与 index.css 平行，不被它引入。
+   层级顺序与 index.css 一致：motion 仍在最后，动效总开关照常能覆盖这里的一切。 */
+@layer tokens, base, layout, components, motion;
+
+@import './fonts.css';
+@import './tokens.css';
+@import './base.css';
+@import './motion.css';
+
+@layer components {
+  /* ══ 舞台 ═════════════════════════════════════════════════════════════
+     JS 在跑时轮播只在自己这一屏里活动，页面本身不滚动。
+     JS 不跑时（html:not(.js) 分支）七页依次纵向排开，页面照常滚动 ——
+     没有脚本也是一份完整可读的内容，不是一张空白幻灯片。 */
+  .js .deck-page {
+    overflow: hidden;
+  }
+
+  .deck {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+    background-color: var(--c-bg);
+  }
+
+  .deck__stage {
+    position: relative;
+    flex: 1;
+    /* 七页叠在同一个网格单元里，舞台高度取最高的一页。
+       perspective 定在舞台上 ⇒ 同一页里所有卡片共用一个消失点，
+       逐个入场时看起来是同一个空间里的一组物体，而不是各转各的。 */
+    display: grid;
+    grid-template-areas: 'stage';
+    perspective: 1600px;
+    perspective-origin: 50% 42%;
+    overflow: hidden;
+  }
+
+  html:not(.js) .deck__stage {
+    display: block;
+    perspective: none;
+  }
+
+  html:not(.js) .dslide {
+    min-height: 100svh;
+    border-bottom: 1px solid var(--c-hairline);
+  }
+
+  .dslide {
+    grid-area: stage;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--s-16);
+    padding: clamp(var(--s-48), 5.5vw, 104px);
+    padding-bottom: clamp(var(--s-64), 9vw, 128px);
+    transform-style: preserve-3d;
+  }
+
+  /* 页面深处的品牌红光晕：给 3D 入场一个「远处」的参照。
+     纯装饰，由 --c-brand 派生，不新增颜色。 */
+  .dslide::before {
+    content: '';
+    position: absolute;
+    inset: -20% 40% 30% -15%;
+    /* 径向渐变本身就是软边，**不要再叠 filter: blur()** ——
+       在这么大一块面积上，模糊是每帧一次的昂贵重绘，和同屏的 3D 变换叠在一起
+       就是肉眼可见的掉帧。 */
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--c-brand) 22%, transparent),
+      transparent
+    );
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  .dslide--cover::before {
+    inset: -30% -10% 20% 45%;
+  }
+
+  /* 每页背后的巨大数字。装饰，aria-hidden。 */
+  .dslide__ghost {
+    position: absolute;
+    right: clamp(var(--s-24), 3vw, var(--s-64));
+    top: 50%;
+    translate: 0 -50%;
+    font-size: clamp(180px, 32vw, 580px);
+    font-weight: 800;
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+    color: var(--c-panel);
+    opacity: 0.7;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* ══ 文字 ════════════════════════════════════════════════════════════ */
+  /* 正文压在光晕与巨大数字之上。**排除 .dslide__ghost** ——
+     它本身是绝对定位的，这里若把它一起改成 relative，它会掉回文档流，
+     变成版面顶部一个巨大的数字。 */
+  .dslide > *:not(.dslide__ghost) {
+    position: relative;
+  }
+
+  .dslide__kicker {
+    display: flex;
+    align-items: center;
+    gap: var(--s-12);
+    font-size: clamp(14px, 1.3vw, 23px);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--c-brand-text);
+  }
+
+  .dslide__kicker::before {
+    content: '';
+    width: clamp(24px, 3vw, 56px);
+    height: 2px;
+    background-color: var(--c-brand); /* 图标 */
+  }
+
+  .dslide__title {
+    font-size: clamp(30px, 4.8vw, 92px);
+    line-height: 1.12;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    color: var(--c-text);
+    text-wrap: balance;
+  }
+
+  .dslide__title--xl {
+    font-size: clamp(38px, 6.6vw, 128px);
+  }
+
+  .dslide__lead {
+    font-size: clamp(16px, 1.9vw, 34px);
+    color: var(--c-text-2);
+  }
+
+  .dslide__lead--lg {
+    font-size: clamp(18px, 2.2vw, 40px);
+    letter-spacing: 0.06em;
+  }
+
+  .dslide__foot {
+    margin-top: var(--s-16);
+    font-size: clamp(13px, 1.15vw, 21px);
+    color: var(--c-text-3);
+  }
+
+  /* ══ 封面 ════════════════════════════════════════════════════════════ */
+  .dslide--cover {
+    gap: var(--s-24);
+  }
+
+  .dslide__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-12);
+    margin: var(--s-16) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .dslide__tags li {
+    padding: var(--s-12) var(--s-24);
+    border: 1px solid var(--c-brand);
+    border-radius: 999px;
+    font-size: clamp(13px, 1.3vw, 24px);
+    font-weight: 700;
+    color: var(--c-text);
+  }
+
+  .dslide__cta {
+    margin-top: var(--s-16);
+  }
+
+  .dbtn {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--btn-h);
+    padding: 0 var(--s-32);
+    border-radius: 999px;
+    background-color: var(--c-brand);
+    color: var(--c-on-brand);
+    font-size: clamp(14px, 1.3vw, 24px);
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color var(--t-hover) var(--ease);
+  }
+
+  .dbtn:hover {
+    background-color: var(--c-brand-hover);
+  }
+
+  /* ══ 卡片网格 ═════════════════════════════════════════════════════════ */
+  .dgrid {
+    display: grid;
+    gap: clamp(var(--s-16), 1.6vw, var(--s-32));
+    margin: var(--s-24) 0 0;
+    padding: 0;
+    list-style: none;
+    transform-style: preserve-3d;
+  }
+
+  .dgrid--3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .dgrid--4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .dcard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-8);
+    padding: clamp(var(--s-24), 2.2vw, var(--s-48));
+    border: 1px solid var(--c-hairline);
+    border-radius: var(--r-panel);
+    background-color: var(--c-panel);
+    /* 卡片自己也是 3D 面：入场时绕 Y 轴转正，之后极轻微地浮动。 */
+    transform-style: preserve-3d;
+  }
+
+  .dcard--solid {
+    background-color: var(--c-surface-deep);
+  }
+
+  .dcard__num {
+    display: grid;
+    place-items: center;
+    width: clamp(32px, 2.8vw, 54px);
+    aspect-ratio: 1;
+    margin-bottom: var(--s-12);
+    border-radius: 50%;
+    background-color: var(--c-brand);
+    color: var(--c-on-brand);
+    font-size: clamp(12px, 1.05vw, 20px);
+    font-weight: 700;
+  }
+
+  .dcard__title {
+    font-size: clamp(19px, 2.1vw, 38px);
+    line-height: 1.25;
+    font-weight: 700;
+    color: var(--c-text);
+  }
+
+  .dcard__sub {
+    font-size: clamp(13px, 1.25vw, 23px);
+    color: var(--c-text-2);
+  }
+
+  .dcard__list {
+    margin: var(--s-12) 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--s-8);
+    font-size: clamp(13px, 1.25vw, 23px);
+    font-weight: 700;
+    color: var(--c-brand-text);
+  }
+
+  .dcard__list li::before {
+    content: '— ';
+  }
+
+  /* 流程页：卡片之间的红色连接线。纯装饰，顺序由 <ol> 承载。 */
+  .dgrid--flow .dcard {
+    position: relative;
+  }
+
+  .dgrid--flow .dcard + .dcard::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: calc(clamp(var(--s-16), 1.6vw, var(--s-32)) * -1);
+    width: clamp(var(--s-16), 1.6vw, var(--s-32));
+    height: 2px;
+    background-color: var(--c-brand); /* 图标 */
+  }
+
+  /* ══ 进度条与控件条 ═══════════════════════════════════════════════════ */
+  .deck__progress {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 4px;
+    background-color: var(--c-hairline);
+    z-index: 2;
+  }
+
+  .deck__progress span {
+    display: block;
+    height: 100%;
+    width: 100%;
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    background-color: var(--c-brand); /* 图标 */
+  }
+
+  .deck__bar {
+    position: absolute;
+    inset: auto 0 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: var(--s-16);
+    padding: var(--s-16) clamp(var(--s-24), 4vw, var(--s-64));
+  }
+
+  .deck__btn {
+    min-height: var(--touch);
+    padding: 0 var(--s-16);
+    border: 1px solid var(--c-control);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--c-text-2);
+    font: inherit;
+    font-size: var(--fs-small);
+    cursor: pointer;
+    transition: color var(--t-hover) var(--ease);
+  }
+
+  .deck__btn:hover {
+    color: var(--c-text);
+  }
+
+  .deck__dots {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    gap: var(--s-12);
+  }
+
+  .deck__dots button {
+    width: var(--touch);
+    height: var(--touch);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .deck__dots button::before {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background-color: var(--c-control);
+    transition: background-color var(--t-hover) var(--ease);
+  }
+
+  .deck__dots button[aria-current='true']::before {
+    background-color: var(--c-brand); /* 图标 */
+  }
+
+  /* ══ 窄屏：一列，并允许该页自己滚动（现场用手机看也成立） ═══════════════ */
+  @media (width < 900px) {
+    .dgrid--3,
+    .dgrid--4 {
+      grid-template-columns: 1fr;
+    }
+
+    .dslide {
+      justify-content: flex-start;
+      overflow-y: auto;
+      padding: var(--s-48) var(--gutter) var(--s-96);
+    }
+
+    .dslide__ghost {
+      display: none;
+    }
+
+    .dgrid--flow .dcard + .dcard::before {
+      display: none;
+    }
+  }
+}
+
+@layer motion {
+  /* ── 页与页的切换 ────────────────────────────────────────────────────
+     只负责「哪一页在台上」，**不做任何淡入淡出**。
+     切换的观感全部由页内元素各自的入场承担；父层再叠一层整页淡出，
+     结果是上一页还在画面上半透明地压着下一页的元素（双倍绘制 + 叠影），
+     正是「弹出时看起来卡」的另一半原因。 */
+  .js .dslide {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  .js .dslide.is-current {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* ── 页内元素逐个 3D 入场 ────────────────────────────────────────────
+     只作用于**当前页**：离场即撤下动画，元素回到基础规则写好的终态。
+     --i 是元素在本页的序号（写在 HTML 里，是序号不是时长），
+     每一位乘 --t-deck-stagger ⇒ 一个接一个飞进来。
+     fill-mode: backwards ⇒ 延迟期间保持 @keyframes 的起始态（在远处、透明）。 */
+  .js .dslide.is-current > *:not(.dslide__ghost, .dgrid) {
+    animation: deck-rise-in var(--t-deck-in) var(--ease) backwards;
+    animation-delay: calc(var(--i, 0) * var(--t-deck-stagger));
+    will-change: transform, opacity;
+  }
+
+  /* 卡片网格本身不入场 —— 它入场就等于把里面的卡片一起带出来了，
+     那样逐张转正的节奏会被父元素的淡入盖掉。网格只是容器，交给卡片各自出场。 */
+
+  /* 封面的三个标签同样一个一个来。 */
+  .js .dslide.is-current .dslide__tags li {
+    animation: deck-card-in var(--t-deck-in) var(--ease) backwards;
+    animation-delay: calc((var(--i, 0) + 3) * var(--t-deck-stagger));
+  }
+
+  /* 卡片比标题晚一拍，并且逐张转正；转正后接一段极轻微的持续浮动。
+     消费 --ambient 必须用 animation-name 长写法（见 CLAUDE.md）。 */
+  .js .dslide.is-current .dcard {
+    animation-name: deck-card-in, var(--ambient, deck-float);
+    animation-duration: var(--t-deck-in), var(--t-deck-ambient);
+    animation-timing-function: var(--ease), ease-in-out;
+    animation-delay:
+      calc((var(--i, 0) + 2) * var(--t-deck-stagger)),
+      calc(var(--t-deck-in) + (var(--i, 0) + 2) * var(--t-deck-stagger));
+    animation-iteration-count: 1, infinite;
+    /* 第二个必须是 none。两条动画都写 transform，列表里靠后的赢 ——
+       若给浮动也写 backwards/both，它会在自己的延迟期间用 0%（无变换）
+       盖掉入场动画的位移与旋转：卡片只淡入、不飞入，等延迟一到又突然接管，
+       看上去就是「弹出时卡一下」。none 让它在真正开始前完全不参与层叠。 */
+    animation-fill-mode: backwards, none;
+    /* 入场与浮动都只动 transform / opacity，提前提层，避免每帧重新栅格化文字。 */
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+  }
+
+  /* 背后的巨大数字从更远处推上来，比正文再慢一点。 */
+  /* 巨大数字是整页最大的一块栅格，动它一定要提层，否则每帧重画一遍。 */
+  .js .dslide.is-current .dslide__ghost {
+    animation: deck-ghost-in calc(var(--t-deck-in) * 1.6) var(--ease) backwards;
+    will-change: transform, opacity;
+  }
+
+  /* 进度条按停留时长线性走完。停留时长不乘 --motion（见 DECISIONS §58），
+     所以关掉动效后进度条依然如实反映「还有多久翻页」。 */
+  .deck__progress.is-running span {
+    animation: deck-progress var(--t-deck-dwell) linear forwards;
+  }
+}

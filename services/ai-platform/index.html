@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>AI 中台建设｜SSW</title>
+    <meta
+      name="description"
+      content="统一模型接入、企业知识库、权限与治理，为不同团队和业务场景提供可复用的 AI 基础能力。"
+    />
+    <!-- @include partials/head.html -->
+  </head>
+
+  <body class="service-design-page service-design-page--ai-platform">
+    <!-- @include partials/body-start.html -->
+
+    <main id="main" tabindex="-1">
+      <nav class="breadcrumb" aria-label="面包屑">
+        <div class="container">
+          <ol>
+            <li><a href="/">首页</a></li>
+            <li><a href="/#ai-services">AI 服务</a></li>
+            <li aria-current="page">AI 中台建设</li>
+          </ol>
+        </div>
+      </nav>
+
+      <!-- 页面标题与导语不挂 data-reveal —— 首屏文字必须立即可读（交接文档 §4）。 -->
+      <section class="section page-head" aria-labelledby="page-title">
+        <div class="service-hero-media" aria-hidden="true">
+          <img src="/media/services/ai-platform-hero.png" width="1916" height="821" alt="" fetchpriority="high" />
+        </div>
+        <div class="container page-head__inner">
+          <div class="page-head__copy">
+            <h1 id="page-title">AI 中台建设</h1>
+            <p class="lead page-head__lede">统一企业 AI 基础能力</p>
+            <p class="page-head__body">
+              统一模型接入、企业知识库、权限与治理，为不同团队和业务场景提供可复用的 AI 基础能力。
+            </p>
+            <div class="btn-row page-head__actions">
+              <a class="btn btn--primary" href="#wecom" data-wecom>添加企业微信</a>
+              <a class="btn" href="#usecases">查看典型场景</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-lg pillars" aria-labelledby="platform-value-title">
+        <div class="container">
+          <div class="head" data-reveal-group>
+            <p class="eyebrow" data-reveal>为什么需要 AI 中台</p>
+            <h2 id="platform-value-title" class="display" data-reveal data-words>让每个团队使用同一套可靠的 AI 能力</h2>
+          </div>
+          <div class="pillars__body">
+            <p class="pillars__intro" data-reveal>
+              当不同团队各自接模型、建知识库、处理权限，成本和风险都会重复出现。AI
+              中台把这些共性能力统一起来，让新的业务场景可以更快开始。
+            </p>
+            <ol class="pillars__list" data-reveal-group>
+              <li class="pillar" data-reveal>
+                <span class="pillar__num" aria-hidden="true">I</span>
+                <div>
+                  <h3 class="pillar__title">能力可以复用</h3>
+                  <p class="pillar__text">模型、知识检索与安全能力建设一次，供多个应用和团队按需使用。</p>
+                </div>
+              </li>
+              <li class="pillar" data-reveal>
+                <span class="pillar__num" aria-hidden="true">II</span>
+                <div>
+                  <h3 class="pillar__title">管理有统一入口</h3>
+                  <p class="pillar__text">集中管理模型、访问权限、使用记录与成本，减少各自为政带来的盲区。</p>
+                </div>
+              </li>
+              <li class="pillar" data-reveal>
+                <span class="pillar__num" aria-hidden="true">III</span>
+                <div>
+                  <h3 class="pillar__title">模型可以替换</h3>
+                  <p class="pillar__text">业务应用不与单一模型绑死，可以根据效果、成本与合规要求调整选择。</p>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-lg service-usecases" id="usecases" aria-labelledby="platform-usecases-title">
+        <div class="container">
+          <div class="head" data-reveal-group>
+            <p class="eyebrow" data-reveal>典型场景</p>
+            <h2 id="platform-usecases-title" class="display" data-reveal data-words>什么时候值得建设 AI 中台</h2>
+            <p class="head__intro" data-reveal>
+              当 AI 从一次试验变成多个团队都要使用的能力，就需要一层稳定的基础设施。
+            </p>
+          </div>
+          <ul class="service-usecases__grid" data-reveal-group>
+            <li data-reveal>
+              <span>01</span>
+              <h3>多个 AI 应用同时推进</h3>
+              <p>为客服、销售、运营与内部工具提供统一的模型调用方式。</p>
+            </li>
+            <li data-reveal>
+              <span>02</span>
+              <h3>企业知识需要统一检索</h3>
+              <p>连接分散在文档库与业务系统中的信息，并保留来源与权限边界。</p>
+            </li>
+            <li data-reveal>
+              <span>03</span>
+              <h3>模型使用需要治理</h3>
+              <p>记录谁在调用什么能力，控制可用模型、数据范围、配额与成本。</p>
+            </li>
+            <li data-reveal>
+              <span>04</span>
+              <h3>已有平台需要增加 AI 层</h3>
+              <p>把 AI 作为可复用服务接进现有技术体系，避免每个项目重复搭建。</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 详细说明承接上方标题区，不另设可达名称，避免与 page-title 重复标注。 -->
+      <section class="section services page-detail" aria-labelledby="platform-capabilities-title">
+        <div class="container">
+          <div class="head page-detail__head" data-reveal-group>
+            <p class="eyebrow" data-reveal>核心能力</p>
+            <h2 id="platform-capabilities-title" class="display display--sm" data-reveal>中台统一管理的三个部分</h2>
+          </div>
+          <div class="service">
+            <div class="service__copy" data-reveal-group>
+              <dl class="capabilities">
+                <div class="capability" data-reveal>
+                  <dt>模型接入</dt>
+                  <dd>统一接入与使用不同模型，让业务应用按需调用。</dd>
+                </div>
+                <div class="capability" data-reveal>
+                  <dt>企业知识库</dt>
+                  <dd>连接企业文档与知识，让 AI 回答有业务依据。</dd>
+                </div>
+                <div class="capability" data-reveal>
+                  <dt>权限与治理</dt>
+                  <dd>结合企业权限要求，管理 AI 能力与知识的访问范围。</dd>
+                </div>
+              </dl>
+              <p class="service__fit" data-reveal>
+                <span class="service__fit-label">适合场景</span>
+                多个团队需要共享 AI 能力，希望减少重复建设并统一管理。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-lg scope" id="scope" aria-labelledby="platform-scope-title">
+        <div class="container scope__layout">
+          <div class="scope__intro" data-reveal>
+            <p class="eyebrow">交付范围</p>
+            <h2 id="platform-scope-title" class="display">从底层接入，<br />到可管理的平台能力</h2>
+            <p class="head__intro">架构、知识、权限与运维一起设计，确保平台能被业务应用持续使用。</p>
+            <div class="scope__fit">
+              <span class="scope__fit-label">适合这样的你</span>
+              <p>多个团队需要共享 AI 能力，希望减少重复建设并统一管理。</p>
+            </div>
+          </div>
+          <div class="scope__deliverables" data-reveal-group>
+            <details class="deliverable" open data-reveal>
+              <summary>
+                <span class="deliverable__number">01</span
+                ><span class="deliverable__heading"
+                  ><span class="deliverable__title">平台架构</span
+                  ><span class="deliverable__subtitle">确定能力边界与接入方式</span></span
+                ><span class="deliverable__toggle"></span>
+              </summary>
+              <div class="deliverable__body">
+                <p>梳理业务应用、数据来源与现有基础设施，设计可扩展的 AI 服务层。</p>
+                <ul class="deliverable__outputs">
+                  <li>架构方案</li>
+                  <li>模型网关</li>
+                  <li>接口规范</li>
+                </ul>
+              </div>
+            </details>
+            <details class="deliverable" open data-reveal>
+              <summary>
+                <span class="deliverable__number">02</span
+                ><span class="deliverable__heading"
+                  ><span class="deliverable__title">知识与数据</span
+                  ><span class="deliverable__subtitle">让回答有企业依据</span></span
+                ><span class="deliverable__toggle"></span>
+              </summary>
+              <div class="deliverable__body">
+                <p>连接企业文档与业务数据，建立更新、检索、引用和权限继承机制。</p>
+                <ul class="deliverable__outputs">
+                  <li>数据连接</li>
+                  <li>知识检索</li>
+                  <li>来源引用</li>
+                </ul>
+              </div>
+            </details>
+            <details class="deliverable" open data-reveal>
+              <summary>
+                <span class="deliverable__number">03</span
+                ><span class="deliverable__heading"
+                  ><span class="deliverable__title">治理与运维</span
+                  ><span class="deliverable__subtitle">让平台安全、透明、可持续</span></span
+                ><span class="deliverable__toggle"></span>
+              </summary>
+              <div class="deliverable__body">
+                <p>配置访问控制、日志、评估与成本监控，为上线后的持续运营建立基础。</p>
+                <ul class="deliverable__outputs">
+                  <li>权限控制</li>
+                  <li>使用审计</li>
+                  <li>质量与成本监控</li>
+                </ul>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-lg process" id="process" aria-labelledby="platform-process-title">
+        <div class="container">
+          <div class="head" data-reveal-group>
+            <p class="eyebrow" data-reveal>合作流程</p>
+            <h2 id="platform-process-title" class="display" data-reveal data-words>从一项共性需求开始，逐步形成平台</h2>
+          </div>
+          <ol class="process__list" data-reveal-group>
+            <li class="pstep" data-reveal>
+              <span class="pstep__num">01</span>
+              <div>
+                <h3 class="pstep__title">现状评估</h3>
+                <p class="pstep__text">盘点应用、数据、权限要求和正在进行的 AI 项目。</p>
+              </div>
+            </li>
+            <li class="pstep" data-reveal>
+              <span class="pstep__num">02</span>
+              <div>
+                <h3 class="pstep__title">平台蓝图</h3>
+                <p class="pstep__text">确定先建设哪些共性能力，以及首批接入的业务场景。</p>
+              </div>
+            </li>
+            <li class="pstep" data-reveal>
+              <span class="pstep__num">03</span>
+              <div>
+                <h3 class="pstep__title">建设与验证</h3>
+                <p class="pstep__text">交付核心平台，并通过真实应用验证能力是否可用。</p>
+              </div>
+            </li>
+            <li class="pstep" data-reveal>
+              <span class="pstep__num">04</span>
+              <div>
+                <h3 class="pstep__title">推广与治理</h3>
+                <p class="pstep__text">帮助更多团队接入，持续观察质量、成本与安全。</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section-lg service-beyond" aria-labelledby="platform-beyond-title">
+        <div class="container">
+          <div class="head" data-reveal-group>
+            <p class="eyebrow" data-reveal>平台之外</p>
+            <h2 id="platform-beyond-title" class="display" data-reveal data-words>中台要和业务应用一起工作</h2>
+            <p class="head__intro" data-reveal>平台价值来自真实使用。我们也能继续完成上层应用、工作流与团队赋能。</p>
+          </div>
+          <ul class="beyond__grid" data-reveal-group>
+            <li class="beyond__item" data-reveal>
+              <h3 class="beyond__title">AI 应用定制</h3>
+              <p class="beyond__text">基于中台能力，为具体用户和任务开发应用。</p>
+            </li>
+            <li class="beyond__item" data-reveal>
+              <h3 class="beyond__title">业务工作流</h3>
+              <p class="beyond__text">让平台能力进入已有系统与任务流转。</p>
+            </li>
+            <li class="beyond__item" data-reveal>
+              <h3 class="beyond__title">质量评估</h3>
+              <p class="beyond__text">用真实业务样本评估回答质量与风险。</p>
+            </li>
+            <li class="beyond__item" data-reveal>
+              <h3 class="beyond__title">团队赋能</h3>
+              <p class="beyond__text">建立接入规范，帮助内部团队安全地使用平台。</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section-lg faq" aria-labelledby="platform-faq-title">
+        <div class="container">
+          <div class="head" data-reveal-group>
+            <p class="eyebrow" data-reveal>问与答</p>
+            <h2 id="platform-faq-title" class="display" data-reveal data-words>常见问题</h2>
+          </div>
+          <div class="faq__list" data-reveal-group>
+            <details class="faq__item" data-reveal>
+              <summary class="faq__q">是不是一开始就要建设完整中台？</summary>
+              <div class="faq__a">
+                <p>不需要。通常从一个有明确价值的共性能力和一两个真实场景开始，再根据使用情况扩展。</p>
+              </div>
+            </details>
+            <details class="faq__item" data-reveal>
+              <summary class="faq__q">能接入我们已经在用的模型和云服务吗？</summary>
+              <div class="faq__a"><p>可以。方案会结合现有技术栈、采购协议、部署环境与合规要求设计。</p></div>
+            </details>
+            <details class="faq__item" data-reveal>
+              <summary class="faq__q">企业知识如何控制访问权限？</summary>
+              <div class="faq__a">
+                <p>知识检索应继承企业原有的身份与权限规则，让用户只能获得其本来就有权访问的信息。</p>
+              </div>
+            </details>
+            <details class="faq__item" data-reveal>
+              <summary class="faq__q">如何避免被单一模型绑定？</summary>
+              <div class="faq__a"><p>通过统一的模型接入层隔离业务应用与供应商接口，并用评估数据支持模型切换。</p></div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="section services page-more" aria-labelledby="more-title">
+        <div class="container">
+          <div class="section__head" data-reveal-group>
+            <span class="accent-rule" data-reveal aria-hidden="true"></span>
+            <h2 id="more-title" data-reveal>其他 AI 服务</h2>
+          </div>
+
+          <div class="core-cards" data-core-cards>
+            <ul class="core-cards__track" data-core-track data-reveal-group>
+              <!-- @include partials/card-workflow.html -->
+              <!-- @include partials/card-apps.html -->
+            </ul>
+            <div class="core-cards__dots" data-core-dots hidden></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- @include sections/cta.html -->
+    </main>
+
+    <!-- @include partials/body-end.html -->
+  </body>
+</html>

@@ -1,0 +1,242 @@
+@layer tokens {
+  /* ══════════════════════════════════════════════════════════════════════
+     深色是默认主题（交接文档 §3 的设计值）。浅色主题在下方以
+     :root[data-theme='light'] 覆盖同一组语义令牌 —— 组件 CSS 一律只读令牌，
+     不出现任何 dark:/light: 分支。
+     ══════════════════════════════════════════════════════════════════════ */
+  :root {
+    /* ── 颜色：闭集，即交接文档 §3 的表格。不新增颜色。 ────────────────── */
+    --c-bg: #181818; /* 页面底色 */
+    --c-panel: #242424; /* 图形与面板底色 */
+    --c-charcoal: #333333; /* 品牌炭灰，次级结构 */
+    --c-text: #f5f5f5; /* 主文字   16.29:1 on bg */
+    --c-text-2: #bbbbbb; /* 次文字    9.25:1 on bg */
+    --c-text-3: #aaaaaa; /* 辅助文字  7.64:1 on bg */
+    --c-brand: #cc4141; /* 品牌红    3.72:1 on bg → 仅大字号与 UI 边界 */
+    /* 悬停／按下的红：取自 ssw.com.au 实测值。线上按钮是
+       `bg-ssw-red hover:bg-sswDarkRed`，其中
+       `.hover\:bg-sswDarkRed:hover { background-color: rgb(142 44 44) }`
+       —— 即 #8e2c2c，比交接文档 §3 原定的 #b93636 深不少，白字 8.24:1（原 5.76:1）。
+       按下态跟着往下压一档，保持 默认 > 悬停 > 按下 的深度顺序。 */
+    --c-brand-hover: #8e2c2c;
+    --c-brand-active: #7a2525;
+    --c-on-brand: #ffffff; /* 红底白字  4.77:1 最低态 */
+    /* 可用于文字的红：品牌红本身在深底上只有 3.72:1，达不到正文 4.5:1。
+       这里用 SSW 自有的 red.light（#d26e6e，5.24:1 on bg / 4.58:1 on panel）。 */
+    --c-brand-text: #d26e6e;
+    --c-divider: #404040; /* 装饰分隔线 1.71:1 → 仅装饰，绝不作唯一控件边界 */
+    --c-control: #797979; /* 控件边界  4.08:1 → 承载语义的连线下限 */
+    --c-focus: #f5f5f5; /* 键盘焦点 */
+    /* 导航条自成一档（ssw.com.au 深色态 #090909 / 浅色态 #ffffff） */
+    --c-nav-bg: #181818;
+    --c-nav-border: rgb(255 255 255 / 30%);
+    /* 核心服务卡片自成一档（照搬 ssw.com.au：--background-base #171717、
+       悬停时底层 #151515 由 60% 不透明度升到 100%、--hairline #212121）。 */
+    /* 卡片底色是**独立的一层**，与 ssw.com.au 同机制：
+       深色态 #151515 以 60% 不透明度铺在卡片上，悬停升到 100%。 */
+    --c-card-layer: #151515;
+    --c-card-layer-op: 0.6;
+    /* 下面两个只供 check:contrast 用 —— 是上面那层解析后的实际底色。
+       --c-card 取最坏情况：60% 的 #151515 压在「氛围光晕允许的最亮值」
+       #242424 上的混合结果（见 docs/DECISIONS.md 的光晕硬上限）。 */
+    --c-card: #1b1b1b;
+    --c-card-hover: #151515;
+    --c-hairline: #212121;
+    --c-case-card: #212121; /* 案例副卡底色（线上深色态 bg-sswBorder） */
+    --c-surface-deep: #0d0d0d; /* 说明卡与徽章底色（线上 dark:bg-sswCard） */
+    --c-badge-border: rgb(255 255 255 / 5%);
+    /* AI 应用定制页首屏：白字压在压暗后的照片上，固定深色、不随主题翻转。
+       --c-hero-worst 是**算出来的最坏底色**，供对比度守卫做静态测量：
+         底 #0d0d0d ← 照片以 28% 叠加（最坏取纯白）→ 81
+         再叠自下而上的渐变（最浅一档 55% 的 #0d0d0d）→ 44 ⇒ #2c2c2c
+       实际观感只会比它更暗，所以按 #2c2c2c 校验是保守的。 */
+    /* 首屏底色**故意不放进浅色主题的覆盖块** —— 它必须两套主题都是深色，
+       否则浅色态下 --c-surface-deep 翻成白色，白字压白底。
+       与产品卡片、案例主卡同一处理：这一块是刻意固定的深色区。 */
+    --c-hero-ground: #0d0d0d;
+    --c-hero-ink: #ffffff;
+    --c-hero-ink-2: #dcdcdc;
+    --c-hero-worst: #2c2c2c;
+    /* 产品卡片（Tina / YakShaver）照搬 ssw.com.au/products。
+       线上那一页整段强制深色，因此这组颜色**两套主题相同**，不随主题翻转 ——
+       浅色态下它们是页面上两块刻意的深色产品图块。见 docs/DECISIONS.md §22。 */
+    --c-tina: #c2360d; /* Tina 卡片底色，白字 5.49:1 */
+    --c-tina-hover: #cf3a0e; /* 悬停，白字 4.92:1 */
+    --c-product-bg: #101010;
+    --c-product-bg-hover: #151515;
+    --c-product-line: #212121; /* 发丝边，装饰 */
+    --c-product-text: #ffffff;
+    --c-product-text-2: #c7c7c7; /* 线上是 rgb(255 255 255 / 78%) 在 #101010 上的等效值 */
+    /* 页脚同样固定深色（线上 bg-sswBorder 是固定色，不随主题变）。 */
+    --c-footer-bg: #212121;
+    --c-footer-head: #ffffff; /* 16.10:1 */
+    --c-footer-text: #cccccc; /* 10.02:1 */
+    --c-footer-text-2: #a6a6a6; /*  6.61:1 */
+    --logo-dark: block;
+    --logo-light: none;
+    color-scheme: dark;
+
+    /* ── 圆角：只有两个 ───────────────────────────────────────────────── */
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+
+    --r-btn: 6px;
+    --r-panel: 12px;
+
+    /* ── 间距刻度：8 / 12 / 16 / 24 / 32 / 48 / 64 / 96 ─────────────────── */
+    --s-8: 8px;
+    --s-12: 12px;
+    --s-16: 16px;
+    --s-24: 24px;
+    --s-32: 32px;
+    --s-48: 48px;
+    --s-64: 64px;
+    --s-96: 96px;
+
+    /* ── 结构（移动优先） ─────────────────────────────────────────────── */
+    --nav-h: 72px; /* 窄屏单行：40px 方形标记 / 44px 咨询按钮 + 上下留白 */
+    --gutter: 20px;
+    --section-y: 56px;
+    --container: 1280px;
+    --measure: 560px; /* 首屏副文案最大宽 */
+    --measure-prose: 760px; /* 关于 SSW 正文最大宽 */
+    --btn-h: 48px;
+    --touch: 44px;
+
+    /* ── 字号（移动优先；320px 窄屏档） ───────────────────────────────── */
+    --fs-h1: 32px;
+    --lh-h1: 1.18;
+    --fs-h2: 28px;
+    --lh-h2: 1.3;
+    --fs-service: 26px;
+    --lh-service: 1.35;
+    --fs-h3: 22px;
+    --lh-h3: 1.4;
+    --fs-body: 16px;
+    --lh-body: 1.75;
+    --fs-lead: 17px; /* 推断值；文档规定桌面 18px */
+    --fs-small: 14px;
+    --lh-small: 1.6;
+    --fs-eyebrow: 16px; /* 服务名称，两档相同 */
+
+    /* ── 动效：全部乘 var(--motion)，由 motion.css 的唯一开关归零 ──────── */
+    --motion: 1;
+    --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+    --ease-io: cubic-bezier(0.4, 0, 0.2, 1);
+    --t-hover: calc(160ms * var(--motion)); /* §4 悬停与焦点 */
+    --t-reveal: calc(240ms * var(--motion)); /* §4 正文渐显 */
+    /* 标题逐词入场的错帧步长（AI 应用定制页）。乘 var(--motion) ⇒ 关掉即归零。
+       正文档：12 档 × 28ms = 336ms 尾巴；
+       首屏档更紧：12 × 12ms = 144ms，+240ms 时长 = 384ms ≤ §4 的 390ms 上限。 */
+    --t-word-stagger: calc(28ms * var(--motion));
+    --t-word-stagger-hero: calc(12ms * var(--motion));
+    --t-modal: calc(200ms * var(--motion));
+    /* ══ 悬停手势的补间时长：300ms，**刻意不乘 var(--motion)** ══════════
+       用于卡片底色淡入、以及右下角箭头「旋转 45° + 放大」这一族手势。
+       与 ssw.com.au 的 duration-300 一致（线上同样没有 motion-reduce 变体）。
+       用户明确要求「我需要补间」—— 减少动效下也要真的补间，不是瞬间到位。
+       这是全站第二个不受动效总开关约束的地方（第一个是地球自转，见 §19）。
+       比交接文档 §4 的 160ms 悬停慢，同为用户要求的对齐项。 */
+    --t-gesture: 300ms;
+    /* 涟漪时长，同样不乘 var(--motion)：线上 0.6s ease-out */
+    --t-ripple: 600ms;
+    --t-draw: calc(600ms * var(--motion)); /* 单段连线绘制 */
+    --t-stagger: calc(120ms * var(--motion)); /* §4 节点错开 ~120ms */
+    --t-flow: calc(1200ms * var(--motion)); /* §4 流动高亮 1.2s */
+    --t-sheen: calc(600ms * var(--motion));
+    --rise: calc(12px * var(--motion)); /* §4 上移 12px */
+    --rise-sm: calc(8px * var(--motion));
+    --t-menu-stagger: calc(40ms * var(--motion));
+    /* 氛围循环周期。刻意不乘 --motion —— 它由 --ambient: none 关闭。 */
+    --t-ambient: 32s;
+
+    /* ══ 演示轮播（/deck/）══════════════════════════════════════════════
+       停留时长**刻意不乘 var(--motion)**：翻页是内容节奏，不是动效。
+       关掉动效要去掉的是页与页之间的淡入位移（--t-deck-switch / --deck-rise
+       都乘了 --motion），不是让轮播停在第一页。见 docs/DECISIONS.md §40。
+       deck.ts 读的就是这个令牌，时长只有这一处定义。 */
+    --t-deck-dwell: 8s;
+    --t-deck-switch: calc(420ms * var(--motion));
+    --deck-rise: calc(20px * var(--motion));
+    /* 逐个入场：每个元素比前一个晚 --t-deck-stagger 出场。
+       三个位移／角度量同样乘 --motion —— 关掉动效后位移、角度、时长一起归零，
+       元素直接落在终态（终态写在基础规则里，起始态只存在于 @keyframes）。 */
+    --t-deck-in: calc(720ms * var(--motion));
+    --t-deck-stagger: calc(110ms * var(--motion));
+    --deck-depth: calc(220px * var(--motion));
+    --deck-tilt: calc(18deg * var(--motion));
+    --deck-lift: calc(40px * var(--motion));
+    /* 卡片的持续浮动周期。与 --t-ambient 同机制：不乘 --motion，
+       由 --ambient: none 关闭（消费时必须用 animation-name 长写法）。 */
+    --t-deck-ambient: 9s;
+  }
+
+  /* ── 浅色主题 ─────────────────────────────────────────────────────────
+     每一项都已用 npm run contrast 校验：正文 ≥4.5:1、UI 边界 ≥3:1。 */
+  :root[data-theme='light'] {
+    --c-bg: #f9f9f9;
+    --c-panel: #ffffff;
+    --c-charcoal: #f2f2f2;
+    --c-text: #1a1a1a; /* 16.53:1 on bg */
+    --c-text-2: #4a4a4a; /* 8.42:1 on bg */
+    --c-text-3: #5f5f5f; /* 6.07:1 on bg */
+    --c-divider: #e5e7eb;
+    --c-control: #6b6b6b; /* 5.06:1 on bg */
+    --c-focus: #1a1a1a;
+    --c-brand-text: #cc4141; /* 浅底上品牌红本身即达标：4.53:1 / 4.77:1 */
+    --c-nav-bg: #ffffff;
+    --c-nav-border: #f2f2f2;
+    /* 浅色态 ssw.com.au 的卡片是纯白 + #e5e7eb 细边，悬停不改底色。 */
+    /* 浅色态线上是不透明纯白，悬停不改底色（dark: 前缀只在深色态生效） */
+    --c-card-layer: #ffffff;
+    --c-card-layer-op: 1;
+    --c-card: #ffffff;
+    --c-card-hover: #ffffff;
+    --c-hairline: #e5e7eb;
+    --c-case-card: #ffffff;
+    --c-surface-deep: #ffffff;
+    --c-badge-border: #e5e7eb;
+    --logo-dark: none;
+    --logo-light: block;
+    color-scheme: light;
+  }
+
+  /* 360px 起用 36px H1；320px 窄屏保持 32px（文档 §2） */
+  @media (min-width: 360px) {
+    :root {
+      --fs-h1: 36px;
+    }
+  }
+
+  @media (min-width: 640px) {
+    :root {
+      --nav-h: 120px; /* ssw.com.au 桌面导航条固定 120px */
+    }
+  }
+
+  @media (min-width: 768px) {
+    :root {
+      --gutter: 32px;
+      --section-y: 72px;
+    }
+  }
+
+  /* 字号档在 1024px 切换（与导航同步）。768–1023 沿用移动字号 —— 见 docs/DECISIONS.md */
+  @media (min-width: 1024px) {
+    :root {
+      --gutter: 40px;
+      --section-y: 96px;
+      --fs-h1: 64px;
+      --fs-h2: 40px;
+      --fs-service: 36px;
+      --fs-h3: 24px;
+      --fs-body: 17px;
+      --fs-lead: 18px;
+    }
+  }
+
+  @media (min-width: 1440px) {
+    :root {
+      --gutter: 80px;
+    }
+  }
+}

@@ -1,0 +1,485 @@
+@layer components {
+  /* ══════════════════════════════════════════════════════════════════════
+     导航条：外观照搬 ssw.com.au，行为保留吸顶。
+
+     ssw.com.au 的根字号是 18px，所有 rem 值都是 1.125 倍。本站根字号是 16px，
+     因此这里直接写解析后的像素值 —— 既能与线上完全对齐，又不会改动页面其余
+     部分按交接文档定义的字号体系。
+     ══════════════════════════════════════════════════════════════════════ */
+
+  .nav {
+    position: sticky;
+    inset-block-start: 0;
+    /* 必须高于遮罩：.nav 建立层叠上下文，抽屉是它的子元素，
+       子元素的 z-index 无法越过 .nav 自身的层级。 */
+    z-index: 110;
+    background: var(--c-nav-bg);
+    /* ssw.com.au：边框常显，而非滚动后才出现 */
+    border-block-end: 1px solid var(--c-nav-border);
+    transition: box-shadow var(--t-hover) var(--ease);
+  }
+
+  .nav.is-stuck {
+    box-shadow: 0 10px 30px -22px rgb(0 0 0 / 55%);
+  }
+
+  .nav-sentinel {
+    position: absolute;
+    inset-block-start: 0;
+    height: 1px;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  .nav__inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4.5px;
+    min-height: var(--nav-h);
+    /* ssw.com.au: max-w-9xl = 1548px，gutters 18px → 36px */
+    max-width: 1548px;
+    margin-inline: auto;
+    padding-inline: 18px;
+  }
+
+  .nav__brand {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    border-radius: var(--r-btn);
+  }
+
+  .nav__logo {
+    width: auto;
+    height: 28px;
+  }
+
+  /* 主题决定用哪一版标识；两版都是真实 SSW 素材 */
+  .nav__logo--dark {
+    display: var(--logo-dark);
+  }
+
+  .nav__logo--light {
+    display: var(--logo-light);
+  }
+
+  /* ── 桌面导航项 ─────────────────────────────────────────────────────── */
+  .nav__links ul {
+    display: flex;
+    align-items: center;
+    /* 菜单项之间留白。项本身左右还各有 9px 内边距，
+       所以文字与文字之间实际是 gap + 18px。
+       1024px 是导航条最紧的一档（再窄就切抽屉了），中文用的是系统字体、
+       PingFang 与微软雅黑字宽不同，这里留足余量；≥1280px 再放开。 */
+    gap: 13.5px;
+  }
+
+  .nav__links a {
+    display: flex;
+    align-items: center;
+    padding: 4.5px 9px;
+    border-radius: var(--r-btn);
+    /* 比 ssw.com.au 大一号、粗一号（线上是 text-sm 15.75px / 600）：用户要求。
+       字号 18px 生效了；**字重 700 对中文没有生效** —— PingFang SC 最重只到
+       Semibold(600)，700 只让「AI」这类西文变粗 12%，中文纹丝不动。
+       无补救余地（不引入中文 Web 字体），保留 700 不再折腾。详见 DECISIONS §49。 */
+    font-size: 18px;
+    line-height: 27px;
+    font-weight: 700;
+    color: var(--c-text);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color var(--t-hover) var(--ease);
+  }
+
+  /* 属性存在即当前项 —— 不写死取值：scrollspy 标本页区块用 'true'，
+     initCurrentPage() 标整页链接用 'page'。此前只匹配 'true'，
+     服务详情页与「落地中国」的高亮因此一直不生效。
+     `aria-current="false"` 从不出现（不当前就整个移除属性）。 */
+  .nav__links a:hover,
+  .nav__links a[aria-current] {
+    color: var(--c-brand-text);
+  }
+
+  .nav__panel-head {
+    display: none;
+  }
+
+  .nav__actions {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-shrink: 0;
+  }
+
+  /* ── 咨询按钮：ssw.com.au 的 “Let's Talk” 胶囊 ─────────────────────────── */
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    height: 54px;
+    padding-inline: 18px 4.5px;
+    border-radius: 9999px;
+    background: var(--c-brand);
+    color: var(--c-on-brand);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color var(--t-hover) var(--ease);
+  }
+
+  .nav-cta:hover {
+    background: var(--c-brand-hover);
+  }
+
+  /* 窄屏紧凑版，保证标识 + 咨询按钮 + 菜单按钮单行放得下（交接文档 §2） */
+  @media (max-width: 639px) {
+    .nav-cta {
+      height: 44px;
+      gap: 6px;
+      padding-inline: 12px 4px;
+      font-size: 14px;
+    }
+
+    .nav-cta__circle {
+      width: 36px;
+      height: 36px;
+    }
+
+    .nav-cta__circle svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .nav-cta__circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background: #fff;
+    color: var(--c-brand); /* 图标：非文字内容，红在白底上 4.77:1 */
+    /* 与卡片箭头同一族手势，统一用不受总开关约束的 --t-gesture */
+    transition: transform var(--t-gesture) var(--ease-io);
+  }
+
+  .nav-cta__circle svg {
+    width: 22.5px;
+    height: 22.5px;
+  }
+
+  .nav-cta:hover .nav-cta__circle {
+    transform: rotate(45deg) scale(1.15);
+  }
+
+  /* ── 汉堡与关闭按钮 ─────────────────────────────────────────────────── */
+  .nav__burger,
+  .nav__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--touch);
+    height: var(--touch);
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: var(--r-btn);
+    color: var(--c-text);
+    cursor: pointer;
+    transition: color var(--t-hover) var(--ease);
+  }
+
+  .nav__burger svg,
+  .nav__close svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .nav__burger:hover,
+  .nav__close:hover {
+    color: var(--c-brand); /* 图标：非文字内容，≥3:1 */
+  }
+
+  .nav__theme {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40.5px;
+    height: 40.5px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 9999px;
+    color: var(--c-text);
+    cursor: pointer;
+    transition: color var(--t-hover) var(--ease);
+  }
+
+  .nav__theme:hover {
+    color: var(--c-brand); /* 图标：非文字内容，≥3:1 */
+  }
+
+  .nav__theme-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* 显示「点了会切到的那个主题」的图标 */
+  :root[data-theme='light'] .nav__theme-icon--sun {
+    display: none;
+  }
+
+  :root:not([data-theme='light']) .nav__theme-icon--moon {
+    display: none;
+  }
+
+  /* ── 地区切换下拉：照搬 ssw.com.au 的 “Select region” ────────────────────
+     线上取值（18px 根字号）：圆钮 40.5px、菜单 min-width 180px、圆角 9px、
+     内边距 4.5px、条目 9px 13.5px / 圆角 4.5px / 15.75px。
+     触发钮直接复用 .nav__theme 的尺寸与配色，两个圆钮并排大小一致。 */
+  .nav__region {
+    position: relative;
+    /* <1024px 时导航条那一行已经排满，圆钮下拉隐藏，改由抽屉里的分组承担 */
+    display: none;
+  }
+
+  .nav__drawer-regions {
+    display: none;
+  }
+
+  .nav__region-menu {
+    position: absolute;
+    inset-block-start: calc(100% + 9px);
+    inset-inline-end: 0;
+    z-index: 1;
+    min-inline-size: 180px;
+    padding: 4.5px;
+    border: 1px solid var(--c-nav-border);
+    border-radius: 9px;
+    background: var(--c-nav-bg);
+    box-shadow:
+      0 20px 25px -5px rgb(0 0 0 / 30%),
+      0 8px 10px -6px rgb(0 0 0 / 25%);
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity var(--t-modal) var(--ease),
+      transform var(--t-modal) var(--ease);
+  }
+
+  /* 从 display:none 进入时才有起始态；不支持 @starting-style 就直接出现。 */
+  @starting-style {
+    .nav__region-menu {
+      opacity: 0;
+      transform: translateY(calc(-6px * var(--motion)));
+    }
+  }
+
+  .nav__region-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-12);
+    min-block-size: var(--touch);
+    padding: 9px 13.5px;
+    border-radius: 4.5px;
+    font-size: 15.75px;
+    line-height: 22.5px;
+    color: var(--c-text);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color var(--t-hover) var(--ease);
+  }
+
+  /* 品牌红本身在深底上只有 3.72:1，文字一律用 --c-brand-text */
+  a.nav__region-item:hover {
+    color: var(--c-brand-text);
+  }
+
+  /* 当前站点：不是链接，避免出现指向自身的死控件 */
+  .nav__region-item[aria-current='true'] {
+    color: var(--c-text-2);
+  }
+
+  .nav__region-current {
+    font-size: var(--fs-small);
+    color: var(--c-text-3);
+  }
+
+  .nav__divider {
+    width: 1px;
+    height: 31.5px;
+    flex-shrink: 0;
+    background: var(--c-divider);
+  }
+
+  .nav-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 105; /* 低于 .nav(110)，因此只压住页面内容，不压抽屉 */
+    background: rgb(0 0 0 / 60%);
+  }
+
+  /* 导航自身的滚动进度指示，压在下边框上 */
+  .scroll-progress {
+    position: absolute;
+    inset-block-end: -1px;
+    inset-inline: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--c-brand-active), var(--c-brand));
+    transform: scaleX(0);
+    transform-origin: left center;
+    pointer-events: none;
+  }
+
+  @media (min-width: 640px) {
+    .nav__inner {
+      padding-inline: 36px;
+    }
+
+    /* h-14 = 63px；1280–1399px 之间降到 h-11 = 49.5px */
+    .nav__logo {
+      height: 63px;
+    }
+  }
+
+  /* ── 桌面 ≥1024px ─────────────────────────────────────────────────────
+     ssw.com.au 在 1280px 切换，但它有 6 组大菜单加 4 个图标按钮。
+     本站只有 4 个短锚点，1024px 起就绰绰有余，故沿用交接文档 §2 的断点。 */
+  @media (min-width: 1024px) {
+    .nav__region {
+      display: flex;
+    }
+
+    .nav__links {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+    }
+
+    .nav__burger {
+      display: none;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .nav__links ul {
+      gap: 22.5px;
+    }
+  }
+
+  @media (min-width: 1280px) and (max-width: 1399px) {
+    .nav__logo {
+      height: 49.5px;
+    }
+  }
+
+  /* ── 窄屏 <1024px ─────────────────────────────────────────────────────
+     无 JS 时菜单就是流内一份可见的锚点列表 —— 汉堡按钮保持 hidden，
+     永远不会变成死控件。JS 接管后才变成 ssw.com.au 那种右侧抽屉。 */
+  @media (max-width: 1023px) {
+    .nav__inner {
+      flex-wrap: wrap;
+    }
+
+    .nav__links {
+      flex-basis: 100%;
+      order: 3;
+    }
+
+    .nav__links ul {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding-block-end: var(--s-8);
+    }
+
+    .nav__links li + li {
+      border-block-start: 1px solid var(--c-divider);
+    }
+
+    .nav__links a {
+      padding-block: var(--s-16);
+      font-size: 20.25px;
+      line-height: 28px;
+    }
+
+    /* JS 接管后的右侧抽屉 */
+    .js .nav__links[data-menu-state] {
+      position: fixed;
+      inset-block: 0;
+      inset-inline-end: 0;
+      z-index: 2; /* .nav 层叠上下文内部，压住导航条本体 */
+      flex-basis: auto;
+      width: 100%;
+      background: var(--c-nav-bg);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      transform: translateX(100%);
+      visibility: hidden;
+      transition:
+        transform var(--t-modal) var(--ease-io),
+        visibility var(--t-modal) step-end;
+    }
+
+    .js .nav__links[data-menu-state='open'] {
+      transform: translateX(0);
+      visibility: visible;
+      transition:
+        transform var(--t-modal) var(--ease-io),
+        visibility 0s;
+    }
+
+    .js .nav__links[data-menu-state] .nav__panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      height: 72px;
+      padding-inline: 18px;
+    }
+
+    .js .nav__links[data-menu-state] ul {
+      padding-inline: 24px;
+    }
+
+    .js .nav__links[data-menu-state] li + li {
+      border-block-start: 1px solid var(--c-divider);
+    }
+
+    .nav__drawer-regions {
+      display: block;
+      padding-block-start: var(--s-24);
+    }
+
+    .js .nav__links[data-menu-state] .nav__drawer-regions {
+      padding-inline: 24px;
+    }
+
+    .nav__drawer-label {
+      font-size: var(--fs-small);
+      line-height: var(--lh-small);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--c-text-3);
+    }
+
+    .nav__drawer-regions ul {
+      padding-inline: 0;
+    }
+  }
+
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .js .nav__links[data-menu-state] {
+      width: 384px;
+      max-width: 100%;
+      box-shadow: -24px 0 48px -24px rgb(0 0 0 / 80%);
+    }
+  }
+}

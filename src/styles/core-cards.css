@@ -1,0 +1,225 @@
+@layer components {
+  /* ══════════════════════════════════════════════════════════════════════
+     核心 AI 服务卡片 —— 照搬 ssw.com.au 首页
+     “Australia's Leading AI, .NET and Azure Consultants” 区块。
+     线上根字号是 18px，所以这里的像素值是那边 rem 解析后的结果
+     （1rem→18px：rounded-card 1rem=18px、gap-8=36px、p-6=27px、
+     text-2xl=27px/36px、size-10=45px、size-4=18px）。
+     与 nav / hero / globe 同一条既定做法，见 docs/DECISIONS.md §2。
+     ══════════════════════════════════════════════════════════════════════ */
+
+  .core-cards {
+    margin-block-start: 54px; /* ssw.com.au: mt-12 */
+  }
+
+  /* 窄屏：整屏出血的吸附轮播（对应线上的 embla 轮播）。
+     ≥1024px 变成三栏网格。两种形态共用同一段 DOM。 */
+  .core-cards__track {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: var(--s-24);
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+    scroll-padding-inline: var(--gutter);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .core-cards__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .core-cards__slide {
+    flex: 0 0 80%; /* ssw.com.au: basis-4/5 */
+    display: flex;
+    scroll-snap-align: start;
+  }
+
+  @media (min-width: 640px) {
+    .core-cards__slide {
+      flex-basis: 50%;
+    }
+  }
+
+  /* ── 卡片本体 ────────────────────────────────────────────────────────── */
+  .core-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    inline-size: 100%;
+    overflow: hidden;
+    /* 边框静止：线上没有 hover:border-*，悬停不变色 */
+    border: 0.5px solid var(--c-hairline);
+    border-radius: 18px;
+    background: transparent;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* 底色独立成一层，与 ssw.com.au 完全同一机制（线上是一个 absolute inset-0
+     的 div，这里用 ::before）：深色态 #151515 铺 60%，悬停淡到 100%；
+     浅色态是不透明纯白、悬停不变。因为是半透明，卡片会像线上那样透出
+     背后的氛围光晕，而不是一块死板的实色。 */
+  .core-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--c-card-layer);
+    opacity: var(--c-card-layer-op);
+    transition: opacity var(--t-gesture) var(--ease-io);
+  }
+
+  .core-card:hover::before,
+  .core-card:focus-visible::before {
+    opacity: 1;
+  }
+
+  /* 图区与正文必须压在底色层之上（线上同样给它们加了 relative） */
+  .core-card__media,
+  .core-card__body {
+    position: relative;
+  }
+
+  .core-card:focus-visible {
+    outline: 2px solid var(--c-focus);
+    outline-offset: 3px;
+  }
+
+  /* 16:9 品牌红图区。白色线性图标在 #cc4141 上为 4.77:1。 */
+  .core-card__media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 16 / 9;
+    padding: 27px;
+    background: var(--c-brand);
+    color: var(--c-on-brand);
+  }
+
+  .core-card__media svg {
+    inline-size: 126px;
+    block-size: auto;
+    max-inline-size: 60%;
+  }
+
+  .core-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 27px;
+  }
+
+  .core-card__title {
+    font-size: 27px;
+    line-height: 36px;
+    font-weight: 600;
+    color: var(--c-text);
+  }
+
+  .core-card__text {
+    margin-block: 18px;
+    font-size: 18px;
+    line-height: 27px;
+    font-weight: 300;
+    color: var(--c-text-2);
+  }
+
+  /* 右下角 45° 箭头：ssw.com.au 的悬停手势（旋转 45° + 放大 1.25）。
+     ── 注意：终态与时长都**不乘** var(--motion) ──────────────────────────
+     终态照写（曾误写成 rotate(calc(45deg * var(--motion)))，减少动效下会被
+     算成 rotate(0) scale(1)，整个效果消失）；时长用 --t-gesture，
+     那是一个固定 300ms 的令牌，同样不受动效总开关约束 ——
+     用户明确要求「我需要补间」，减少动效下也要真的补间。
+     与 ssw.com.au 一致：线上这个箭头没有 motion-reduce: 变体。
+     取舍与理由见 docs/DECISIONS.md §31。 */
+  .core-card__arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-end;
+    margin-block-start: auto;
+    inline-size: 45px;
+    block-size: 45px;
+    border-radius: 999px;
+    background: var(--c-text);
+    color: var(--c-bg);
+    /* 线上是 transition-all duration-300 ease-in-out；
+       --ease-io 正是 cubic-bezier(0.4, 0, 0.2, 1)，与之逐值相同。 */
+    transition: transform var(--t-gesture) var(--ease-io);
+  }
+
+  .core-card__arrow svg {
+    inline-size: 18px;
+    block-size: 18px;
+  }
+
+  .core-card:hover .core-card__arrow,
+  .core-card:focus-visible .core-card__arrow {
+    transform: rotate(45deg) scale(1.25);
+  }
+
+  /* ── 轮播圆点（仅窄屏；需要 JS 才能反映位置，默认 hidden） ──────────── */
+  .core-cards__dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin-block-start: var(--s-8);
+  }
+
+  .core-cards__dots button {
+    display: grid;
+    place-items: center;
+    inline-size: 27px;
+    block-size: var(--touch);
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .core-cards__dots button::before {
+    content: '';
+    display: block;
+    inline-size: 13.5px;
+    block-size: 6.75px;
+    border-radius: 999px;
+    background: var(--c-text);
+    opacity: 0.3;
+    transition:
+      inline-size var(--t-hover) var(--ease),
+      opacity var(--t-hover) var(--ease);
+  }
+
+  .core-cards__dots button[aria-current='true']::before {
+    inline-size: 27px;
+    opacity: 1;
+  }
+
+  .core-cards__dots button:focus-visible {
+    outline: 2px solid var(--c-focus);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* ── 桌面：三栏网格，圆点无意义 ──────────────────────────────────────── */
+  @media (min-width: 1024px) {
+    .core-cards__track {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 36px; /* ssw.com.au: gap-8 */
+      margin-inline: 0;
+      padding-inline: 0;
+      overflow: visible;
+      scroll-snap-type: none;
+    }
+
+    .core-cards__dots {
+      display: none;
+    }
+  }
+}

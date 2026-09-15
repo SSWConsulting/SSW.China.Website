@@ -1,0 +1,105 @@
+<!-- ══════════════════════════════════════════════════════════════════════
+     页脚：参考 ssw.com.au 的版式 —— #212121 深色带、标识在左、下方链接分栏、
+     底部一行法律信息左右分置。.cn 的条目少很多，因此四栏而不是五栏，
+     并且**不放社交图标行**（理由见 docs/DECISIONS.md §23）。
+     栏目里全部是本站真实存在的页面或已核实的外链，没有占位链接。
+     ══════════════════════════════════════════════════════════════════════ -->
+<footer class="footer" id="site-footer">
+  <div class="container footer__inner">
+    <div class="footer__top">
+      <!-- 页脚固定深色，两套主题都用白字版标识 —— 不走 nav__logo--dark/light 切换。 -->
+      <a class="footer__brand" href="/" aria-label="SSW 首页">
+        <img class="footer__logo" src="/media/ssw-logo.svg" alt="SSW" width="332" height="98" loading="lazy" />
+      </a>
+    </div>
+
+    <nav class="footer__nav" aria-label="页脚导航">
+      <div class="footer__col">
+        <h2 class="footer__col-title">AI 服务</h2>
+        <ul>
+          <li><a href="/services/ai-platform/">AI 中台建设</a></li>
+          <li><a href="/services/ai-workflow/">AI 业务工作流</a></li>
+          <li><a href="/services/ai-apps/">AI 应用定制</a></li>
+          <li><a href="/chinafy/">落地中国</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h2 class="footer__col-title">了解 SSW</h2>
+        <ul>
+          <li><a href="/#delivery">交付方式</a></li>
+          <li><a href="/#offices">遍布全球</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h2 class="footer__col-title">产品与社区</h2>
+        <ul>
+          <li>
+            <a href="https://tina.io/" target="_blank" rel="noopener noreferrer">Tina</a>
+          </li>
+          <li>
+            <a href="https://yakshaver.ai/" target="_blank" rel="noopener noreferrer">YakShaver</a>
+          </li>
+          <li>
+            <a href="https://ssw.cn/upcomingevents?lang=zh-CN" target="_blank" rel="noopener noreferrer">FireUG</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 地区链接在这里常驻：导航里的下拉是 JS 增强，无 JS 时靠这一栏可达。 -->
+      <div class="footer__col">
+        <h2 class="footer__col-title">其他地区</h2>
+        <ul>
+          <li>
+            <a href="https://www.ssw.com.au">SSW 澳大利亚</a>
+          </li>
+          <li>
+            <a href="https://ssw.fr">SSW 法国</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h2 class="footer__col-title">联系我们</h2>
+        <ul>
+          <li><a href="#wecom" data-wecom>添加企业微信</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="footer__legal">
+      <div class="footer__legal-main">
+        <!-- @if footer.copyrightHolder -->
+        <p class="footer__line">© {{ footer.copyrightYear }} {{ footer.copyrightHolder }}</p>
+        <!-- @endif -->
+
+        <!-- @if footer.legalName -->
+        <p class="footer__line">{{ footer.legalName }}</p>
+        <!-- @endif -->
+      </div>
+
+      <div class="footer__legal-links">
+        <!-- @if footer.privacyUrl -->
+        <p class="footer__line">
+          <a href="{{ footer.privacyUrl }}">隐私政策</a>
+        </p>
+        <!-- @endif -->
+
+        <!-- @if footer.icp -->
+        <p class="footer__line">
+          <a href="{{ footer.icp.url }}" target="_blank" rel="noopener noreferrer">{{ footer.icp.number }}</a>
+        </p>
+        <!-- @endif -->
+
+        <!-- @if footer.publicSecurity -->
+        <p class="footer__line">
+          <a href="{{ footer.publicSecurity.url }}" target="_blank" rel="noopener noreferrer"
+            >{{ footer.publicSecurity.number }}</a
+          >
+        </p>
+        <!-- @endif -->
+      </div>
+    </div>
+  </div>
+</footer>

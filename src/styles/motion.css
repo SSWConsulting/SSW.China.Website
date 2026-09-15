@@ -1,0 +1,557 @@
+@layer motion {
+  /* ══════════════════════════════════════════════════════════════════════
+     全部动效都住在这一层。两条评审规则：
+       1. 所有 @keyframes 只出现在本文件；
+       2. tokens.css 之外不出现时长／位移字面量。
+
+     降级原则（承重设计）：
+       CSS 一次性动效的**基础规则持有最终状态**，起始状态只写在 @keyframes 里，
+       并使用 animation-fill-mode: backwards。于是 JS 不跑、动画被禁、
+       中途取消、--motion 归零 —— 渲染结果都是完成后的静态状态。
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* ── 滚动显现：全代码库唯一的「默认隐藏」规则 ─────────────────────────────
+     作用域限定在 data-reveal="io" 上，该属性只有在
+     IntersectionObserver 可用且未开启减少动态效果时由 JS 设置。
+     属性不存在 ⇒ 正文就是普通可见内容。 */
+  html[data-reveal='io'] [data-reveal] {
+    opacity: 0;
+    transform: translateY(var(--rise));
+    transition:
+      opacity var(--t-reveal) var(--ease),
+      transform var(--t-reveal) var(--ease);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  html[data-reveal='io'] [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* 红色短线改为横向扫入（覆盖上面的位移，同层后写者胜） */
+  html[data-reveal='io'] .accent-rule {
+    transform: scaleX(0);
+  }
+
+  html[data-reveal='io'] .accent-rule.is-revealed {
+    transform: scaleX(1);
+  }
+
+  /* 打印时强制全部可见，避免 Ctrl-P 打出空白区块 */
+  @media print {
+    html[data-reveal='io'] [data-reveal] {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+
+  /* ── 首屏标题：加载即播，逐行显现，不依赖滚动 ─────────────────────────────
+     §4「首屏文字立即可读」：最迟 360ms 全部可读。 */
+  .js .hero__line {
+    animation: line-in var(--t-reveal) var(--ease) backwards;
+  }
+
+  .js .hero__line:nth-child(2) {
+    animation-delay: var(--t-stagger);
+  }
+
+  @keyframes line-in {
+    from {
+      opacity: 0;
+      transform: translateY(var(--rise));
+    }
+  }
+
+  .js .hero__lead {
+    animation: line-in var(--t-reveal) var(--ease) calc(var(--t-stagger) * 2) backwards;
+  }
+
+  .js .hero__actions {
+    animation: line-in var(--t-reveal) var(--ease) calc(var(--t-stagger) * 2.5) backwards;
+  }
+
+  /* ── 业务工作流：首次进入视口播放一次 1.2 秒流动高亮（§4） ────────────────
+     .conn__flow 是装饰性重复层，基础态 opacity:0，播完即恢复不可见，
+     静态图始终完整。 */
+  .js .diagram--flow.is-played .conn__flow {
+    animation: flow-down calc(var(--t-flow) / 3) var(--ease-io) backwards;
+  }
+
+  .js .diagram--flow.is-played i:nth-of-type(2) .conn__flow {
+    animation-delay: calc(var(--t-flow) / 3);
+  }
+
+  .js .diagram--flow.is-played i:nth-of-type(3) .conn__flow {
+    animation-delay: calc(var(--t-flow) / 3 * 2);
+  }
+
+  @keyframes flow-down {
+    0% {
+      opacity: 0;
+      transform: translateY(-120%);
+    }
+    15% {
+      opacity: 1;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(260%);
+    }
+  }
+
+  @keyframes flow-right {
+    0% {
+      opacity: 0;
+      transform: translateX(-120%);
+    }
+    15% {
+      opacity: 1;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(260%);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .js .diagram--flow.is-played .conn__flow {
+      animation-name: flow-right;
+    }
+  }
+
+  /* ── FDE 时间线导轨绘入 ───────────────────────────────────────────────── */
+  html[data-reveal='io'] .stage::before {
+    transform: scaleY(0);
+    transform-origin: top center;
+    transition: transform var(--t-reveal) var(--ease);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  html[data-reveal='io'] .stage.is-revealed::before {
+    transform: scaleY(1);
+  }
+
+  @media (min-width: 1024px) {
+    html[data-reveal='io'] .stage::before {
+      transform: scaleX(0);
+      transform-origin: left center;
+    }
+
+    html[data-reveal='io'] .stage.is-revealed::before {
+      transform: scaleX(1);
+    }
+  }
+
+  /* ── 收尾 CTA 一次性斜向扫光。局部高亮，不是整屏红底。 ─────────────────── */
+  .js .cta__sheen.is-played {
+    animation: sheen var(--t-sheen) var(--ease-io) backwards;
+  }
+
+  @keyframes sheen {
+    from {
+      opacity: 0;
+      transform: translateX(0);
+    }
+    40% {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+      transform: translateX(350%);
+    }
+  }
+
+  /* ── 手机菜单项错帧 ──────────────────────────────────────────────────── */
+  @media (max-width: 1023px) {
+    .js .nav__links[data-menu-state='open'] li {
+      animation: menu-item-in var(--t-modal) var(--ease) backwards;
+    }
+
+    .js .nav__links[data-menu-state='open'] li:nth-child(2) {
+      animation-delay: var(--t-menu-stagger);
+    }
+
+    .js .nav__links[data-menu-state='open'] li:nth-child(3) {
+      animation-delay: calc(var(--t-menu-stagger) * 2);
+    }
+
+    .js .nav__links[data-menu-state='open'] li:nth-child(4) {
+      animation-delay: calc(var(--t-menu-stagger) * 3);
+    }
+  }
+
+  @keyframes menu-item-in {
+    from {
+      opacity: 0;
+      transform: translateY(var(--rise-sm));
+    }
+  }
+
+  /* ── 咨询弹层 ────────────────────────────────────────────────────────── */
+  .wecom-dialog[open] {
+    animation: dialog-in var(--t-modal) var(--ease) backwards;
+  }
+
+  .wecom-dialog[open]::backdrop {
+    animation: backdrop-in var(--t-modal) var(--ease) backwards;
+  }
+
+  @keyframes dialog-in {
+    from {
+      opacity: 0;
+      transform: translateY(var(--rise-sm)) scale(0.98);
+    }
+  }
+
+  @keyframes backdrop-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     氛围层：文档未约束的页面级装饰。已确认走「最大化」档。
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* 背景光晕缓慢漂移。仅 transform、位移 ≤24px、独立合成层。
+     刻意不做 opacity 脉动 —— 脉动会被读成运行状态指示器（§2 禁模拟状态）。 */
+  /* 注意：这里必须用长写法。`animation: var(--ambient, mesh-drift) …` 在
+     --ambient 为 none 时会让简写解析出现歧义 —— none 会被当成 fill-mode，
+     后面的关键字反而被当成动画名。长写法把 name 槽位固定下来。 */
+  @media (min-width: 768px) and (hover: hover) {
+    .backdrop__mesh {
+      animation-name: var(--ambient, mesh-drift);
+      animation-duration: var(--t-ambient);
+      animation-timing-function: var(--ease-io);
+      animation-iteration-count: infinite;
+      animation-direction: alternate;
+    }
+  }
+
+  /* 低端设备不跑氛围循环 */
+  @media (update: slow) {
+    .backdrop__mesh {
+      animation: none;
+    }
+  }
+
+  @keyframes mesh-drift {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-18px, -24px, 0);
+    }
+  }
+
+  /* 滚动联动：网格视差与导航进度条。零 JS、零滚动监听，
+     停止滚动即停止 —— 与无限循环性质不同。 */
+  @supports (animation-timeline: scroll()) {
+    @media (min-width: 768px) {
+      .backdrop__grid {
+        animation-name: var(--ambient, grid-drift);
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: scroll(root block);
+      }
+    }
+
+    .scroll-progress {
+      animation-name: var(--ambient, progress-grow);
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: scroll(root block);
+    }
+  }
+
+  @keyframes grid-drift {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(0, -40px, 0);
+    }
+  }
+
+  @keyframes progress-grow {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  /* ── /services/ai-apps/ 的三处滚动联动 ──────────────────────────────
+     全部用 view() 时间轴：以元素自身穿过视口的进度驱动，
+     不需要知道页面总高，也不需要任何滚动监听。
+     与上面 scroll() 那两处同理，animation-name 走 var(--ambient, …)，
+     所以动效总开关一关就全部回到基础规则持有的终态。 ────────────────── */
+  @supports (animation-timeline: view()) {
+    @media (min-width: 768px) {
+      /* 首屏光斑：随页面下滚缓慢上移，制造景深 */
+      .aiapps-hero__orb {
+        animation-name: var(--ambient, orb-drift);
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: view(block);
+      }
+
+      /* 三条主张的大号序号：入场时上浮 24px 到位 */
+      .trust__num {
+        animation-name: var(--ambient, num-rise);
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: view(block);
+        animation-range: entry 0% cover 45%;
+      }
+    }
+
+    /* 流程导轨：随该段滚过视口逐渐画满。窄屏是竖向，桌面转横向。 */
+    .process__rail-fill {
+      animation-name: var(--ambient, rail-draw-y);
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view(block);
+      animation-range: entry 20% cover 60%;
+    }
+
+    @media (min-width: 1024px) {
+      .process__rail-fill {
+        animation-name: var(--ambient, rail-draw-x);
+      }
+    }
+  }
+
+  @keyframes orb-drift {
+    from {
+      transform: translate3d(0, 40px, 0);
+    }
+    to {
+      transform: translate3d(0, -40px, 0);
+    }
+  }
+
+  @keyframes num-rise {
+    from {
+      transform: translate3d(0, 24px, 0);
+    }
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes rail-draw-y {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes rail-draw-x {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  /* ── 标题逐词入场（取自 Elyte 模板） ──────────────────────────────────
+     单位由 split-words.ts 切出并写入 --wi 序号；动效关闭时那个脚本直接不运行，
+     标题保持整段文本，`.word` 没有作用对象 ⇒ 终态即原始渲染。
+
+     两条触发路径，刻意分开：
+       · 首屏标题（.display--xl）没有 data-reveal —— 页面加载即播，
+         总时长 12 档 × 12ms + 240ms = 384ms，压在 §4 的 390ms 之内。
+       · 区块标题挂 data-reveal —— **等滚到才播**，否则页面底部的标题
+         在你看见之前就演完了。这一档的起始隐藏与全站唯一那条默认隐藏规则
+         一样，作用域限定在 html[data-reveal="io"]。
+     被切开的标题不再自己淡入位移（否则与逐词入场叠成两层），
+     可见性交给每个词负责 —— 所以这里把宿主的 opacity/transform 归位。 */
+  .word {
+    display: inline-block;
+    /* 切分时把标点与空格并进了上一个单位，靠这个保住那个空格 */
+    white-space: pre-wrap;
+  }
+
+  /* 首屏：加载即播 */
+  .display--xl .word {
+    animation-name: word-in;
+    animation-duration: var(--t-reveal);
+    animation-timing-function: var(--ease);
+    animation-fill-mode: backwards;
+    animation-delay: calc(var(--wi, 0) * var(--t-word-stagger-hero));
+  }
+
+  /* 区块标题：滚到才播 */
+  html[data-reveal='io'] [data-reveal][data-words='split'] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  html[data-reveal='io'] [data-reveal][data-words='split'] .word {
+    opacity: 0;
+  }
+
+  html[data-reveal='io'] [data-reveal][data-words='split'].is-revealed .word {
+    animation-name: word-in;
+    animation-duration: var(--t-reveal);
+    animation-timing-function: var(--ease);
+    animation-fill-mode: both;
+    animation-delay: calc(var(--wi, 0) * var(--t-word-stagger));
+  }
+
+  @keyframes word-in {
+    from {
+      opacity: 0;
+      filter: blur(4px);
+      transform: translate3d(0, 10px, 0) rotate(2deg);
+    }
+
+    to {
+      opacity: 1;
+      filter: blur(0);
+      transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     ══  全站唯一禁用动效的地方。其他任何文件都不得设置 --motion/--ambient。 ══
+     两个触发器、一份后果：
+       · prefers-reduced-motion —— 真实用户偏好
+       · html[data-motion="off"] —— 可测试的覆盖开关（?motion=off 或运行时设置）
+     --motion 归零后 calc(240ms * 0) = 0s、calc(12px * 0) = 0px，
+     约 95% 的动效随之失效；无限循环与滚动联动由 --ambient: none 关闭。
+     ══════════════════════════════════════════════════════════════════════ */
+  /* 客户标识跑马灯。照搬 ssw.com.au 的关键帧：起始 translateX(50%)。
+   视口里有三条相同轨道，因此位移半个轨道宽即可无缝衔接。
+   --gap 与 .clients__track 的 gap 同值。 */
+  @keyframes marquee {
+    0% {
+      transform: translateX(50%);
+    }
+
+    100% {
+      transform: translateX(calc(-50% - var(--marquee-gap, 13.5px)));
+    }
+  }
+
+  /* 红色按钮的悬停涟漪。照搬 ssw.com.au 的 `rippling`：
+   一个从指针位置扩散的深色圆，边放大边淡出。
+   起始 scale(0) 由 JS 写在内联样式里，这里只负责终态。 */
+  /* 演示轮播的进度条：线性走满一页的停留时长。
+     停留时长不乘 --motion（见 tokens.css 的说明），所以关掉动效后这条依然
+     如实反映「还有多久翻页」—— 它是计时器的读数，不是装饰动效。 */
+  /* ── 演示轮播的 3D 逐个入场 ──────────────────────────────────────────
+     起始状态**只**写在这里，基础规则持有终态 ⇒ 动画不跑（JS 关闭、减少动效、
+     中途取消）时渲染结果就是排好的静态版面。位移与角度都乘了 --motion。 */
+  @keyframes deck-rise-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, var(--deck-lift), calc(var(--deck-depth) * -1))
+        rotateX(var(--deck-tilt));
+    }
+  }
+
+  @keyframes deck-card-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, var(--deck-lift), calc(var(--deck-depth) * -1))
+        rotateY(calc(var(--deck-tilt) * -1));
+    }
+  }
+
+  @keyframes deck-ghost-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 0, calc(var(--deck-depth) * -2));
+    }
+  }
+
+  /* 卡片入场后的持续浮动：幅度刻意很小，大屏上是「活着」而不是「在动」。 */
+  @keyframes deck-float {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) rotateY(0deg);
+    }
+
+    50% {
+      transform: translate3d(0, calc(var(--deck-lift) * -0.18), 0) rotateY(0.8deg);
+    }
+  }
+
+  @keyframes deck-progress {
+    from {
+      transform: scaleX(0);
+    }
+
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes ripple {
+    0% {
+      opacity: 1;
+      transform: scale(0);
+    }
+
+    100% {
+      opacity: 0;
+      transform: scale(2);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --motion: 0;
+      --ambient: none;
+    }
+  }
+
+  :root[data-motion='off'] {
+    --motion: 0;
+    --ambient: none;
+  }
+
+  /* ══ 显式打开：只有演示轮播页（/deck/）会设置它 ═══════════════════════
+     现场大屏常常装在一台开着系统「减少动态效果」的机器上 —— 那台机器不是
+     在浏览网页，是在放一段演示。所以这里留一个**用户主动打开**的覆盖：
+     `/deck/?motion=on`，或轮播控件条上的「动效」按钮（选择记在 localStorage）。
+     站内其余页面永远不会设置 data-motion="on"，系统偏好对它们依旧是最终答案。
+     --ambient: initial 把自定义属性置回「无效」⇒ 消费方的 var(--ambient, X)
+     回到各自的默认动画名，而不是被钉死成 none。 */
+  :root[data-motion='on'] {
+    --motion: 1;
+    --ambient: initial;
+  }
+}
+
+@layer motion {
+  /* Service-detail hero keeps its workflow vertical at every breakpoint. */
+  .js .service-design-page .diagram--flow.is-played .conn__flow {
+    animation-name: flow-down;
+  }
+}
+
+@layer motion {
+  @media (prefers-reduced-motion: no-preference) {
+    html:not([data-motion='off']) .chinafy-hero__title,
+    html:not([data-motion='off']) .chinafy-hero__copy {
+      animation: line-in var(--t-reveal) var(--ease) backwards;
+    }
+    html:not([data-motion='off']) .chinafy-hero__copy {
+      animation-delay: var(--t-stagger);
+    }
+  }
+}

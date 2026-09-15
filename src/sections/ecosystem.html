@@ -1,0 +1,223 @@
+<section class="section ecosystem" id="ecosystem" aria-labelledby="ecosystem-title">
+  <div class="container">
+    <div class="section__head" data-reveal-group>
+      <span class="accent-rule" data-reveal aria-hidden="true"></span>
+      <h2 id="ecosystem-title" data-reveal>我们的产品与技术社区</h2>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         产品卡片：照搬 ssw.com.au/products 上 TinaCMS 与 YakShaver 两张卡片
+         （18px 圆角、0.5px 发丝边、悬停转品牌红、右侧装饰图、标签行、
+         右下「了解」按钮悬停放大 1.05）。
+         线上该页整段强制深色，因此这两张卡片在本站也固定用深色配色，
+         不随明暗主题翻转 —— 理由见 docs/DECISIONS.md §22。
+         卡片正文仍是交接文档的中文，未改写。
+         ══════════════════════════════════════════════════════════════════ -->
+    <div class="ecosystem__products" data-reveal-group>
+      <a
+        class="product-card product-card--tina"
+        href="https://tina.io/"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-reveal
+      >
+        <!-- @if ecosystem.tina.art -->
+        <img
+          class="product-card__art"
+          src="{{ ecosystem.tina.art.src }}"
+          alt=""
+          aria-hidden="true"
+          width="{{ ecosystem.tina.art.w }}"
+          height="{{ ecosystem.tina.art.h }}"
+          loading="lazy"
+        />
+        <!-- @endif -->
+
+        <div class="product-card__body">
+          <!-- @if ecosystem.tina.logo -->
+          <img
+            class="product-card__logo"
+            src="{{ ecosystem.tina.logo.src }}"
+            alt=""
+            aria-hidden="true"
+            width="{{ ecosystem.tina.logo.w }}"
+            height="{{ ecosystem.tina.logo.h }}"
+          />
+          <!-- 标识是图，名称由这里承担 —— 与 ssw.com.au 一致。 -->
+          <h3 class="sr-only">{{ ecosystem.tina.name }}</h3>
+          <!-- @else -->
+          <!-- 没有真实标识时不留空图框，直接以真实名称纯文字呈现。 -->
+          <h3 class="product-card__name">{{ ecosystem.tina.name }}</h3>
+          <!-- @endif -->
+
+          <p class="product-card__desc">可视化编辑网站内容，以 Git 管理内容版本，让内容团队与开发者协作更顺畅。</p>
+
+          <ul class="product-card__tags">
+            <li>无头 CMS</li>
+            <li>基于 Git</li>
+          </ul>
+        </div>
+
+        <span class="product-card__cta">
+          了解更多
+          <!-- 可见文字按用户要求统一成「了解更多」。两张卡的可访问名称仍然可区分 ——
+               整个 <a> 的名称里含产品名（标识的 alt）与下面这句目标说明。 -->
+          <span class="sr-only">（Tina，在新标签页打开 tina.io）</span>
+        </span>
+      </a>
+
+      <a
+        class="product-card product-card--yak"
+        href="https://yakshaver.ai/"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-reveal
+      >
+        <!-- @if ecosystem.yakshaver.art -->
+        <img
+          class="product-card__art"
+          src="{{ ecosystem.yakshaver.art.src }}"
+          alt=""
+          aria-hidden="true"
+          width="{{ ecosystem.yakshaver.art.w }}"
+          height="{{ ecosystem.yakshaver.art.h }}"
+          loading="lazy"
+        />
+        <!-- @endif -->
+
+        <div class="product-card__body">
+          <!-- @if ecosystem.yakshaver.logo -->
+          <img
+            class="product-card__logo"
+            src="{{ ecosystem.yakshaver.logo.src }}"
+            alt=""
+            aria-hidden="true"
+            width="{{ ecosystem.yakshaver.logo.w }}"
+            height="{{ ecosystem.yakshaver.logo.h }}"
+          />
+          <!-- 标识是图，名称由这里承担 —— 与 ssw.com.au 一致。 -->
+          <h3 class="sr-only">{{ ecosystem.yakshaver.name }}</h3>
+          <!-- @else -->
+          <!-- 没有真实标识时不留空图框，直接以真实名称纯文字呈现。 -->
+          <h3 class="product-card__name">{{ ecosystem.yakshaver.name }}</h3>
+          <!-- @endif -->
+
+          <p class="product-card__desc">
+            将录屏中的问题与想法转化为任务和缺陷报告，并连接 GitHub、Azure DevOps 等协作工具。
+          </p>
+
+          <ul class="product-card__tags">
+            <li>AI 缺陷报告</li>
+            <li>任务自动生成</li>
+          </ul>
+        </div>
+
+        <span class="product-card__cta">
+          了解更多
+          <span class="sr-only">（YakShaver，在新标签页打开 yakshaver.ai）</span>
+        </span>
+      </a>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         FireUG 社区卡片。设计方向参考 fireusergroup.com（深底、品牌红斜切、
+         平台入口按钮、三格数据），但**用本站自己的元素与令牌实现**，
+         未取用对方的图形素材。文案与数字取自 FireUG 官网原文。
+         ══════════════════════════════════════════════════════════════ -->
+    <article class="community" data-reveal>
+      <span class="community__glow" aria-hidden="true"></span>
+
+      <div class="community__head">
+        <p class="entry__kind">技术社区</p>
+        <!-- @if ecosystem.fireug.logo -->
+        <img
+          class="community__logo"
+          src="{{ ecosystem.fireug.logo.src }}"
+          alt="{{ ecosystem.fireug.logoAlt }}"
+          width="{{ ecosystem.fireug.logo.w }}"
+          height="{{ ecosystem.fireug.logo.h }}"
+        />
+        <!-- @else -->
+        <h3 class="community__name">{{ ecosystem.fireug.name }}</h3>
+        <!-- @endif -->
+        <p class="community__tagline">一群程序员搞的技术频道</p>
+        <p class="community__desc">通过技术分享、视频与交流活动，和开发者一起学习，交流工程实践。</p>
+
+        <div class="community__actions">
+          <a
+            class="community__channel"
+            href="https://space.bilibili.com/545713776"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg class="community__channel-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <rect
+                x="3"
+                y="6.5"
+                width="18"
+                height="14"
+                rx="3.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              />
+              <path
+                d="M7.5 3.2 10.5 6.5M16.5 3.2 13.5 6.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+              <path
+                d="M8.5 11.5v2.5M15.5 11.5v2.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+            </svg>
+            访问 B 站
+          </a>
+          <a
+            class="community__channel"
+            href="https://www.youtube.com/@fireusergroup"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg class="community__channel-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <rect
+                x="2.5"
+                y="5.5"
+                width="19"
+                height="13"
+                rx="4"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              />
+              <path d="M10.2 9.3v5.4l4.6-2.7z" fill="currentColor" />
+            </svg>
+            访问油管
+            <span class="sr-only">（YouTube，中国大陆可能无法访问）</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 数字取自 FireUG 官网原文（fireusergroup.com），不做滚动计数。 -->
+      <dl class="community__stats">
+        <div class="community__stat">
+          <dt>播放量</dt>
+          <dd>1m+</dd>
+        </div>
+        <div class="community__stat">
+          <dt>全网粉丝</dt>
+          <dd>60k+</dd>
+        </div>
+        <div class="community__stat">
+          <dt>视频发布</dt>
+          <dd>200+</dd>
+        </div>
+      </dl>
+    </article>
+  </div>
+</section>

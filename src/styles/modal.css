@@ -1,0 +1,226 @@
+@layer components {
+  /* ══════════════════════════════════════════════════════════════════════
+     企业微信咨询面板。两种呈现语境，同一份 DOM：
+       (1) 页面末尾的静态区块 —— JS 未加载时的真实归宿
+       (2) <dialog> 内的模态面板 —— JS 接管后
+     ══════════════════════════════════════════════════════════════════════ */
+
+  .wecom {
+    padding-block: var(--s-64);
+    border-block-start: 1px solid var(--c-divider);
+  }
+
+  .wecom__panel {
+    position: relative;
+    width: min(420px, 100% - var(--s-32));
+    margin-inline: auto;
+    padding: var(--s-24);
+    background: var(--c-panel);
+    border: 1px solid var(--c-charcoal);
+    border-radius: var(--r-panel);
+    text-align: center;
+  }
+
+  .wecom__title {
+    font-size: var(--fs-h3);
+    line-height: var(--lh-h3);
+    font-weight: 600;
+  }
+
+  .wecom__desc {
+    margin-block-start: var(--s-8);
+    color: var(--c-text-2);
+    font-size: var(--fs-body);
+  }
+
+  .wecom__close {
+    position: absolute;
+    inset-block-start: var(--s-8);
+    inset-inline-end: var(--s-8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--touch);
+    height: var(--touch);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--r-btn);
+    font-size: 18px;
+    line-height: 1;
+    color: var(--c-text-2);
+    cursor: pointer;
+    transition:
+      color var(--t-hover) var(--ease),
+      border-color var(--t-hover) var(--ease),
+      background-color var(--t-hover) var(--ease);
+  }
+
+  .wecom__close:hover {
+    color: var(--c-text);
+    border-color: var(--c-control);
+    background: var(--c-charcoal);
+  }
+
+  /* 二维码：原始比例、白色底板、保留静区，不改色、不裁边、不叠图标。
+     长按保存必须可用 ⇒ 不设 -webkit-touch-callout / user-select，
+     也不把 <img> 包进会 preventDefault 的控件。 */
+  .wecom__qr {
+    margin-block-start: var(--s-24);
+    display: inline-block;
+    padding: var(--s-8);
+    background: #ffffff;
+    border-radius: var(--r-btn);
+  }
+
+  .wecom__qr-img {
+    width: auto;
+    height: auto;
+    max-width: 240px;
+    max-height: 320px;
+    object-fit: contain;
+  }
+
+  .wecom__hint {
+    margin-block-start: var(--s-16);
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    color: var(--c-text-2);
+  }
+
+  /* 桌面／手机提示两句都在 DOM 里，按输入方式切换，不做 UA 嗅探 */
+  .wecom__hint[data-hint='mobile'] {
+    display: none;
+  }
+
+  @media (pointer: coarse) {
+    .wecom__hint[data-hint='desktop'] {
+      display: none;
+    }
+
+    .wecom__hint[data-hint='mobile'] {
+      display: block;
+    }
+  }
+
+  .wecom__image-link {
+    display: inline-block;
+    margin-block-start: var(--s-12);
+    min-height: var(--touch);
+    padding-block: var(--s-12);
+    font-size: var(--fs-small);
+    color: var(--c-text);
+    border-block-end: 1px solid var(--c-control);
+    text-decoration: none;
+  }
+
+  .wecom__image-link:hover {
+    border-block-end-color: var(--c-brand);
+  }
+
+  /* 二维码尚未配置时的诚实空状态。不是「待补标记」，
+     而是如实告知当前不可扫码 —— 绝不生成可扫描的假码。 */
+  .wecom__pending {
+    margin-block-start: var(--s-24);
+    padding: var(--s-16);
+    border: 1px dashed var(--c-control);
+    border-radius: var(--r-btn);
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    color: var(--c-text-2);
+  }
+
+  .wecom__error {
+    margin-block-start: var(--s-24);
+    padding: var(--s-16);
+    border: 1px solid var(--c-control);
+    border-radius: var(--r-btn);
+  }
+
+  .wecom__error-text {
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    color: var(--c-text-2);
+  }
+
+  .wecom__retry {
+    margin-block-start: var(--s-12);
+    min-height: var(--touch);
+    font-size: var(--fs-small);
+  }
+
+  .wecom__retry[disabled] {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  .wecom__id {
+    margin-block-start: var(--s-24);
+    padding-block-start: var(--s-16);
+    border-block-start: 1px solid var(--c-divider);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-12);
+  }
+
+  .wecom__id-text {
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    color: var(--c-text-2);
+  }
+
+  .wecom__id-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: var(--fs-body);
+    color: var(--c-text);
+    user-select: all;
+  }
+
+  .wecom__copy {
+    min-height: var(--touch);
+    font-size: var(--fs-small);
+  }
+
+  .wecom__toast {
+    margin-block-start: var(--s-12);
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    color: var(--c-text);
+  }
+
+  /* ── <dialog> 语境 ────────────────────────────────────────────────────── */
+  .wecom-dialog {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    max-width: min(420px, 100vw - var(--s-32));
+    max-height: calc(100vh - var(--s-32));
+    max-height: calc(100dvh - var(--s-32));
+    margin: auto;
+    overflow: visible;
+    color: var(--c-text);
+  }
+
+  .wecom-dialog::backdrop {
+    background: rgb(10 10 10 / 72%);
+  }
+
+  .wecom-dialog .wecom {
+    padding-block: 0;
+    border-block-start: 0;
+  }
+
+  .wecom-dialog .wecom__panel {
+    width: 100%;
+    max-height: calc(100vh - var(--s-32));
+    max-height: calc(100dvh - var(--s-32));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  @media (min-width: 768px) {
+    .wecom-dialog .wecom__panel {
+      padding: var(--s-32);
+    }
+  }
+}

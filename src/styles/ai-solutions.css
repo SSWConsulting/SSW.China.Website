@@ -1,0 +1,116 @@
+@layer components {
+  /* ══════════════════════════════════════════════════════════════════════
+     视频通栏 —— 照搬 ssw.com.au 的 "AI solutions that deliver, the first time."
+     线上取值（18px 根字号）：min-height 36rem = 648px、md 起 80vh、
+     底色纯黑、遮罩 rgb(0 0 0 / 60%)、内容最大宽 1008px（max-w-4xl）、
+     标题 lg:text-7xl = 81px/81px、按钮组上边距 36px。
+     ══════════════════════════════════════════════════════════════════════ */
+
+  .filmstrip {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 100%;
+    min-block-size: 648px;
+    overflow: hidden;
+    background: #000;
+    /* 视频与遮罩都是纯黑底上的白字，固定深色，不随主题翻转 */
+    color: #fff;
+  }
+
+  .filmstrip__video {
+    position: absolute;
+    inset-block-start: 0;
+    block-size: 100%;
+    min-inline-size: 100%;
+    max-inline-size: none;
+    object-fit: cover;
+  }
+
+  .filmstrip__scrim {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 60%);
+  }
+
+  .filmstrip__inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    inline-size: 100%;
+    max-inline-size: 1008px;
+    padding-inline: 18px;
+    text-align: center;
+  }
+
+  .filmstrip__title {
+    font-size: 40.5px; /* text-4xl */
+    line-height: 1.25; /* leading-tight */
+    /* 字重 500，不是线上的 400 —— 用户 2026-09-09 要求标题更粗。
+       中文回退字体（PingFang SC）最重只到 Semibold(600)，600→700 对中文无效。
+       用户 2026-09-09 又要求再粗一号 ⇒ 500 → 600，**这是中文的上限**，
+       不要再往上调，700/800/900 渲染结果与 600 完全相同。详见 DECISIONS §49／§51。 */
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .filmstrip__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 13.5px;
+    margin-block-start: 36px;
+  }
+
+  /* 线上是 border-1 border-ssw-red bg-ssw-red hover:bg-sswDarkRed */
+  .filmstrip__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: var(--touch);
+    padding: 13.5px 27px;
+    border: 1px solid var(--c-brand);
+    border-radius: 6.75px;
+    background: var(--c-brand);
+    color: var(--c-on-brand);
+    font-size: 18px;
+    /* 必须显式写：继承 --lh-body(1.75) 会让按钮高 61px，线上是 56px */
+    line-height: 27px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color var(--t-hover) var(--ease);
+  }
+
+  .filmstrip__cta:hover {
+    /* 只加深填充，边框仍是亮红 —— 线上 border-ssw-red 没有 hover 变体，
+       悬停时是「深红底 + 亮红细描边」。 */
+    background: var(--c-brand-hover);
+  }
+
+  .filmstrip__cta:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+  }
+
+  @media (min-width: 640px) {
+    .filmstrip__title {
+      font-size: 54px; /* sm:text-5xl */
+      line-height: 1.15;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .filmstrip {
+      min-block-size: 80vh; /* md:min-h-screen-4/5 */
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .filmstrip__title {
+      font-size: 81px; /* lg:text-7xl */
+      line-height: 81px;
+    }
+  }
+}

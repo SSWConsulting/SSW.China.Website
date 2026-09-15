@@ -1,0 +1,48 @@
+<meta name="theme-color" content="#181818" />
+<!-- 图标整套取自 ssw.com.au（用户要求「和 ssw.com.au 的一样」）：
+     四方块 SSW 标记 + 白底，与线上逐字节相同。
+     刻意与线上保持一致的两点：
+     · 不提供 SVG 图标 —— 线上没有，我们原来那个 favicon.svg 是**整个字标**
+       （90×60 的横向锁定标），16px 下糊成一团，已删除。
+     · 不引入 site.webmanifest —— 线上那份写着 theme_color/background_color 白色、
+       display: standalone，与本站深色为默认的设计冲突，且会把站点变成可安装应用，
+       超出「改 favicon」的范围。需要 PWA 再单独议。 -->
+<link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+<link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#cc4141" />
+<link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+
+<!--
+      预渲染引导脚本：必须在样式表之前执行，样式首次应用时 html.js 已存在，不会闪现。
+      只做两件事：标记 JS 可用；把 ?motion=off 变成动效总开关的属性。
+    -->
+<script>
+  (function () {
+    var d = document.documentElement;
+    d.classList.add('js');
+    // 主题：已存选择 → 系统偏好 → 深色（交接文档的设计基准）。
+    // 无 JS 时该属性不存在，:root 的深色令牌即生效。
+    try {
+      var stored = localStorage.getItem('ssw-cn-theme');
+      d.dataset.theme =
+        stored === 'light' || stored === 'dark'
+          ? stored
+          : matchMedia('(prefers-color-scheme: light)').matches
+            ? 'light'
+            : 'dark';
+    } catch (e) {
+      d.dataset.theme = 'dark';
+    }
+    try {
+      if (new URLSearchParams(location.search).get('motion') === 'off') {
+        d.dataset.motion = 'off';
+      }
+    } catch (e) {
+      /* URL 解析失败不应影响页面 */
+    }
+  })();
+</script>
+
+<link rel="stylesheet" href="/src/styles/index.css" />
+<script type="module" src="/src/scripts/main.ts"></script>

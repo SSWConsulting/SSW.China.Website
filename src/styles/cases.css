@@ -1,0 +1,285 @@
+@layer components {
+  /* ══════════════════════════════════════════════════════════════════════
+     案例主推卡片 —— 照搬 ssw.com.au 首页 Case Studies 的 highlighted 卡片。
+     线上根字号 18px：min-h 360px / md 380px、圆角 50.625px（rounded-feature）、
+     遮罩 rgb(0 0 0 / 60%)、内边距 p-6 → md:px-16 py-12（54px 72px）、
+     gap-8 = 36px、客户标志 size-16 = 64px、标题 text-3xl → lg:text-4xl = 40.5px、
+     箭头 size-16 = 64px，悬停旋转 45° 并放大 1.25。
+     ══════════════════════════════════════════════════════════════════════ */
+
+  .case-card {
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    min-block-size: 360px;
+    border-radius: 50.625px;
+    /* 没有真实照片时的兜底：品牌渐变，绝不放虚构实景照片。 */
+    background: linear-gradient(135deg, #cc4141 0%, #3a1717 55%, #181818 100%);
+    color: #ffffff;
+  }
+
+  .case-card__bg {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    max-inline-size: none;
+    object-fit: cover;
+  }
+
+  .case-card__scrim {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 60%);
+  }
+
+  /* 占位内容的可见角标。与 isPlaceholder 一一对应，
+     同一标志会让 check:assets 阻塞发布。 */
+
+  .case-card__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 36px;
+    inline-size: 100%;
+    padding: 27px;
+    text-align: center;
+  }
+
+  .case-card__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-24);
+    max-inline-size: 36rem;
+  }
+
+  /* 客户名是纯文字时永远叠在标题上方；只有真的有标志图时才并排。 */
+  .case-card__id {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-12);
+  }
+
+  .case-card__logo {
+    inline-size: 64px;
+    block-size: 64px;
+    flex: none;
+    object-fit: contain;
+  }
+
+  /* 没有真实客户标志时：客户名纯文字呈现，不留空图框、不自制标志。 */
+  .case-card__client {
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: rgb(255 255 255 / 85%);
+  }
+
+  .case-card__title {
+    font-size: 30px;
+    line-height: 1.3;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .case-card__summary {
+    font-size: var(--fs-lead);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* url 为 null 时这一整块不渲染 —— 不留没有去处的箭头。 */
+  .case-card__link {
+    flex: none;
+    align-self: center;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .case-card__arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 64px;
+    block-size: 64px;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #000000;
+    transition: transform var(--t-gesture) var(--ease-io);
+  }
+
+  .case-card__arrow svg {
+    inline-size: 21px;
+    block-size: 21px;
+  }
+
+  .case-card__link:hover .case-card__arrow,
+  .case-card__link:focus-visible .case-card__arrow {
+    /* 位移乘以动效总开关 ⇒ 减少动效时自动归零 */
+    transform: rotate(45deg) scale(1.25);
+  }
+
+  @media (min-width: 768px) {
+    .case-card {
+      block-size: 380px;
+    }
+
+    .case-card__inner {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding: 54px 72px;
+      text-align: start;
+    }
+
+    .case-card__copy,
+    .case-card__id {
+      align-items: flex-start;
+    }
+
+    .case-card__id:has(.case-card__logo) {
+      flex-direction: row;
+      align-items: center;
+      gap: 36px;
+    }
+
+    .case-card__title {
+      font-size: 40.5px;
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     三张副卡 —— 照搬 ssw.com.au Case Studies 主卡下方那一排。
+     注意顺序和核心服务卡相反：**正文在上、16:9 图区在下**。
+     线上取值（18px 根字号）：圆角 18px、发丝边 0.5px、内边距 lg:p-8 = 36px、
+     正文块与箭头之间 gap-8 = 36px、标题与简介之间 gap-4 = 18px、
+     标题 22px/30.25px/500、简介 18px/27px/300、箭头 size-10 = 45px、
+     图区遮罩 rgb(0 0 0 / 20%)。
+     ══════════════════════════════════════════════════════════════════════ */
+  .case-minis {
+    margin-block-start: 27px;
+  }
+
+  .case-mini {
+    display: flex;
+    flex-direction: column;
+    inline-size: 100%;
+    overflow: hidden;
+    border: 0.5px solid var(--c-hairline);
+    border-radius: 18px;
+    background: var(--c-case-card);
+  }
+
+  .case-mini__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 36px;
+    padding: var(--s-24);
+  }
+
+  .case-mini__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .case-mini__title {
+    font-size: 22px;
+    line-height: 30.25px;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+  }
+
+  .case-mini__summary {
+    font-size: 18px;
+    line-height: 27px;
+    font-weight: 300;
+    color: var(--c-text-2);
+  }
+
+  /* url 为 null 时整块不渲染 —— 不留没有去处的箭头。 */
+  .case-mini__link {
+    align-self: flex-end;
+    margin-block-start: auto;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .case-mini__arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 45px;
+    block-size: 45px;
+    border-radius: 999px;
+    background: var(--c-text);
+    color: var(--c-bg);
+    transition: transform var(--t-gesture) var(--ease-io);
+  }
+
+  .case-mini__arrow svg {
+    inline-size: 15px;
+    block-size: 15px;
+  }
+
+  .case-mini__link:hover .case-mini__arrow,
+  .case-mini__link:focus-visible .case-mini__arrow {
+    /* 位移乘以动效总开关 ⇒ 减少动效时自动归零 */
+    transform: rotate(45deg) scale(1.25);
+  }
+
+  .case-mini__media {
+    position: relative;
+    inline-size: 100%;
+    aspect-ratio: 16 / 9;
+    /* 没有真实照片时的兜底：比主卡更收敛的同族渐变，逐张换角度，
+       免得三张一模一样看起来像渲染出错。绝不放虚构实景照片。 */
+    background: linear-gradient(
+      var(--case-angle, 135deg),
+      rgb(204 65 65 / 70%) 0%,
+      #331c1c 55%,
+      #1c1c1c 100%
+    );
+  }
+
+  /* .case-mini 是 <li> 的独子，逐张换角度要从 slide 上选 */
+  .case-minis .core-cards__slide:nth-child(2) .case-mini__media {
+    --case-angle: 205deg;
+  }
+
+  .case-minis .core-cards__slide:nth-child(3) .case-mini__media {
+    --case-angle: 300deg;
+  }
+
+  .case-mini__img {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    max-inline-size: none;
+    object-fit: cover;
+  }
+
+  .case-mini__scrim {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 20%);
+  }
+
+  @media (min-width: 1024px) {
+    .case-minis {
+      margin-block-start: 36px;
+    }
+
+    .case-mini__body {
+      padding: 36px;
+    }
+  }
+}

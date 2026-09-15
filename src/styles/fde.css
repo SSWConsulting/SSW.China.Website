@@ -1,0 +1,109 @@
+@layer components {
+  .fde .section__head {
+    margin-block-end: var(--s-48);
+  }
+
+  .timeline {
+    position: relative;
+    display: grid;
+    gap: var(--s-32);
+  }
+
+  .stage {
+    position: relative;
+    padding-inline-start: var(--s-24);
+  }
+
+  /* 纵向导轨（窄屏） */
+  .stage::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 5px;
+    width: 1px;
+    background: var(--c-divider);
+  }
+
+  .stage:last-child::before {
+    inset-block-end: auto;
+    height: 14px;
+  }
+
+  .stage__marker {
+    position: absolute;
+    inset-block-start: 6px;
+    inset-inline-start: 0;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--c-bg);
+    border: 2px solid var(--c-brand);
+  }
+
+  .stage__name {
+    font-size: var(--fs-h3);
+    line-height: var(--lh-h3);
+  }
+
+  .stage__desc {
+    color: var(--c-text-2);
+    margin-block-start: var(--s-8);
+  }
+
+  .stage__focus {
+    margin-block-start: var(--s-12);
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    color: var(--c-text-3);
+  }
+
+  .stage__focus-label {
+    display: block;
+    color: var(--c-text-2);
+    font-weight: 600;
+  }
+
+  .fde__modes {
+    margin-block-start: var(--s-48);
+    font-size: var(--fs-h3);
+    line-height: var(--lh-h3);
+    font-weight: 600;
+  }
+
+  .fde__note {
+    margin-block-start: var(--s-8);
+  }
+
+  @media (min-width: 1024px) {
+    .timeline {
+      /* 横向四阶段时间线（文档 §FDE）。不使用横向拖动或轮播。 */
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--s-32);
+    }
+
+    .stage {
+      padding-inline-start: 0;
+      padding-block-start: var(--s-32);
+    }
+
+    /* 横向导轨 */
+    .stage::before {
+      inset-block: auto;
+      inset-block-start: 5px;
+      inset-inline: 0 calc(var(--s-32) * -1);
+      width: auto;
+      height: 1px;
+      transform-origin: left center;
+    }
+
+    .stage:last-child::before {
+      inset-inline-end: auto;
+      width: 14px;
+      height: 1px;
+    }
+
+    .stage__marker {
+      inset-block-start: 0;
+    }
+  }
+}

@@ -1,0 +1,58 @@
+<!--
+  企业微信咨询面板。
+
+  这是面板文案的唯一 DOM 来源。JS 关闭时它是页面末尾一个真实可达的区块，
+  所有「添加企业微信」按钮都是指向 #wecom 的真实链接 —— 不存在死控件。
+  JS 开启时 wecom-modal.ts 把这个节点整体搬进 <dialog>，并接管锚点点击。
+-->
+<section class="wecom" id="wecom" aria-labelledby="wecom-title" data-wecom-panel>
+  <div class="wecom__panel">
+    <button class="wecom__close" type="button" aria-label="关闭企业微信咨询" data-wecom-close hidden>
+      <span aria-hidden="true">✕</span>
+    </button>
+
+    <h2 class="wecom__title" id="wecom-title">添加 SSW 企业微信</h2>
+    <p class="wecom__desc" id="wecom-desc">聊聊你的业务场景与 AI 落地需求。</p>
+
+    <!-- @if wecom.qrImage -->
+    <figure class="wecom__qr" data-qr-figure>
+      <img
+        class="wecom__qr-img"
+        data-qr-img
+        src="{{ wecom.qrImage.src }}"
+        width="{{ wecom.qrImage.w }}"
+        height="{{ wecom.qrImage.h }}"
+        alt="SSW 企业微信联系人二维码"
+        onerror="this.dataset.failed = '1'"
+      />
+    </figure>
+
+    <div class="wecom__error" data-qr-error hidden>
+      <p class="wecom__error-text">二维码加载失败，请重试</p>
+      <button class="btn btn--secondary wecom__retry" type="button" data-qr-retry>重新加载</button>
+    </div>
+
+    <p class="wecom__hint" data-hint="desktop">使用微信扫描二维码，添加企业微信联系人。</p>
+    <p class="wecom__hint" data-hint="mobile">
+      长按二维码保存到相册，再打开微信扫一扫，从相册选择二维码。若当前浏览器不支持长按保存，请使用“打开二维码图片”。
+    </p>
+
+    <a class="wecom__image-link" href="{{ wecom.qrImage.src }}" target="_blank" rel="noopener noreferrer"
+      >打开二维码图片</a
+    >
+    <!-- @else -->
+    <p class="wecom__pending">{{ wecom.pendingNotice }}</p>
+    <!-- @endif -->
+
+    <!-- @if wecom.searchableId -->
+    <div class="wecom__id" data-id-row>
+      <p class="wecom__id-text">
+        企业微信号：<code class="wecom__id-value" data-id-value>{{ wecom.searchableId }}</code>
+      </p>
+      <button class="btn btn--secondary wecom__copy" type="button" data-id-copy>复制账号</button>
+    </div>
+    <!-- @endif -->
+
+    <p class="wecom__toast" role="status" aria-live="polite" data-toast hidden></p>
+  </div>
+</section>

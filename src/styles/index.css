@@ -1,0 +1,26 @@
+/* 层级顺序：motion 最后 —— 动效总开关必须能覆盖任何来源。 */
+@layer tokens, base, layout, components, motion;
+
+@import './fonts.css';
+@import './tokens.css';
+@import './base.css';
+@import './layout.css';
+@import './nav.css';
+@import './hero.css';
+@import './services.css';
+@import './core-cards.css';
+@import './advantage.css';
+@import './ai-solutions.css';
+@import './cases.css';
+@import './clients.css';
+@import './why-us.css';
+@import './chinafy.css';
+@import './service-page.css';
+@import './ai-apps.css';
+@import './fde.css';
+@import './ecosystem.css';
+@import './cta-footer.css';
+@import './globe.css';
+@import './diagrams.css';
+@import './modal.css';
+@import './motion.css';

@@ -1,0 +1,290 @@
+@layer components {
+  /* ══════════════════════════════════════════════════════════════════════
+     四张图示的共享原语。
+
+     节点、标签、连线全部是 HTML 元素 —— 不用 SVG <text>：中文标签需要换行，
+     且三张图要跨断点重构（首屏还要丢掉次级标签）。详见 docs/DECISIONS.md。
+
+     标签永不参与动画，首帧即完全可读（文档 §4「节点不隐藏对理解有用的标签」）。
+     节点不是可点击控件，不加悬浮手型（文档 §2）。
+     ══════════════════════════════════════════════════════════════════════ */
+
+  .diagram {
+    position: relative;
+    display: grid;
+    cursor: default;
+    min-width: 0;
+  }
+
+  .node {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: var(--s-12) var(--s-16);
+    background: var(--c-panel);
+    border: 1px solid var(--c-control);
+    border-radius: var(--r-panel);
+    text-align: center;
+    font-size: var(--fs-eyebrow);
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  .node__label {
+    font-weight: 600;
+  }
+
+  .node--sm {
+    padding: var(--s-8) var(--s-12);
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+
+  .node--wide {
+    width: 100%;
+  }
+
+  /* AI／核心节点：品牌红边界（3.72:1，作为 UI 边界 ≥3:1 合规） */
+  .node--focus {
+    border-color: var(--c-brand);
+  }
+
+  /* 人工确认节点：更明显的边框（文档 §业务工作流图形说明）。静态样式，
+     不由动画揭示 —— 关掉动画后这个重点依然存在。 */
+  .node--emphasis {
+    border-width: 2px;
+    border-color: var(--c-text);
+    background: var(--c-charcoal);
+  }
+
+  /* 核心节点后方的静态光晕。不脉动 —— 脉动会被读成运行状态指示器。
+     用居中定位 + 上限尺寸，而不是百分比 inset：移动端节点是满宽的，
+     百分比会让光晕撑出视口，造成整页横向溢出。 */
+  .node__glow {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    width: min(150%, 300px);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(204 65 65 / 22%), transparent 72%);
+    pointer-events: none;
+  }
+
+  /* ── 连线 ─────────────────────────────────────────────────────────────
+     语义连线一律以 --c-control(#797979, 4.08:1) 起，渐变到品牌红(3.72:1)，
+     全程 ≥3:1。--c-divider(#404040, 1.71:1) 只用于装饰网格，绝不做连线。 */
+  .conn {
+    position: relative;
+    display: block;
+    align-self: center;
+    justify-self: center;
+    background: linear-gradient(90deg, var(--c-control), var(--c-brand));
+  }
+
+  .conn--v {
+    width: 1px;
+    height: 32px;
+    background: linear-gradient(180deg, var(--c-control), var(--c-brand));
+  }
+
+  /* 换行连线：从右侧节点中线向下、向左横穿、再向下进入左侧节点中线。
+     三段都从 --elbow-inset 派生，该值等于首屏网格左右两列的中线位置，
+     改网格模板时只需改这一个值。 */
+  /* 右侧竖段（上半）：从 AI 能力节点中线向下 */
+  /* 左侧竖段（下半）：向下进入业务流程节点中线 */
+  /* ── 首屏图示 ─────────────────────────────────────────────────────────── */
+  /* 首屏图示内的低对比网格 —— 这是图示框内唯一的背景（文档 §2） */
+  @media (min-width: 768px) {
+  }
+
+  /* ── AI 中台架构图 ────────────────────────────────────────────────────── */
+  .diagram--platform {
+    justify-items: center;
+  }
+
+  .frame {
+    position: relative;
+    width: 100%;
+    display: grid;
+    justify-items: center;
+    gap: 0;
+    padding: var(--s-32) var(--s-16) var(--s-24);
+    border: 1px solid var(--c-control);
+    border-radius: var(--r-panel);
+    background: color-mix(in srgb, var(--c-panel) 55%, transparent);
+  }
+
+  .frame__legend {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: var(--s-16);
+    transform: translateY(-50%);
+    padding-inline: var(--s-8);
+    background: var(--c-bg);
+    font-size: var(--fs-small);
+    line-height: 1;
+    font-weight: 600;
+    color: var(--c-text-2);
+  }
+
+  .layer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s-12);
+    width: 100%;
+  }
+
+  .layer--outlets {
+    gap: var(--s-8);
+  }
+
+  .conn--fan {
+    height: var(--s-24);
+  }
+
+  /* ── 业务工作流图 ─────────────────────────────────────────────────────── */
+  .diagram--flow {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .diagram--flow .node {
+    flex: 0 0 auto;
+  }
+
+  .conn--run {
+    position: relative;
+    overflow: hidden;
+    width: 1px;
+    height: var(--s-24);
+    align-self: center;
+    background: linear-gradient(180deg, var(--c-control), var(--c-control));
+  }
+
+  /* 一次性流动高亮：装饰性重复层。删掉它不丢任何信息。 */
+  .conn__flow {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 0;
+    height: 40%;
+    background: linear-gradient(180deg, transparent, var(--c-brand), transparent);
+    opacity: 0;
+  }
+
+  @media (min-width: 768px) {
+    .diagram--flow {
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .diagram--flow .node {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .conn--run {
+      flex: 0 1 40px;
+      width: auto;
+      min-width: 16px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--c-control), var(--c-control));
+    }
+
+    .conn__flow {
+      inset-block: 0;
+      inset-inline-start: 0;
+      width: 40%;
+      height: auto;
+      background: linear-gradient(90deg, transparent, var(--c-brand), transparent);
+    }
+  }
+
+  /* ── 定制应用关系图 ───────────────────────────────────────────────────── */
+  .diagram--hub {
+    grid-template-areas:
+      'center'
+      'spA'
+      'satA'
+      'satB'
+      'satC';
+    justify-items: center;
+    row-gap: var(--s-12);
+  }
+
+  .hub__center {
+    grid-area: center;
+  }
+  .hub__c-a {
+    grid-area: spA;
+  }
+  .hub__a {
+    grid-area: satA;
+  }
+  .hub__b {
+    grid-area: satB;
+  }
+  .hub__c {
+    grid-area: satC;
+  }
+
+  /* 窄屏只保留一条主干连线；另两条是纯装饰重复层，隐藏不丢信息
+     （关系由 figcaption 与视觉隐藏的说明文字承载）。 */
+  .hub__c-b,
+  .hub__c-c {
+    display: none;
+  }
+
+  .conn--spoke {
+    background: linear-gradient(180deg, var(--c-brand), var(--c-control));
+    width: 1px;
+    height: var(--s-24);
+  }
+
+  @media (min-width: 768px) {
+    .diagram--hub {
+      grid-template-areas:
+        'satA spA  center spB satB'
+        '.    .    spC    .   .'
+        '.    .    satC   .   .';
+      grid-template-columns: 1fr minmax(20px, 0.4fr) auto minmax(20px, 0.4fr) 1fr;
+      align-items: center;
+      row-gap: var(--s-8);
+      column-gap: var(--s-8);
+    }
+
+    .hub__c-b,
+    .hub__c-c {
+      display: block;
+    }
+
+    .hub__c-a {
+      grid-area: spA;
+    }
+    .hub__c-b {
+      grid-area: spB;
+    }
+    .hub__c-c {
+      grid-area: spC;
+    }
+
+    .hub__c-a,
+    .hub__c-b {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, var(--c-control), var(--c-brand));
+    }
+
+    .hub__c-b {
+      background: linear-gradient(90deg, var(--c-brand), var(--c-control));
+    }
+  }
+}

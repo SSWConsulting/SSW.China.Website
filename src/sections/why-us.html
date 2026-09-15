@@ -1,0 +1,92 @@
+<!-- @if whyUs -->
+<!-- ══════════════════════════════════════════════════════════════════════
+     为什么选择 SSW —— 照搬 ssw.com.au 首页 "Why choose SSW?"。
+     线上版式（18px 根字号）：上排 lg 五等分栅格，配图占 3、说明卡占 2，gap 36px；
+     下排同样五等分，两条要点占 3（内部再分两栏，gap 72px），资质徽章占 2。
+     卡片 圆角 18px / 1px 发丝边 / 底色 #0d0d0d；标题 40.5px/45px；
+     要点标题 22.5px/31.5px 600、正文 18px/27px 300；
+     徽章胶囊 min-height 40.5px / 圆角全圆 / 内边距 9px 18px / 15.75px。
+
+     与线上的差异见 docs/DECISIONS.md §36：
+     · 播放按钮只在 whyUs.videoUrl 有值时渲染 —— 地址为空时左栏是静态配图，
+       不出现点了没反应的按钮。当前填的是 B 站地址（见 DECISIONS §42），
+       所以按钮会渲染；线上的 YouTube 原址中国大陆打不开，刻意没沿用。
+     · 线上那颗按钮整个去掉了（用户 2026-09-09 要求）—— 页面上的咨询入口
+       仍有三处（导航、首屏、页尾 CTA），这一块不再重复
+     ══════════════════════════════════════════════════════════════════════ -->
+<section class="whyus" id="why-us" aria-labelledby="whyus-title">
+  <div class="container">
+    <div class="whyus__top">
+      <!-- @if whyUs.image -->
+      <div class="whyus__media">
+        <img
+          class="whyus__img"
+          src="{{ whyUs.image.src }}"
+          alt=""
+          aria-hidden="true"
+          width="{{ whyUs.image.w }}"
+          height="{{ whyUs.image.h }}"
+          loading="lazy"
+        />
+        <!-- @if whyUs.videoUrl -->
+        <a class="whyus__play" href="{{ whyUs.videoUrl }}" target="_blank" rel="noopener noreferrer">
+          <span class="sr-only">播放视频（在新标签页打开）</span>
+          <!-- 三角本身是填充的；再描一圈同色圆角连接的边，尖角就被磨圆了。 -->
+          <svg
+            class="whyus__play-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+            fill="currentColor"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linejoin="round"
+          >
+            <path d="M8.5 6.2v11.6l10-5.8z" />
+          </svg>
+        </a>
+        <!-- @endif -->
+      </div>
+      <!-- @endif -->
+
+      <div class="whyus__card">
+        <h2 id="whyus-title" class="whyus__title">为什么选择 SSW</h2>
+        <p class="whyus__intro">30 多年来，SSW 的咨询服务已为 15 个国家的数千家客户交付软件方案。</p>
+        <!-- 新增文案，需文案负责人确认：这一段是把 ssw.com.au 原有的两条要点
+             （Hands-on expertise / Results that matter）压缩成一句，不是新造的主张。
+             原来那两条独立要点已按用户要求删除。 -->
+        <p class="whyus__intro">
+          每一项技术我们先自己用起来，再把经验整理成公开的最佳实践；给出的每一条建议，都说得清依据、代价，以及你的团队下一步该做什么。
+        </p>
+        <!-- 资质徽章现在住在右侧说明卡里（原本在下方独立一栏）。 -->
+        <!-- @if whyUs.recognition -->
+        <div class="whyus__recognition">
+          <p class="whyus__recognition-label">资质与荣誉</p>
+          <ul class="whyus__badges">
+            <li class="whyus__badge">
+              <img
+                class="whyus__badge-icon"
+                src="/media/recognition/microsoft-squares.png"
+                alt=""
+                aria-hidden="true"
+                width="960"
+                height="960"
+                loading="lazy"
+              />
+              Microsoft Solutions Partner
+            </li>
+            <li class="whyus__badge">MAPA Learning Excellence Award</li>
+          </ul>
+        </div>
+        <!-- @endif -->
+      </div>
+    </div>
+
+    <!-- @if whyUs.caption -->
+    <div class="whyus__caption-row">
+      <p class="whyus__caption">{{ whyUs.caption }}</p>
+    </div>
+    <!-- @endif -->
+  </div>
+</section>
+<!-- @endif -->

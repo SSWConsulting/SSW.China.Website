@@ -1,0 +1,278 @@
+@layer components {
+  /* ══════════════════════════════════════════════════════════════════════
+     首屏：ssw.com.au 的 heroBox 版式 —— 内嵌的深色圆角卡片，背景照片靠右，
+     左侧文案，底边一个凹口托着向下箭头。像素值同样直接写解析后的结果
+     （线上根字号 18px，本站 16px）。
+     ══════════════════════════════════════════════════════════════════════ */
+
+  .hero {
+    padding-block-start: 18px;
+  }
+
+  .hero__shell {
+    max-width: 1548px;
+    margin-inline: auto;
+    padding-inline: 18px;
+  }
+
+  .hero__box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 504px;
+    overflow: hidden;
+    /* ssw.com.au: rounded-feature = 2.8125rem @18px = 50.625px */
+    border-radius: 50.625px;
+    background-color: #000;
+  }
+
+  /* 尚未配置背景照片时，卡片以自身的红黑渐变收尾 ——
+     不放占位图、不虚构照片，版面依然是完整的设计而不是坏图。 */
+  .hero__box:not(:has(.hero__media)) {
+    background-image:
+      radial-gradient(90% 120% at 88% 50%, rgb(255 255 255 / 8%) 0%, transparent 58%),
+      linear-gradient(
+        90deg,
+        rgb(13 13 13 / 88%) 0%,
+        rgb(24 24 24 / 58%) 42%,
+        rgb(13 13 13 / 12%) 70%
+      );
+  }
+
+  /* 没有照片时红色遮罩不再叠加 —— 上面的渐变本身就是卡片的完成态 */
+  .hero__box:not(:has(.hero__media)) .hero__scrim {
+    display: none;
+  }
+
+  .hero__media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* ssw.com.au: object-right */
+    object-position: 100% 50%;
+    opacity: 0.6;
+  }
+
+  /* 桌面端使用深灰遮罩，保持文字可读性 */
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    display: none;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      rgb(13 13 13 / 88%) 0%,
+      rgb(22 22 22 / 72%) 36%,
+      rgb(22 22 22 / 28%) 62%,
+      rgb(13 13 13 / 8%) 100%
+    );
+  }
+
+  .hero__copy {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    /* max-w-2xl = 42rem @18px = 756px */
+    max-width: 756px;
+    padding: 36px;
+  }
+
+  .hero__title {
+    margin: 0;
+    padding: 0;
+    font-size: 33.75px;
+    /* ssw.com.au 实测：line-height 1、字重 400、tracking-tight */
+    line-height: 1;
+    /* 字重 500，不是线上的 400 —— 用户 2026-09-09 要求标题更粗。
+       中文回退字体（PingFang SC）最重只到 Semibold(600)，600→700 对中文无效。
+       用户 2026-09-09 又要求再粗一号 ⇒ 500 → 600，**这是中文的上限**，
+       不要再往上调，700/800/900 渲染结果与 600 完全相同。详见 DECISIONS §49／§51。 */
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: #fff;
+  }
+
+  .hero__line {
+    display: block;
+  }
+
+  .hero__lead {
+    margin-block-start: 18px;
+    /* max-w-md = 28rem @18px = 504px */
+    max-width: 504px;
+    font-size: 18px;
+    line-height: 27px;
+    color: rgb(255 255 255 / 90%);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 13.5px;
+    margin-block: 36px 72px;
+  }
+
+  /* ssw.com.au 的按钮是圆角方形，不是胶囊 */
+  .hero__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* 高度必须靠 line-height 决定：13.5×2 + 27 + 边框 2 = 56px，与线上一致。
+       原来写 1.2（= 21.6px）只有 51px，比页面上其他红色按钮矮 5px。 */
+    min-height: var(--touch);
+    padding: 13.5px 27px;
+    border: 1px solid transparent;
+    border-radius: 6.75px;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 27px;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color var(--t-hover) var(--ease),
+      border-color var(--t-hover) var(--ease);
+  }
+
+  .hero__btn--primary {
+    background: var(--c-brand);
+    border-color: var(--c-brand);
+    color: var(--c-on-brand);
+  }
+
+  .hero__btn--primary:hover {
+    /* ssw.com.au: sswDarkRed */
+    background: #8e2c2c;
+    border-color: #8e2c2c;
+  }
+
+  .hero__btn--ghost {
+    background: rgb(0 0 0 / 25%);
+    border-color: rgb(255 255 255 / 55%);
+    color: #fff;
+  }
+
+  .hero__btn--ghost:hover {
+    background: rgb(255 255 255 / 12%);
+    border-color: #fff;
+  }
+
+  /* ── 底边凹口 ─────────────────────────────────────────────────────────
+     125px 高的形状下沉 43px，露出的 82px 正好是那个弧形缺口；
+     填色与页面底色一致，读作从卡片上咬掉的一口。卡片的 overflow:hidden
+     负责把下沉的部分裁掉。 */
+  .hero__scoop {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    width: 280px;
+    height: 82px;
+    pointer-events: none;
+  }
+
+  .hero__scoop-shape {
+    position: absolute;
+    inset-block-end: -43px;
+    inset-inline-start: 0;
+    width: 100%;
+    height: 125px;
+    fill: var(--c-bg);
+  }
+
+  .hero__scroll {
+    position: absolute;
+    inset-block-end: 13.5px;
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 49.5px;
+    height: 49.5px;
+    /* 这颗按钮坐在凹口上，凹口填的是页面底色 —— 因此它必须跟随主题，
+       不能沿用卡片内部的白色。 */
+    border: 3px solid color-mix(in srgb, var(--c-text) 78%, transparent);
+    border-radius: 9999px;
+    color: var(--c-text);
+    transition:
+      background-color var(--t-hover) var(--ease),
+      color var(--t-hover) var(--ease),
+      border-color var(--t-hover) var(--ease);
+  }
+
+  .hero__scroll svg {
+    width: 22.5px;
+    height: 22.5px;
+  }
+
+  .hero__scroll:hover {
+    background: var(--c-text);
+    border-color: var(--c-text);
+    color: var(--c-bg);
+  }
+
+  /* ── 断点 ─────────────────────────────────────────────────────────────── */
+  @media (min-width: 640px) {
+    .hero {
+      padding-block-start: 90px;
+    }
+
+    .hero__shell {
+      padding-inline: 36px;
+    }
+
+    .hero__box {
+      min-height: 612px;
+    }
+
+    .hero__copy {
+      padding: 54px;
+    }
+
+    .hero__title {
+      font-size: 54px;
+    }
+
+    .hero__actions {
+      margin-block-end: 0;
+    }
+
+    /* 凹口在 ≥640px 移到右侧，距右边 72px */
+    .hero__scoop {
+      inset-inline-start: auto;
+      inset-inline-end: 72px;
+      transform: none;
+      width: 380px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero__box {
+      min-height: 576px;
+    }
+
+    .hero__copy {
+      padding: 72px;
+    }
+
+    .hero__title {
+      font-size: 67.5px;
+    }
+
+    .hero__media {
+      opacity: 1;
+    }
+
+    .hero__scrim {
+      display: block;
+    }
+  }
+}

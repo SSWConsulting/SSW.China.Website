@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>SSW｜让 AI 真正落地企业业务</title>
+    <meta
+      name="description"
+      content="从 AI 中台、业务工作流到定制应用，SSW 帮助企业把 AI 接入现有系统与业务流程，推动方案上线并持续迭代。"
+    />
+    <!-- @include partials/head.html -->
+  </head>
+
+  <body>
+    <!-- @include partials/body-start.html -->
+
+    <main id="main" tabindex="-1">
+      <!-- @include sections/hero.html -->
+      <!-- @include sections/ai-services.html -->
+      <!-- @include sections/advantage.html -->
+      <!-- @include sections/ai-solutions.html -->
+      <!-- @include sections/fde.html -->
+      <!--
+        案例：cases 为空时整段不渲染，不保留空白、占位卡片或“敬请期待”。
+        当前放着一条显式标记的占位案例（见 site.config.ts），
+        卡片上有「示例内容」角标，且 check:assets 会阻塞发布。
+      -->
+      <!-- @include sections/cases.html -->
+      <!-- @include sections/clients.html -->
+      <!-- @include sections/why-us.html -->
+      <!-- @include sections/ecosystem.html -->
+      <!-- @include sections/globe.html -->
+      <!--
+        收尾 CTA（「你的业务，哪一步最值得用 AI 改进？」）已按用户要求从首页去掉。
+        sections/cta.html 本身保留 —— 三个服务详情页与 /chinafy/ 仍在用它。
+        要在首页恢复：把 @include sections/cta.html 加回这里即可。
+      -->
+    </main>
+
+    <!-- @include partials/body-end.html -->
+  </body>
+</html>
