@@ -13,7 +13,8 @@
      线上根字号 18px，故 rounded-card 1rem = 18px、p-6 = 27px、pr-10 = 45px、
      gap-4 = 18px、h-12 = 54px、text-sm = 15.75px、text-xs = 13.5px、
      rounded-control = 6.75px。
-     整张卡片是一个链接；配色固定深色，不随明暗主题翻转（线上该页强制 dark）。
+     线上整张卡片是链接，本站按要求去掉了链接与「了解」按钮，因此不保留任何悬停态。
+     配色固定深色，不随明暗主题翻转（线上该页强制 dark）。
      ══════════════════════════════════════════════════════════════════════ */
   .product-card {
     position: relative;
@@ -26,30 +27,14 @@
     border: 0.5px solid var(--c-product-line);
     border-radius: 18px;
     color: var(--c-product-text);
-    text-decoration: none;
-    transition:
-      background-color var(--t-hover) var(--ease),
-      border-color var(--t-hover) var(--ease);
-  }
-
-  .product-card:hover {
-    border-color: var(--c-brand);
   }
 
   .product-card--tina {
     background: var(--c-tina);
   }
 
-  .product-card--tina:hover {
-    background: var(--c-tina-hover);
-  }
-
   .product-card--yak {
     background: var(--c-product-bg);
-  }
-
-  .product-card--yak:hover {
-    background: var(--c-product-bg-hover);
   }
 
   /* 装饰图：纯背景，不承载任何信息，永不进入可达性树。 */
@@ -68,11 +53,6 @@
     inline-size: auto;
     opacity: 0.15;
     filter: brightness(0) invert(1);
-    transition: opacity var(--t-hover) var(--ease);
-  }
-
-  .product-card--tina:hover .product-card__art {
-    opacity: 0.25;
   }
 
   /* YakShaver：渐变底贴右边缘满高铺开。 */
@@ -84,13 +64,9 @@
     max-inline-size: none; /* 覆盖 base.css 的 img{max-width:100%} */
   }
 
-  /* 正文与按钮必须压在装饰图之上 */
-  .product-card__body,
-  .product-card__cta {
-    position: relative;
-  }
-
+  /* 正文必须压在装饰图之上 */
   .product-card__body {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 18px;
@@ -151,27 +127,6 @@
   .product-card--yak .product-card__tags li {
     border-color: var(--c-brand);
     background: rgb(204 65 65 / 16%);
-  }
-
-  .product-card__cta {
-    align-self: flex-start;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-block-size: var(--touch);
-    padding: 9px 18px;
-    border-radius: 6.75px;
-    background: var(--c-product-text);
-    color: var(--c-product-bg);
-    font-size: 15.75px;
-    font-weight: 500;
-    transition: transform var(--t-gesture) var(--ease-io);
-  }
-
-  .product-card:hover .product-card__cta,
-  .product-card:focus-visible .product-card__cta {
-    /* 位移乘以动效总开关 ⇒ 减少动效时自动归零 */
-    transform: scale(1.05);
   }
 
   .entry {
@@ -296,6 +251,18 @@
     object-position: left center;
   }
 
+  /* .community 的底色是 --c-surface-deep，会随主题翻转（深 #0d0d0d → 浅 #ffffff）——
+     与 Tina/YakShaver 的固定深色卡片不同。深底版「UG」是白字，浅色主题下会
+     压在白底上完全消失，所以按主题切换真实素材，机制与导航区 SSW 标识一致
+     （见 nav.css 的 .nav__logo--dark / --light + tokens.css 的 --logo-dark / --logo-light）。 */
+  .community__logo--dark {
+    display: var(--logo-dark);
+  }
+
+  .community__logo--light {
+    display: var(--logo-light);
+  }
+
   .community__tagline {
     margin-block-start: var(--s-8);
     font-size: var(--fs-lead);
@@ -307,43 +274,6 @@
     margin-block-start: var(--s-12);
     max-inline-size: 52ch;
     color: var(--c-text-2);
-  }
-
-  .community__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--s-12);
-    margin-block-start: var(--s-24);
-  }
-
-  /* 平台入口：描边胶囊，悬停转品牌红边 */
-  .community__channel {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--s-8);
-    min-block-size: var(--touch);
-    padding: 9px 18px;
-    border: 1px solid var(--c-control);
-    border-radius: 999px;
-    color: var(--c-text);
-    font-size: var(--fs-body);
-    font-weight: 600;
-    text-decoration: none;
-    transition:
-      border-color var(--t-hover) var(--ease),
-      background-color var(--t-hover) var(--ease);
-  }
-
-  .community__channel:hover {
-    border-color: var(--c-brand);
-    background: rgb(204 65 65 / 10%);
-  }
-
-  .community__channel-icon {
-    inline-size: 20px;
-    block-size: 20px;
-    flex-shrink: 0;
-    color: var(--c-brand); /* 图标：非文字内容，≥3:1 */
   }
 
   /* 三格数据。数字不做滚动计数（交接文档 §4）。 */

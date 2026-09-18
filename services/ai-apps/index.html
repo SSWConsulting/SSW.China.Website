@@ -5,7 +5,7 @@
     <title>AI 应用定制｜SSW</title>
     <meta
       name="description"
-      content="先找出 AI 真正能创造价值的环节，再构建能与现有系统协作的安全方案。围绕实际使用场景，开发企业专属 AI 应用。"
+      content="有明确的 AI 想法，但现有工具和工作流满足不了？我们可以开发专属应用，改造现有软件，把 AI 接进 ERP、CRM 和内部系统。"
     />
     <!-- @include partials/head.html -->
   </head>
@@ -24,16 +24,15 @@
         </div>
       </nav>
 
-      <!-- ══════════════════════════════════════════════════════════════════
-           首屏：通栏配图 + 渐变压暗 + 白字，取自 Elyte 模板的做法。
-           标题挂 data-words —— 逐词（中文逐字）入场，但**不挂 data-reveal**：
-           首屏文字必须立即可读（交接文档 §4），词入场的总时长压在 390ms 内。
-           ══════════════════════════════════════════════════════════════════ -->
-      <section class="aiapps-hero" aria-labelledby="page-title">
+      <!-- 首屏：2026-09-18 按用户要求改成与另外两个服务页一样的结构
+           （.page-head + .service-hero-media，图在右侧、深色渐变、白字），
+           不再是本页独有的通栏图+锚点导航条那一套。原因与取舍见
+           src/styles/ai-apps.css 里这块规则前的注释，以及 docs/DECISIONS.md §84。
+           页面标题与导语不挂 data-reveal —— 首屏文字必须立即可读（交接文档 §4）。 -->
+      <section class="page-head" aria-labelledby="page-title">
         <!-- @if aiApps.heroImage -->
-        <div class="aiapps-hero__bg" data-placeholder="{{ aiApps.heroImage.isPlaceholder }}" aria-hidden="true">
+        <div class="service-hero-media" data-placeholder="{{ aiApps.heroImage.isPlaceholder }}" aria-hidden="true">
           <img
-            class="aiapps-hero__bg-img"
             src="{{ aiApps.heroImage.src }}"
             alt=""
             width="{{ aiApps.heroImage.w }}"
@@ -42,22 +41,17 @@
           />
         </div>
         <!-- @endif -->
-
-        <div class="container aiapps-hero__inner">
-          <p class="eyebrow eyebrow--ondark">AI 应用定制</p>
-          <h1 id="page-title" class="display display--xl">减少重复劳动，<span>把 AI 装进日常工作</span></h1>
-          <p class="aiapps-hero__lede">先找出 AI 真正能创造价值的环节，再构建能与现有系统协作的安全方案。</p>
-          <div class="btn-row aiapps-hero__actions">
-            <a class="btn btn--primary" href="#wecom" data-wecom data-ripple>添加企业微信</a>
-            <a class="btn btn--ondark" href="#usecases">看看能做什么</a>
+        <div class="container page-head__inner">
+          <div class="page-head__copy">
+            <h1 id="page-title">现成工具不够用，我们按需开发</h1>
+            <p class="lead page-head__lede">有明确的 AI 想法，但现有工具和工作流满足不了？</p>
+            <p class="page-head__body">我们可以开发专属应用，改造现有软件，把 AI 接进 ERP、CRM 和内部系统。</p>
+            <div class="btn-row page-head__actions">
+              <a class="btn btn--primary" href="#wecom" data-wecom data-ripple>联系我们</a>
+              <a class="btn" href="#usecases">看看能做什么</a>
+            </div>
           </div>
         </div>
-
-        <nav class="container aiapps-hero__strip" aria-label="页面导航">
-          <a href="#usecases">应用场景 <span aria-hidden="true">↗</span></a>
-          <a href="#scope">交付范围 <span aria-hidden="true">↗</span></a>
-          <a href="#process">合作流程 <span aria-hidden="true">↗</span></a>
-        </nav>
       </section>
 
       <!-- ══ 三条主张：罗马数字清单（模板 Pillars 的做法） ═══════════════ -->
@@ -65,40 +59,34 @@
         <div class="container">
           <div class="head" data-reveal-group>
             <p class="eyebrow" data-reveal>来自实际项目</p>
-            <h2 id="pillars-title" class="display" data-reveal data-words>把 AI 做对，靠的是这三件事</h2>
+            <h2 id="pillars-title" class="display" data-reveal data-words>按你的业务开发，接进现有系统</h2>
           </div>
 
           <div class="pillars__body">
             <p class="pillars__intro" data-reveal>
-              AI 容易让人无从下手。顾问会先分析你的系统，再给出务实的方案——提升效率、自动化流程、从数据里拿到结论。
+              先明确谁来使用、需要完成什么，再设计功能、连接数据，并通过实际任务验证效果。
             </p>
 
             <ol class="pillars__list" data-reveal-group>
               <li class="pillar" data-reveal>
                 <span class="pillar__num" aria-hidden="true">I</span>
                 <div>
-                  <h3 class="pillar__title">贴合业务的自动化</h3>
-                  <p class="pillar__text">
-                    动手之前先弄清你的业务怎么运转。交付的自动化是围绕你的系统和你的问题长出来的，上线第一天就能用。
-                  </p>
+                  <h3 class="pillar__title">功能贴合业务</h3>
+                  <p class="pillar__text">围绕实际用户和任务设计功能与界面，让操作符合团队的工作方式。</p>
                 </div>
               </li>
               <li class="pillar" data-reveal>
                 <span class="pillar__num" aria-hidden="true">II</span>
                 <div>
-                  <h3 class="pillar__title">安全与合规从第一天开始</h3>
-                  <p class="pillar__text">
-                    AI 的好坏取决于周围的护栏。我们在方案里预置防护措施保护客户数据，让它既好用又合规。
-                  </p>
+                  <h3 class="pillar__title">接好数据与权限</h3>
+                  <p class="pillar__text">连接所需业务系统，明确应用可以读取什么、执行什么操作。</p>
                 </div>
               </li>
               <li class="pillar" data-reveal>
                 <span class="pillar__num" aria-hidden="true">III</span>
                 <div>
-                  <h3 class="pillar__title">企业级经验，任何规模适用</h3>
-                  <p class="pillar__text">
-                    从运营效率到客户体验，团队交付过企业级 AI 方案。同样的严谨也用在各种规模的组织上，结果可以衡量。
-                  </p>
+                  <h3 class="pillar__title">上线后方便维护</h3>
+                  <p class="pillar__text">完成测试、部署与交接，明确后续维护和调整方式。</p>
                 </div>
               </li>
             </ol>
@@ -133,8 +121,8 @@
               </div>
               <!-- @endif -->
               <span class="ucard__index" aria-hidden="true">01</span>
-              <h3 class="ucard__title">文档处理</h3>
-              <p class="ucard__text">从发票、表单和报告里抽取信息，减少人工录入，加快审核环节。</p>
+              <h3 class="ucard__title">专属 AI 应用</h3>
+              <p class="ucard__text">围绕具体岗位或业务任务，开发专用界面、处理逻辑和审核功能。</p>
             </li>
 
             <li class="ucard" data-reveal>
@@ -154,8 +142,8 @@
               </div>
               <!-- @endif -->
               <span class="ucard__index" aria-hidden="true">02</span>
-              <h3 class="ucard__title">内部知识检索</h3>
-              <p class="ucard__text">让员工在公司文档与系统里找到答案，并且能回溯到原始出处。</p>
+              <h3 class="ucard__title">现有系统增加 AI</h3>
+              <p class="ucard__text">在 ERP、CRM 或内部系统中加入 AI 功能，让员工在熟悉的软件里使用。</p>
             </li>
 
             <li class="ucard" data-reveal>
@@ -175,8 +163,8 @@
               </div>
               <!-- @endif -->
               <span class="ucard__index" aria-hidden="true">03</span>
-              <h3 class="ucard__title">客户咨询分流</h3>
-              <p class="ucard__text">对进来的咨询分类、起草回复，把复杂问题转给合适的人处理。</p>
+              <h3 class="ucard__title">产品增加 AI 功能</h3>
+              <p class="ucard__text">为面向客户的产品开发搜索、推荐或 AI 助手。</p>
             </li>
 
             <li class="ucard" data-reveal>
@@ -196,8 +184,8 @@
               </div>
               <!-- @endif -->
               <span class="ucard__index" aria-hidden="true">04</span>
-              <h3 class="ucard__title">为现有软件增加 AI</h3>
-              <p class="ucard__text">给你的产品加上搜索、推荐或 AI 助手，让客户少花力气把事办完。</p>
+              <h3 class="ucard__title">企业 AI 平台</h3>
+              <p class="ucard__text">当现成工具难以满足统一接入、知识检索和权限管理需求时，定制所需的平台能力。</p>
             </li>
           </ul>
         </div>
@@ -242,7 +230,7 @@
                 ><span class="deliverable__toggle" aria-hidden="true"></span>
               </summary>
               <div class="deliverable__body">
-                <p>将 AI 能力转化为适合实际工作的操作体验，让用户能发起任务、检查结果，并在需要时接手。</p>
+                <p>根据实际工作开发新应用，或改造现有软件，让用户能发起任务、检查结果，并在需要时接手。</p>
                 <ul class="deliverable__outputs" aria-label="应用开发内容">
                   <li>定制操作界面</li>
                   <li>AI 能力接入</li>
@@ -295,14 +283,14 @@
               <span class="pstep__num" aria-hidden="true">02</span>
               <div class="pstep__body">
                 <h3 class="pstep__title">方案评审</h3>
-                <p class="pstep__text">一份写明范围、时间与报价的方案，以及最快见到回报的路径。</p>
+                <p class="pstep__text">明确实施范围、阶段安排、费用与验收方式。</p>
               </div>
             </li>
             <li class="pstep" data-reveal>
               <span class="pstep__num" aria-hidden="true">03</span>
               <div class="pstep__body">
                 <h3 class="pstep__title">开发与交付</h3>
-                <p class="pstep__text">可以由 SSW 端到端负责，也可以加入你现有的团队一起做。</p>
+                <p class="pstep__text">可以由 SSW 团队负责实施，也可以通过 FDE 服务加入你的团队共同开发。</p>
               </div>
             </li>
             <li class="pstep" data-reveal>
@@ -316,102 +304,33 @@
         </div>
       </section>
 
-      <!-- ══ SSW 自己在用的 AI ═══════════════════════════════════════════ -->
-      <section class="section-lg builtby" aria-labelledby="builtby-title">
-        <div class="container">
-          <div class="builtby__card" data-reveal>
-            <span class="builtby__glow" aria-hidden="true"></span>
-            <div class="builtby__copy">
-              <p class="eyebrow">SSW 自己在用</p>
-              <h2 id="builtby-title" class="display display--sm" data-words>一个我们每天都在用的 AI 方案</h2>
-              <p class="builtby__text">
-                YakShaver
-                看一段录屏，判断需要做什么，在你说完之前就把工作项写好了。没有表单，没有分派，不用在周一早上整理待办。
-              </p>
-              <dl class="builtby__points">
-                <div class="builtby__point">
-                  <dt>真实的工作，不是聊天机器人</dt>
-                  <dd>它替掉的是每个开发者一天要做好几次的事——AI 在这种地方回报最高。</dd>
-                </div>
-                <div class="builtby__point">
-                  <dt>可以自己试</dt>
-                  <dd>用你自己的录屏试一次，判断它到底有没有用。</dd>
-                </div>
-              </dl>
-              <a class="builtby__link" href="https://yakshaver.ai/" target="_blank" rel="noopener noreferrer">
-                前往 yakshaver.ai
-                <span class="sr-only">（在新标签页打开）</span>
-                <svg class="builtby__link-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                  <path
-                    d="M4.6 11.4 11.4 4.6M6.1 4.6h5.3v5.3"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.7"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </a>
-            </div>
-
-            <!-- @if ecosystem.yakshaver.logo -->
-            <div class="builtby__mark" aria-hidden="true">
-              <img
-                src="{{ ecosystem.yakshaver.logo.src }}"
-                alt=""
-                width="{{ ecosystem.yakshaver.logo.w }}"
-                height="{{ ecosystem.yakshaver.logo.h }}"
-                loading="lazy"
-              />
-            </div>
-            <!-- @endif -->
-          </div>
-        </div>
-      </section>
-
       <!-- ══ 模型之外 ═══════════════════════════════════════════════════ -->
       <section class="section-lg beyond" aria-labelledby="beyond-title">
         <div class="container">
           <div class="head" data-reveal-group>
             <p class="eyebrow" data-reveal>不只是模型</p>
-            <h2 id="beyond-title" class="display" data-reveal data-words>模型之外的那些事，同一个团队做完</h2>
-            <p class="head__intro" data-reveal>模型是最简单的部分。围绕它的一切才是工作量所在。</p>
+            <h2 id="beyond-title" class="display" data-reveal data-words>让应用上线，也方便后续维护</h2>
+            <p class="head__intro" data-reveal>根据应用的实际需要安排验证、部署和交接，让团队能够使用和维护。</p>
           </div>
 
           <ul class="beyond__grid" data-reveal-group>
             <li class="beyond__item" data-reveal>
-              <h3 class="beyond__title">AI 探索工作坊</h3>
-              <p class="beyond__text">用一天时间，找出 AI 在你的业务里最先值得投的地方。</p>
+              <h3 class="beyond__title">需求验证</h3>
+              <p class="beyond__text">用样例和原型确认功能是否满足实际工作。</p>
             </li>
             <li class="beyond__item" data-reveal>
-              <h3 class="beyond__title">AI 辅助开发</h3>
-              <p class="beyond__text">把 AI 用进研发流程，让团队交付得更快。</p>
+              <h3 class="beyond__title">系统改造</h3>
+              <p class="beyond__text">为现有软件增加所需接口、功能和操作界面。</p>
             </li>
             <li class="beyond__item" data-reveal>
-              <h3 class="beyond__title">本地大模型</h3>
-              <p class="beyond__text">在你自己的基础设施上跑模型，数据不出门。</p>
+              <h3 class="beyond__title">部署与运行</h3>
+              <p class="beyond__text">根据使用规模和部署要求安排运行环境。</p>
             </li>
             <li class="beyond__item" data-reveal>
-              <h3 class="beyond__title">云上基础设施</h3>
-              <p class="beyond__text">让 AI 在规模变大之后依然够快、够省。</p>
+              <h3 class="beyond__title">测试与交接</h3>
+              <p class="beyond__text">完成测试，整理部署、维护和使用文档。</p>
             </li>
           </ul>
-
-          <div class="models" data-reveal>
-            <h3 class="models__title">我们使用的 AI 模型</h3>
-            <ul class="models__list">
-              <li>Claude</li>
-              <li>ChatGPT</li>
-              <li>Gemini</li>
-              <li>Microsoft Copilot</li>
-              <li>DeepSeek</li>
-              <li>Kimi</li>
-              <li>Grok</li>
-              <li>Mistral</li>
-              <li>Gemma</li>
-            </ul>
-            <p class="models__note">具体选型由双方一起定，架构上保证模型可以更换。</p>
-          </div>
         </div>
       </section>
 
