@@ -73,8 +73,6 @@ function setupModal(panel: HTMLElement, menu: MenuController): void {
     qsa('[data-hint]', panel).forEach((hint) => {
       hint.hidden = failed;
     });
-    const imageLink = qs('.wecom__image-link', panel);
-    if (imageLink) imageLink.hidden = failed;
   }
 
   if (qrImage) {

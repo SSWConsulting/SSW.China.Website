@@ -37,6 +37,14 @@ export interface WeComConfig {
    */
   qrImage: ImageAsset | null;
   /**
+   * qrImage 是否已在**另一台设备上实际扫过**并确认能加上人。
+   *
+   * 二维码本身是真实素材，但企业微信的客服码会随账号变更而失效 ——
+   * 「文件放对了」和「扫得通」是两件事，本仓库无法验证后者。
+   * false ⇒ publishBlockers() 阻塞发布。实扫通过后手工改成 true。
+   */
+  qrScanVerified: boolean;
+  /**
    * 可选：真实的、可搜索的企业微信号。
    * null ⇒ 账号行（标签/值/复制按钮）整行不输出。
    */
@@ -58,8 +66,18 @@ export interface EcosystemEntry {
   /**
    * 官方标识素材。null ⇒ 以真实名称纯文字呈现（24px），
    * 不预留空框、不自制替代 Logo。
+   *
+   * 深底版。Tina / YakShaver 的卡片固定深色、不随主题翻转（见 ecosystem.css），
+   * 只用得到这一版；FireUG 的卡片背景用 --c-surface-deep，会随主题翻转，
+   * 所以额外提供 `logoLight`，两版都是真实素材，不是同一张图套滤镜。
    */
   logo: ImageAsset | null;
+  /**
+   * 浅底版，可选。只有卡片背景会随主题翻转时才需要提供 ——
+   * 目前只有 FireUG。留空 ⇒ 该条目在浅色主题下仍显示 `logo`（深底版），
+   * 适用于卡片本身固定深色的场景。
+   */
+  logoLight?: ImageAsset | null;
   /** 标识的替代文本，仅在 logo 存在时使用。 */
   logoAlt: string;
   /**

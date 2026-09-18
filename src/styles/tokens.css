@@ -61,9 +61,7 @@
        线上那一页整段强制深色，因此这组颜色**两套主题相同**，不随主题翻转 ——
        浅色态下它们是页面上两块刻意的深色产品图块。见 docs/DECISIONS.md §22。 */
     --c-tina: #c2360d; /* Tina 卡片底色，白字 5.49:1 */
-    --c-tina-hover: #cf3a0e; /* 悬停，白字 4.92:1 */
     --c-product-bg: #101010;
-    --c-product-bg-hover: #151515;
     --c-product-line: #212121; /* 发丝边，装饰 */
     --c-product-text: #ffffff;
     --c-product-text-2: #c7c7c7; /* 线上是 rgb(255 255 255 / 78%) 在 #101010 上的等效值 */

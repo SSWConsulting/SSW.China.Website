@@ -52,9 +52,10 @@
   }
 
   /* ══════════════════════════════════════════════════════════════════════
-     页脚 —— 参考 ssw.com.au：#212121 深色带、标识在左、下方链接分栏、
-     底部一行法律信息左右分置。线上根字号 18px：pt-20 = 90px、
-     栏目标题 text-lg = 20.25px/600、链接 18px/27px、底部 text-sm = 15.75px。
+     页脚 —— 参考 ssw.com.au：#212121 深色带、标识在左、底部一行法律信息左右分置。
+     2026-09-18 起不再是多栏链接网格（原来的五栏导航已按用户要求删掉，
+     改成地址与联系方式，见 footer.html 顶部注释与 docs/DECISIONS.md §72／§73）。
+     线上根字号 18px：pt-20 = 90px、底部 text-sm = 15.75px。
      配色固定深色，两套主题相同（线上 bg-sswBorder 也是固定色）。
      ══════════════════════════════════════════════════════════════════════ */
   .footer {
@@ -70,6 +71,12 @@
     padding-block-end: 0;
   }
 
+  .footer__top {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-16);
+  }
+
   .footer__brand {
     display: inline-block;
   }
@@ -79,35 +86,29 @@
     block-size: auto;
   }
 
-  .footer__nav {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 36px;
+  .footer__contact {
+    /* <address> 默认 font-style: italic，页脚不需要这个强调 */
+    font-style: normal;
   }
 
-  .footer__col-title {
-    font-size: 20.25px;
-    line-height: 1.4;
-    font-weight: 600;
-    color: var(--c-footer-head);
-    margin-block-end: 18px;
+  .footer__contact-line {
+    font-size: 15.75px;
+    line-height: 1.6;
+    color: var(--c-footer-text-2);
   }
 
-  .footer__col li + li {
-    margin-block-start: 2px;
-  }
-
-  .footer__col a {
-    display: inline-block;
-    font-size: 18px;
-    line-height: 27px;
-    color: var(--c-footer-text);
+  .footer__contact-line a {
+    color: var(--c-footer-text-2);
     text-decoration: none;
-    transition: color var(--t-hover) var(--ease);
+    border-block-end: 1px solid rgb(255 255 255 / 20%);
+    transition:
+      color var(--t-hover) var(--ease),
+      border-color var(--t-hover) var(--ease);
   }
 
-  .footer__col a:hover {
+  .footer__contact-line a:hover {
     color: var(--c-footer-head);
+    border-block-end-color: var(--c-brand);
   }
 
   .footer__legal {
@@ -146,8 +147,11 @@
   }
 
   @media (min-width: 768px) {
-    .footer__nav {
-      grid-template-columns: repeat(3, 1fr);
+    .footer__top {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--s-24);
     }
 
     .footer__legal {
@@ -160,11 +164,6 @@
   @media (min-width: 1024px) {
     .footer__inner {
       padding-block-start: 90px;
-    }
-
-    /* 五栏，与 ssw.com.au 的 md:grid-cols-3 lg:grid-cols-5 同档 */
-    .footer__nav {
-      grid-template-columns: repeat(5, 1fr);
     }
   }
 }

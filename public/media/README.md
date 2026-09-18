@@ -40,4 +40,16 @@ Tina / YakShaver 的四个文件与这支视频都取自 ssw.com.au 的官方素
 `recognition/microsoft-squares.png` 是资质徽章的图标，**Microsoft 商标**，
 是否可用于中国站需业务与法务确认（`check:assets` 会阻塞）。
 
+`wecom-qr.jpg`（1086×1375，292 KB）是**真实的企业微信客服海报**，由用户于
+2026-09-18 提供，逐字节复制，未裁边、未改色、未叠图标。咨询弹层用的就是它。
+
+`wecom-qr-en.jpg`（1086×1375，313 KB）是同一批的英文版海报（标题为
+"Scan the QR code to talk to SSW Experts"）。**当前没有任何页面引用它** ——
+全站 `lang` 都是 `zh-CN`，还没有英文界面。将来若加英文入口，
+在 `site.config.ts` 里指向这个文件即可，无需再要素材。
+
+二维码文件放对了不等于扫得通：企业微信客服码会随账号变更失效，
+`site.config.ts` 里的 `wecom.qrScanVerified` 就是记这件事的，
+实扫确认能加上人之前 `npm run check:assets` 会一直阻塞发布。
+
 **不要**在这里放生成的、示意的或占位的二维码。

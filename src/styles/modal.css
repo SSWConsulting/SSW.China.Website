@@ -75,8 +75,12 @@
   .wecom__qr-img {
     width: auto;
     height: auto;
-    max-width: 240px;
-    max-height: 320px;
+    /* 素材不是方码，是一张 1086×1375 的客服海报 —— 实测码本身只占宽度的 52.3%
+       （模块区 568px）。原来 240px 的上限会把码压到 125px，隔着屏幕扫不动。
+       按「码本身至少 ~175px」反推，海报宽度取 340px；桌面面板内容宽 356px，放得下。
+       面板本身 overflow-y: auto，矮屏幕上是滚动而不是被裁。 */
+    max-width: min(340px, 100%);
+    max-height: 440px;
     object-fit: contain;
   }
 
@@ -87,34 +91,15 @@
     color: var(--c-text-2);
   }
 
-  /* 桌面／手机提示两句都在 DOM 里，按输入方式切换，不做 UA 嗅探 */
+  /* 只剩触屏那一句，按输入方式显示，不做 UA 嗅探 */
   .wecom__hint[data-hint='mobile'] {
     display: none;
   }
 
   @media (pointer: coarse) {
-    .wecom__hint[data-hint='desktop'] {
-      display: none;
-    }
-
     .wecom__hint[data-hint='mobile'] {
       display: block;
     }
-  }
-
-  .wecom__image-link {
-    display: inline-block;
-    margin-block-start: var(--s-12);
-    min-height: var(--touch);
-    padding-block: var(--s-12);
-    font-size: var(--fs-small);
-    color: var(--c-text);
-    border-block-end: 1px solid var(--c-control);
-    text-decoration: none;
-  }
-
-  .wecom__image-link:hover {
-    border-block-end-color: var(--c-brand);
   }
 
   /* 二维码尚未配置时的诚实空状态。不是「待补标记」，

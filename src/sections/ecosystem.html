@@ -7,20 +7,15 @@
 
     <!-- ══════════════════════════════════════════════════════════════════
          产品卡片：照搬 ssw.com.au/products 上 TinaCMS 与 YakShaver 两张卡片
-         （18px 圆角、0.5px 发丝边、悬停转品牌红、右侧装饰图、标签行、
-         右下「了解」按钮悬停放大 1.05）。
+         （18px 圆角、0.5px 发丝边、右侧装饰图、标签行）。
+         与线上不同：按要求去掉了右下「了解」按钮，整张卡片也不再是链接 ——
+         因此悬停态（转品牌红边、换底色、水印提亮）一并去掉，不留假的可点暗示。
          线上该页整段强制深色，因此这两张卡片在本站也固定用深色配色，
          不随明暗主题翻转 —— 理由见 docs/DECISIONS.md §22。
          卡片正文仍是交接文档的中文，未改写。
          ══════════════════════════════════════════════════════════════════ -->
     <div class="ecosystem__products" data-reveal-group>
-      <a
-        class="product-card product-card--tina"
-        href="https://tina.io/"
-        target="_blank"
-        rel="noopener noreferrer"
-        data-reveal
-      >
+      <article class="product-card product-card--tina" data-reveal>
         <!-- @if ecosystem.tina.art -->
         <img
           class="product-card__art"
@@ -57,22 +52,9 @@
             <li>基于 Git</li>
           </ul>
         </div>
+      </article>
 
-        <span class="product-card__cta">
-          了解更多
-          <!-- 可见文字按用户要求统一成「了解更多」。两张卡的可访问名称仍然可区分 ——
-               整个 <a> 的名称里含产品名（标识的 alt）与下面这句目标说明。 -->
-          <span class="sr-only">（Tina，在新标签页打开 tina.io）</span>
-        </span>
-      </a>
-
-      <a
-        class="product-card product-card--yak"
-        href="https://yakshaver.ai/"
-        target="_blank"
-        rel="noopener noreferrer"
-        data-reveal
-      >
+      <article class="product-card product-card--yak" data-reveal>
         <!-- @if ecosystem.yakshaver.art -->
         <img
           class="product-card__art"
@@ -111,17 +93,12 @@
             <li>任务自动生成</li>
           </ul>
         </div>
-
-        <span class="product-card__cta">
-          了解更多
-          <span class="sr-only">（YakShaver，在新标签页打开 yakshaver.ai）</span>
-        </span>
-      </a>
+      </article>
     </div>
 
     <!-- ══════════════════════════════════════════════════════════════
          FireUG 社区卡片。设计方向参考 fireusergroup.com（深底、品牌红斜切、
-         平台入口按钮、三格数据），但**用本站自己的元素与令牌实现**，
+         三格数据），但**用本站自己的元素与令牌实现**，
          未取用对方的图形素材。文案与数字取自 FireUG 官网原文。
          ══════════════════════════════════════════════════════════════ -->
     <article class="community" data-reveal>
@@ -130,77 +107,40 @@
       <div class="community__head">
         <p class="entry__kind">技术社区</p>
         <!-- @if ecosystem.fireug.logo -->
+        <!-- 深底／浅底两版都是真实素材（见 site.config.ts 里的注释），
+             不是同一张图套滤镜；由 CSS 按主题切换显示，与导航区 SSW 标识同一机制。 -->
         <img
-          class="community__logo"
+          class="community__logo community__logo--dark"
           src="{{ ecosystem.fireug.logo.src }}"
           alt="{{ ecosystem.fireug.logoAlt }}"
           width="{{ ecosystem.fireug.logo.w }}"
           height="{{ ecosystem.fireug.logo.h }}"
         />
+        <!-- @if ecosystem.fireug.logoLight -->
+        <img
+          class="community__logo community__logo--light"
+          src="{{ ecosystem.fireug.logoLight.src }}"
+          alt="{{ ecosystem.fireug.logoAlt }}"
+          width="{{ ecosystem.fireug.logoLight.w }}"
+          height="{{ ecosystem.fireug.logoLight.h }}"
+        />
+        <!-- @else -->
+        <!-- 没有浅底版时的降级：浅色主题下仍显示深底版，
+             好过完全没有标识（卡片背景在浅色主题下是白的，深底版可能不够清晰，
+             但比空白更诚实地反映「素材暂缺浅底版」）。 -->
+        <img
+          class="community__logo community__logo--light"
+          src="{{ ecosystem.fireug.logo.src }}"
+          alt="{{ ecosystem.fireug.logoAlt }}"
+          width="{{ ecosystem.fireug.logo.w }}"
+          height="{{ ecosystem.fireug.logo.h }}"
+        />
+        <!-- @endif -->
         <!-- @else -->
         <h3 class="community__name">{{ ecosystem.fireug.name }}</h3>
         <!-- @endif -->
         <p class="community__tagline">一群程序员搞的技术频道</p>
         <p class="community__desc">通过技术分享、视频与交流活动，和开发者一起学习，交流工程实践。</p>
-
-        <div class="community__actions">
-          <a
-            class="community__channel"
-            href="https://space.bilibili.com/545713776"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <svg class="community__channel-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <rect
-                x="3"
-                y="6.5"
-                width="18"
-                height="14"
-                rx="3.5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-              />
-              <path
-                d="M7.5 3.2 10.5 6.5M16.5 3.2 13.5 6.5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-              />
-              <path
-                d="M8.5 11.5v2.5M15.5 11.5v2.5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-              />
-            </svg>
-            访问 B 站
-          </a>
-          <a
-            class="community__channel"
-            href="https://www.youtube.com/@fireusergroup"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <svg class="community__channel-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <rect
-                x="2.5"
-                y="5.5"
-                width="19"
-                height="13"
-                rx="4"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-              />
-              <path d="M10.2 9.3v5.4l4.6-2.7z" fill="currentColor" />
-            </svg>
-            访问油管
-            <span class="sr-only">（YouTube，中国大陆可能无法访问）</span>
-          </a>
-        </div>
       </div>
 
       <!-- 数字取自 FireUG 官网原文（fireusergroup.com），不做滚动计数。 -->

@@ -70,9 +70,14 @@ export const siteConfig: SiteConfig = {
   },
 
   wecom: {
-    // 待提供：真实企业微信联系人二维码。发布前必须补齐，并在另一台设备实扫验证。
-    // 示例：{ src: '/media/wecom-qr.png', w: 430, h: 430 }
-    qrImage: null,
+    // 真实企业微信客服海报，由用户于 2026-09-18 提供（原始文件 WeCom-CN.jpg，
+    // 逐字节复制，未裁边、未改色、未叠图标）。
+    // 同一批还有一张英文版海报 public/media/wecom-qr-en.jpg —— 全站 lang 都是
+    // zh-CN，当前没有英文界面消费它，先按素材留存，见 public/media/README.md。
+    qrImage: { src: '/media/wecom-qr.jpg', w: 1086, h: 1375 },
+
+    // 尚未实扫验证 —— 见 types.ts 里这个字段的说明。
+    qrScanVerified: false,
 
     // 可选，待提供：真实的可搜索企业微信号。例如：'SSW-China'
     searchableId: null,
@@ -206,9 +211,16 @@ export const siteConfig: SiteConfig = {
     // 因此不设商标授权闸门）。原图 512×203 含烧进位图的副标题
     // 「一群程序员搞的技术频道」，已裁掉下半带（副标题在卡片上用真文字呈现，
     // 小尺寸下位图那行中文会糊）。裁切后 512×135，红色恰是 #CC4141，与 --c-brand 同值。
+    //
+    // 两份都是同一次官方素材导出、未经二次加工的真实文件，唯一差异是
+    // 「UG」的颜色（深底版白字、浅底版 #333333），不是靠滤镜互相转换来的：
+    // FireUG 的卡片背景用 --c-surface-deep，会随主题从 #0d0d0d 翻成 #ffffff——
+    // 继续只用深底那版会导致浅色主题下白字「UG」压在白底上完全消失
+    // （2026-09-18 发现，用户提供了浅底版素材后修的）。详见 DECISIONS.md §69。
     fireug: {
       name: 'FireUG',
-      logo: { src: '/media/fireug-logo.png', w: 512, h: 135 },
+      logo: { src: '/media/fireug-logo-dark.png', w: 512, h: 135 },
+      logoLight: { src: '/media/fireug-logo-light.png', w: 512, h: 135 },
       logoAlt: 'FireUG',
     },
   },
@@ -238,6 +250,12 @@ export function publishBlockers(c: SiteConfig): string[] {
     out.push(
       'wecom.qrImage —— 真实企业微信二维码尚未配置，且无可搜索账号作为替代路径。' +
         '咨询流程当前无法完成，发布前必须补齐并实扫验证。',
+    );
+  } else if (c.wecom.qrImage !== null && !c.wecom.qrScanVerified) {
+    out.push(
+      'wecom.qrScanVerified —— 二维码文件已就位，但尚未有人在另一台设备上实际扫过。' +
+        '企业微信客服码会随账号变更失效，仓库无法自证「扫得通」：' +
+        '请实扫确认能加上人，再把 qrScanVerified 改为 true。',
     );
   }
   const placeholders = c.cases.filter((x) => x.isPlaceholder).length;

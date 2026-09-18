@@ -46,7 +46,18 @@
   }
 
   .filmstrip__title {
-    font-size: 40.5px; /* text-4xl */
+    /* 字号在 2026-09-18 从「照搬线上像素值」改成了「按当前文案实测反推」——
+       原文案「AI 方案，一次就做对」9 字，换成「让 AI 在日常工作中发挥作用」12 字后，
+       用户要求「文字不要换行」。原线上像素值（40.5/54/81）是按 9 字这句量出来的，
+       12 字在同样字号下会顶到容器边缘甚至溢出（≥1024px 时实测 1007px，
+       而 .filmstrip__inner 刨掉左右 padding 只有 972px 可用）。
+       三档字号都是按“容器可用宽度 ÷ 该文案在 1px 字号下的实测宽度”反推、
+       再各留 20~30px 安全余量算出来的，不再是 ssw.com.au 的原始取值 ——
+       与「照搬像素值」的一般约定不同，理由见 DECISIONS.md §67。
+       文案再变就要重新量，量法：把 font-size 逐级设成候选值，
+       读 .filmstrip__title 的 getBoundingClientRect().width 和
+       .filmstrip__inner 减 36px 的可用宽度比较。 */
+    font-size: 22px;
     line-height: 1.25; /* leading-tight */
     /* 字重 500，不是线上的 400 —— 用户 2026-09-09 要求标题更粗。
        中文回退字体（PingFang SC）最重只到 Semibold(600)，600→700 对中文无效。
@@ -54,6 +65,9 @@
        不要再往上调，700/800/900 渲染结果与 600 完全相同。详见 DECISIONS §49／§51。 */
     font-weight: 600;
     color: #fff;
+    /* 保证一定不换行，不靠字号刚好卡住 —— 字号已经按最窄视口反推过，
+       nowrap 只是不让浏览器在字号算错时自己选一个折行点掩盖问题。 */
+    white-space: nowrap;
   }
 
   .filmstrip__actions {
@@ -96,7 +110,7 @@
 
   @media (min-width: 640px) {
     .filmstrip__title {
-      font-size: 54px; /* sm:text-5xl */
+      font-size: 46px;
       line-height: 1.15;
     }
   }
@@ -109,8 +123,8 @@
 
   @media (min-width: 1024px) {
     .filmstrip__title {
-      font-size: 81px; /* lg:text-7xl */
-      line-height: 81px;
+      font-size: 76px;
+      line-height: 1.1;
     }
   }
 }

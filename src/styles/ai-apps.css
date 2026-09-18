@@ -45,89 +45,70 @@
     line-height: var(--lh-h3);
   }
 
-  /* ── 首屏：通栏配图 + 压暗 ─────────────────────────────────────────── */
-  .aiapps-hero {
+  /* ── 首屏 ──────────────────────────────────────────────────────────────
+     2026-09-18 按用户要求，改成与 AI 底座中台／AI 业务工作流两页完全一样的
+     首屏结构：不再是本页独有的 .aiapps-hero* 那一套（通栏图 + 上下渐变 +
+     常驻锚点导航条），改用 service-page.css 里给那两页用的
+     .page-head / .service-hero-media（左右渐变、图在右侧、文字在左半区）。
+
+     .service-hero-media 本身在 service-page.css 里是**未加限定的全局类**
+     （连同它的 ::after、img 子规则），全站都能直接用，这里不必重复定义。
+     但 .page-head 的「首屏化」外观（深底、绝对定位承接配图、白字配色、
+     次要按钮的描边样式）在 service-page.css 里是挂在 `.service-design-page`
+     这个 body class 下的——本页的 body class 是 `.aiapps-page`，不是那个，
+     且 `.aiapps-page` 下同名的 `.pillar` `.capabilities` `.faq` 等选择器
+     另有一整套专属样式，直接把 `service-design-page` 也加上 body 会让两边
+     的同名规则同时命中、互相打架。所以这里改成在 `.aiapps-page` 命名空间下
+     重新声明同一套「首屏化」规则（值照抄 service-page.css，未做改动），
+     只让 .page-head／.service-hero-media 的视觉效果与另外两页一致，
+     不触碰本页其余区块。详见 docs/DECISIONS.md §84。
+     ══════════════════════════════════════════════════════════════════════ */
+  .aiapps-page .page-head {
     position: relative;
     isolation: isolate;
     overflow: clip;
-    padding-block: var(--s-64) var(--s-48);
-    /* 没有配图时这层底色兜住白字的对比度。用 --c-hero-ground 而不是
-       --c-surface-deep：后者在浅色主题里翻成 #ffffff，会变成白底压白字。 */
+    padding-block: clamp(64px, 7vw, 112px);
+    margin-block-start: 24px;
     background: var(--c-hero-ground);
   }
 
-  .aiapps-hero__bg {
-    position: absolute;
-    z-index: -1;
-    inset: 0;
-  }
-
-  .aiapps-hero__bg-img {
-    inline-size: 100%;
-    block-size: 100%;
-    object-fit: cover;
-    opacity: 0.28;
-  }
-
-  /* 占位素材统一灰度 —— 与全站占位约定一致，一眼看出不是终稿。 */
-  .aiapps-hero__bg[data-placeholder='true'] .aiapps-hero__bg-img {
-    filter: grayscale(1);
-  }
-
-  /* 自下而上的渐变，保证按钮与短句那一带足够暗 */
-  .aiapps-hero__bg::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to bottom,
-      rgb(13 13 13 / 55%),
-      rgb(13 13 13 / 75%) 55%,
-      rgb(13 13 13 / 92%)
-    );
-  }
-
-  .aiapps-hero__inner {
+  .aiapps-page .page-head__inner {
+    display: grid;
+    gap: 48px;
     position: relative;
+    z-index: 1;
+    max-width: var(--container);
+    align-items: center;
   }
 
-  .aiapps-hero__lede {
-    margin-block-start: var(--s-24);
-    max-inline-size: var(--measure);
-    font-size: var(--fs-lead);
-    line-height: var(--lh-body);
-    color: var(--c-hero-ink-2);
-  }
-
-  .aiapps-hero__actions {
-    margin-block-start: var(--s-32);
-  }
-
-  .aiapps-hero__strip {
-    position: relative;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--s-24);
-    margin-block-start: var(--s-64);
-    padding-block-start: var(--s-24);
-    border-block-start: 1px solid rgb(255 255 255 / 18%);
-    font-size: var(--fs-small);
-    color: var(--c-hero-ink-2);
-  }
-
-  /* 首屏是固定深色（照片压暗后必须是白字），因此这几处不随主题翻转 ——
-     与产品卡片、案例主卡同一处理。 */
-  .aiapps-hero .eyebrow--ondark,
-  .aiapps-hero .display--xl {
+  .aiapps-page .page-head h1 {
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
     color: var(--c-hero-ink);
   }
 
-  .btn--ondark {
+  .aiapps-page .page-head__lede {
+    margin-block-start: 24px;
+    font-size: var(--fs-h3);
+    font-weight: 600;
+    color: var(--c-hero-ink);
+  }
+
+  .aiapps-page .page-head__body {
+    max-width: 40ch;
+    margin-block-start: 16px;
+    line-height: 1.85;
+    color: var(--c-hero-ink-2);
+  }
+
+  .aiapps-page .page-head .btn:not(.btn--primary) {
     border-color: rgb(255 255 255 / 45%);
     color: var(--c-hero-ink);
   }
 
-  .btn--ondark:hover {
+  .aiapps-page .page-head .btn:not(.btn--primary):hover {
     border-color: var(--c-hero-ink);
     background: rgb(255 255 255 / 10%);
   }
@@ -135,10 +116,6 @@
   @media (min-width: 768px) {
     .section-lg {
       padding-block: var(--s-96);
-    }
-
-    .aiapps-hero {
-      padding-block: var(--s-96) var(--s-64);
     }
   }
 
@@ -148,12 +125,19 @@
       padding-block: 120px;
     }
 
-    .aiapps-hero {
-      padding-block: 120px var(--s-64);
-    }
-
     .head {
       max-inline-size: 24ch;
+    }
+
+    .aiapps-page .page-head__inner {
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html:not([data-motion='off']) .aiapps-page .page-head__copy {
+      animation: service-head-enter 360ms var(--ease) both;
     }
   }
 
@@ -323,48 +307,11 @@
     }
   }
 
-  /* ── SSW 自己在用 ──────────────────────────────────────────────────── */
-  .builtby__card {
-    position: relative;
-    overflow: clip;
-    padding: var(--s-32);
-    border: 1px solid var(--c-hairline);
-    border-radius: var(--r-panel);
-    background: var(--c-surface-deep);
-  }
-
-  .builtby__glow {
-    position: absolute;
-    z-index: -1;
-    inset-block-start: -60%;
-    inset-inline-start: 30%;
-    inline-size: 60%;
-    aspect-ratio: 1;
-    background: radial-gradient(circle, rgb(204 65 65 / 14%), transparent 68%);
-    pointer-events: none;
-  }
-
-  .builtby__text {
-    margin-block-start: var(--s-16);
-    max-inline-size: var(--measure-prose);
-    color: var(--c-text-2);
-  }
-
-  .builtby__points {
-    display: grid;
-    gap: var(--s-16);
-    margin-block-start: var(--s-24);
-  }
-
-  .builtby__point dt {
-    font-weight: 600;
-  }
-
-  .builtby__point dd {
-    margin-block-start: var(--s-8);
-    color: var(--c-text-2);
-  }
-
+  /* ── 「SSW 自己在用」YakShaver 卡片已于 2026-09-18 按用户要求整块删除
+     （见 docs/DECISIONS.md §85）。.builtby__link / __link-icon 是共用类，
+     本页「合作流程」上方那句「聊聊你的应用需求」CTA 链接还在用，予以保留；
+     其余 .builtby__card / __glow / __text / __points / __point / __mark
+     只服务于已删除的那张卡片，一并移除。 */
   .builtby__link {
     display: inline-flex;
     align-items: center;
@@ -389,36 +336,6 @@
   .builtby__link:hover .builtby__link-icon,
   .builtby__link:focus-visible .builtby__link-icon {
     transform: translate3d(2px, -2px, 0);
-  }
-
-  .builtby__mark {
-    display: none;
-  }
-
-  @media (min-width: 1024px) {
-    .builtby__card {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: var(--s-48);
-      align-items: center;
-      padding: var(--s-48);
-    }
-
-    .builtby__points {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: var(--s-32);
-    }
-
-    .builtby__mark {
-      display: block;
-      inline-size: 200px;
-    }
-
-    .builtby__mark img {
-      inline-size: 100%;
-      block-size: auto;
-      opacity: 0.9;
-    }
   }
 
   /* ── 模型之外 ──────────────────────────────────────────────────────── */
@@ -456,42 +373,6 @@
     .beyond__grid {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
-  }
-
-  /* ── 模型清单 ──────────────────────────────────────────────────────── */
-  .models {
-    margin-block-start: var(--s-64);
-    padding-block-start: var(--s-24);
-    border-block-start: 1px solid var(--c-divider);
-  }
-
-  .models__title {
-    font-size: var(--fs-lead);
-    line-height: var(--lh-h3);
-  }
-
-  .models__list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--s-8);
-    margin-block-start: var(--s-16);
-    list-style: none;
-    padding: 0;
-  }
-
-  .models__list li {
-    padding: var(--s-8) var(--s-16);
-    border: 1px solid var(--c-hairline);
-    border-radius: 999px;
-    background: var(--c-surface-deep);
-    font-size: var(--fs-small);
-    color: var(--c-text-2);
-  }
-
-  .models__note {
-    margin-block-start: var(--s-16);
-    font-size: var(--fs-small);
-    color: var(--c-text-3);
   }
 
   /* ── 常见问题 ──────────────────────────────────────────────────────── */
@@ -576,49 +457,6 @@
   }
   .aiapps-page .display {
     text-wrap: balance;
-  }
-  .aiapps-page .aiapps-hero {
-    padding-block-start: clamp(64px, 8vw, 112px);
-  }
-  .aiapps-page .aiapps-hero h1 {
-    max-inline-size: 1000px;
-    line-height: 1.25;
-  }
-  .aiapps-page .aiapps-hero h1 span {
-    display: block;
-  }
-  .aiapps-page .aiapps-hero__bg-img {
-    opacity: 0.28;
-    object-position: 75% center;
-  }
-  .aiapps-page .aiapps-hero__bg::after {
-    background: linear-gradient(
-      90deg,
-      rgb(13 13 13 / 90%),
-      rgb(13 13 13 / 65%) 55%,
-      rgb(13 13 13 / 55%)
-    );
-  }
-  .aiapps-page .aiapps-hero__strip {
-    gap: 0;
-    padding-block-start: 0;
-  }
-  .aiapps-hero__strip a {
-    display: flex;
-    justify-content: space-between;
-    gap: 24px;
-    padding: 24px 32px 0 0;
-    margin-inline-end: 32px;
-    min-inline-size: 160px;
-    color: var(--c-hero-ink-2);
-    text-decoration: none;
-  }
-  .aiapps-hero__strip a span {
-    color: var(--c-brand-text);
-    transition: transform var(--t-hover) var(--ease);
-  }
-  .aiapps-hero__strip a:hover span {
-    transform: translate(3px, -3px);
   }
   .aiapps-page .pillars__list {
     gap: 0;
@@ -784,30 +622,11 @@
     font-size: 48px;
     color: var(--c-brand-text);
   }
-  .aiapps-page .builtby__card {
-    border: 1px solid var(--c-divider);
-    border-inline-start: 4px solid var(--c-brand);
-    isolation: isolate;
-  }
-  .aiapps-page .builtby__points {
-    padding-block-start: 24px;
-    border-block-start: 1px solid var(--c-divider);
-  }
   .aiapps-page .beyond__item {
     border: 0;
     padding: 24px;
     background: var(--c-surface-deep);
     border-radius: var(--r-panel);
-  }
-  .aiapps-page .models {
-    display: grid;
-    gap: 12px 32px;
-  }
-  .aiapps-page .models__list {
-    margin: 0;
-  }
-  .aiapps-page .models__list li {
-    border-radius: 4px;
   }
   .aiapps-page .faq {
     background: var(--c-surface-deep);
@@ -825,14 +644,6 @@
     }
     .aiapps-page .beyond__grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .aiapps-page .models {
-      grid-template-columns: 240px 1fr;
-      align-items: start;
-    }
-    .aiapps-page .models__note {
-      grid-column: 2;
-      margin: 0;
     }
   }
   @media (min-width: 1024px) {
@@ -867,13 +678,6 @@
     }
   }
   @media (max-width: 767px) {
-    .aiapps-hero__strip a {
-      min-inline-size: 0;
-      flex: 1;
-      padding-inline-end: 0;
-      margin-inline-end: 16px;
-      gap: 8px;
-    }
     .deliverable summary {
       padding: 20px;
       gap: 12px;
@@ -886,9 +690,6 @@
     }
   }
   @media (prefers-reduced-motion: no-preference) {
-    html:not([data-motion='off']) .aiapps-page .aiapps-hero__inner {
-      animation: aiapps-enter 360ms var(--ease) both;
-    }
     html:not([data-motion='off']) .deliverable[open] .deliverable__body {
       animation: aiapps-enter 300ms var(--ease) both;
     }
