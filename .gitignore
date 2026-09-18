@@ -7,3 +7,31 @@ dist-preview
 # 工具托管的本地状态，不属于项目源码
 .workbuddy/
 .wbapp_*.genie
+.claude/
+
+# 环境变量与密钥（模板文件例外，需保留以说明所需变量名）
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# 编辑器与 IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 构建与工具缓存
+.cache/
+.temp/
+.tmp/
+*.tsbuildinfo
+.vite/
+
+# 操作系统
+Thumbs.db
+desktop.ini
+
+# 本地覆盖
+*.local
