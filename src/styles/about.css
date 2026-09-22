@@ -1,0 +1,106 @@
+@layer components {
+  /* ══════════════════════════════════════════════════════════════════════
+     「关于我们」页面（/about/）。首屏起初是纯文字（没有真实照片），
+     2026-09-22 用户提供了真实团队/品牌合照后改成两栏：文字左、图右。
+     这里只补页面独有的几处：首屏两栏网格、核心业务清单、办公室/社区跳转、
+     资质列表。
+     ══════════════════════════════════════════════════════════════════════ */
+
+  .about-hero__inner {
+    display: grid;
+    gap: var(--s-32);
+  }
+
+  /* 用户要求「文字全部左对齐顶到边」——不用全局 .page-head__inner
+     （那条规则带 max-width: 880px，双栏下会把文字挤窄），改成这里
+     单独定义、贴容器左边界的版式，text-align 保持默认左对齐。 */
+  .about-hero__copy {
+    max-width: none;
+  }
+
+  /* 窄屏图片堆叠在文字下方（不隐藏——用户没有要求只在桌面显示）。
+     用户要求「缩小到 60%」——按其所在列宽的 60% 显示，靠右对齐
+     （图片本来就在版面右侧，缩小后贴右边界比居中更利落）。 */
+  .about-hero__media img {
+    display: block;
+    inline-size: 60%;
+    block-size: auto;
+    margin-inline-start: auto;
+    border-radius: var(--r-panel);
+  }
+
+  @media (min-width: 768px) {
+    .about-hero__inner {
+      grid-template-columns: 1.2fr 1fr;
+      align-items: center;
+      gap: var(--s-48);
+    }
+  }
+
+  .about-focus__list {
+    display: grid;
+    gap: var(--s-32);
+    margin-block-start: var(--s-48);
+    list-style: none;
+    padding: 0;
+  }
+
+  .about-focus__item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--s-24);
+    padding-block-start: var(--s-24);
+    border-block-start: 1px solid var(--c-divider);
+  }
+
+  .about-focus__num {
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    letter-spacing: 0.08em;
+    color: var(--c-brand-text);
+  }
+
+  .about-focus__title {
+    font-size: var(--fs-h3);
+    line-height: var(--lh-h3);
+  }
+
+  .about-focus__text {
+    margin-block-start: var(--s-8);
+    color: var(--c-text-2);
+  }
+
+  .about-focus__note {
+    margin-block-start: var(--s-48);
+    max-width: var(--measure-prose);
+    color: var(--c-text-2);
+  }
+
+  .about-recognition__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-12);
+    list-style: none;
+    padding: 0;
+  }
+
+  .about-recognition__list li {
+    padding: var(--s-8) var(--s-16);
+    border: 1px solid var(--c-hairline);
+    border-radius: 999px;
+    background: var(--c-surface-deep);
+    font-size: var(--fs-small);
+    color: var(--c-text-2);
+  }
+
+  @media (min-width: 768px) {
+    .about-focus__list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--s-24);
+    }
+
+    .about-focus__item {
+      grid-template-columns: none;
+    }
+  }
+}

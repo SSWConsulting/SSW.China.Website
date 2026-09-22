@@ -20,6 +20,7 @@ export default defineConfig({
         aiWorkflow: entry('services/ai-workflow/index.html'),
         aiApps: entry('services/ai-apps/index.html'),
         chinafy: entry('chinafy/index.html'),
+        about: entry('about/index.html'),
         // 展会／交流会现场的全屏轮播页，不挂进导航，也不进 sitemap。
         deck: entry('deck/index.html'),
       },

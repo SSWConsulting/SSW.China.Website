@@ -34,10 +34,6 @@
     color: var(--c-text-2);
   }
 
-  .globe__actions {
-    margin-block-start: 27px;
-  }
-
   .globe__grid {
     display: grid;
     gap: 54px;

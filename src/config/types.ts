@@ -208,11 +208,55 @@ export interface HeroConfig {
   backgroundImage: (ImageAsset & { alt: string }) | null;
 }
 
+/**
+ * 「关于我们」页面（/about/）专属素材。
+ *
+ * 页面正文（公司历史、业务范围、理念）是固定文案，不走配置 —— 这些是
+ * 交接文档之外的新增文案，事实来源是 ssw.cn/aboutus 与 ssw.com.au 的
+ * 公开信息，已按本站语气重新撰写，未逐句照抄；具体措辞需文案负责人确认。
+ * 只有下面这些「资质主张」需要业务/法务确认后才能上线，因此单独配置。
+ */
+export interface AboutConfig {
+  /**
+   * 资质与合作认证列表（Microsoft 金牌合作伙伴、MVP、RD 等）。
+   *
+   * 这些是 SSW 全球（含澳大利亚总部）的公开资质，中国子公司能否同样主张
+   * 需业务与法务确认 —— 与 WhyUsConfig.recognition 同一处理原则。
+   * null ⇒ 整块不渲染。
+   */
+  recognition: { items: string[]; pendingClearance: boolean } | null;
+}
+
+/**
+ * 站点级 SEO / GEO 设置。
+ *
+ * `origin` 是**正式域名**，canonical、og:url、sitemap.xml、JSON-LD 里的绝对
+ * 地址全部由它推导。填错会把搜索引擎指向不存在的地址，比不填更糟 ——
+ * 换域名时只改这一处，并同步重新生成 public/sitemap.xml。
+ */
+export interface SeoConfig {
+  /** 正式域名，**不带结尾斜杠**。例如 'https://ssw.cn'。 */
+  origin: string;
+  /** 站点名称，用于 og:site_name 与 JSON-LD 的 WebSite.name。 */
+  siteName: string;
+  /**
+   * 社交分享预览图（og:image / twitter:image）。
+   *
+   * 平台推荐 1200×630；当前用的是真实团队合照（正方形），比例不理想但真实。
+   * null ⇒ 不输出 og:image 与 twitter:image 标签（宁可没有，也不放假图）。
+   */
+  ogImage: ImageAsset | null;
+}
+
 export interface SiteConfig {
   hero: HeroConfig;
+  /** 站点级 SEO / GEO 设置。 */
+  seo: SeoConfig;
   wecom: WeComConfig;
   /** SSW 的数据统计。null ⇒ 整段不渲染。 */
   advantage: AdvantageConfig | null;
+  /** 「关于我们」页面专属素材。 */
+  about: AboutConfig;
   /** 「为什么选择 SSW」。null ⇒ 整段不渲染。 */
   whyUs: WhyUsConfig | null;
   /** 客户标识跑马灯。null ⇒ 整段不渲染。 */

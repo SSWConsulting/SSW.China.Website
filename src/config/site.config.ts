@@ -60,10 +60,27 @@ export const placeholderCases: CaseStudy[] = [
 ];
 
 export const siteConfig: SiteConfig = {
+  // ══ SEO / GEO ═══════════════════════════════════════════════════════════
+  // origin 是**正式域名**：canonical、og:url、sitemap.xml、robots 的 Sitemap
+  // 指向、JSON-LD 里的绝对地址，全部由它推导。
+  //
+  // **ssw.cn 已由用户于 2026-09-22 确认**（原话「全部都是 ssw.cn」）——
+  // 与页脚 ICP 备案号「浙ICP备20009588号」对应的域名一致，不是推测值。
+  // 这也意味着预览域名（*.app.workbuddy.host）上的 canonical 会指向 ssw.cn，
+  // 这是正确的：预览环境不该被索引，正式内容的唯一归属就是 ssw.cn。
+  // 万一将来换主域名，改这里一处并重跑 `npm run seo`。见 docs/DECISIONS.md §96。
+  seo: {
+    origin: 'https://ssw.cn',
+    siteName: 'SSW',
+    // 真实团队合照（2000×2000）。社交平台推荐 1200×630，比例不理想但内容真实；
+    // 想要更好的分享效果，做一张 1200×630 的版本替换即可，见 docs/PENDING-ASSETS.md。
+    ogImage: { src: '/media/about-team.webp', w: 2000, h: 2000 },
+  },
+
   hero: {
     backgroundImage: {
-      src: '/media/services/home-hero-ai-team-v14.png',
-      w: 1860,
+      src: '/media/services/home-hero-ai-team-v22.png',
+      w: 1862,
       h: 845,
       alt: '团队在现代办公空间中协作处理企业 AI 项目',
     },
@@ -100,6 +117,21 @@ export const siteConfig: SiteConfig = {
       { figure: '1,800', suffix: '+', label: '服务客户', note: '覆盖各行业' },
       { figure: '30', suffix: '+', label: '年经验', note: '遍布 15 个国家' },
     ],
+  },
+
+  // 「关于我们」页面（/about/）。资质列表是 SSW 全球公开资质，中国子公司
+  // 能否同样主张需业务与法务确认，因此默认 pendingClearance: true（阻塞发布）。
+  // 与 whyUs.recognition 同一原则，见 docs/DECISIONS.md §94。
+  about: {
+    recognition: {
+      items: [
+        'Microsoft 金牌合作伙伴',
+        'Microsoft MVP（多位团队成员）',
+        'Microsoft 区域总监（Regional Director）',
+        'Scrum 认证 CSM / CSPO',
+      ],
+      pendingClearance: true,
+    },
   },
 
   /**
@@ -291,6 +323,13 @@ export function publishBlockers(c: SiteConfig): string[] {
       'clients —— 客户标识跑马灯里是第三方商标（Microsoft、Cisco、Commonwealth Bank、Allianz 等），' +
         '取自 ssw.com.au。发布前需确认中国站主体可以主张同一批客户关系、且商标用法获准；' +
         '确认后把 pendingClearance 改为 false，或将 clients 置为 null 让整段不渲染。',
+    );
+  }
+  if (c.about.recognition?.pendingClearance) {
+    out.push(
+      'about.recognition —— 「关于我们」页面的资质与合作认证列表（Microsoft 金牌合作伙伴、' +
+        'MVP、Regional Director 等）是 SSW 全球（含澳洲总部）的公开资质，发布前需确认中国子公司' +
+        '能否同样主张；确认后把 pendingClearance 改为 false，或将 recognition 置为 null 让整段不渲染。',
     );
   }
   if (c.footer.icp === null) {
