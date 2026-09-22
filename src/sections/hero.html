@@ -21,9 +21,12 @@
         <p class="hero__lead">
           从 AI 中台、业务工作流到定制应用，SSW 帮助企业把 AI 接入现有系统与业务流程，推动方案上线并持续迭代。
         </p>
+        <!-- 首屏只留「了解 AI 服务」一个按钮（用户 2026-09-22 要求去掉这里的
+             「联系我们」）。咨询入口在导航条右上角常驻，并未因此丢失。
+             副作用是窄屏下这一行不再折成两行，首屏卡片矮了 ~70px，
+             这正是下面 .hero__box 基础 min-height 能从 504px 降到 430px 的前提。 -->
         <div class="hero__actions">
-          <a class="hero__btn hero__btn--primary" href="#wecom" data-wecom data-ripple>联系我们</a>
-          <a class="hero__btn hero__btn--ghost" href="#ai-services">了解 AI 服务</a>
+          <a class="hero__btn hero__btn--primary" href="#ai-services" data-ripple>了解 AI 服务</a>
         </div>
       </div>
 

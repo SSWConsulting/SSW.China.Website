@@ -12,7 +12,12 @@
     align-items: center;
     justify-content: center;
     inline-size: 100%;
-    min-block-size: 648px;
+    /* 窄屏 420px，≥640px 才回到线上的 648px（36rem @18px）。
+       视频是 1920×1080，cover 按高度铺满 ⇒ 区块越高，左右裁掉越多：
+       375px 宽的手机上 648px 高时视频被放大到 1152px，只看得到 33%；
+       420px 高时是 747px，看得到 50%。文案（标题 22px + 36px 间距 +
+       56px 按钮 ≈ 120px）在 420px 里仍然宽裕。见 docs/DECISIONS.md §97。 */
+    min-block-size: 420px;
     overflow: hidden;
     background: #000;
     /* 视频与遮罩都是纯黑底上的白字，固定深色，不随主题翻转 */
@@ -109,6 +114,10 @@
   }
 
   @media (min-width: 640px) {
+    .filmstrip {
+      min-block-size: 648px;
+    }
+
     .filmstrip__title {
       font-size: 46px;
       line-height: 1.15;
