@@ -11,10 +11,12 @@
     "typecheck": "tsc --noEmit",
     "check:assets": "node scripts/check-assets.mjs",
     "contrast": "node scripts/check-contrast.mjs",
+    "seo": "node scripts/seo.mjs",
+    "seo:check": "node scripts/seo.mjs --check",
     "fonts:sync": "node scripts/sync-fonts.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "verify": "npm run typecheck && npm run format:check && npm run contrast && vite build",
+    "verify": "npm run typecheck && npm run format:check && npm run contrast && npm run seo:check && vite build",
     "preflight": "npm run verify && npm run check:assets"
   },
   "devDependencies": {
