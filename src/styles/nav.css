@@ -53,7 +53,18 @@
 
   .nav__logo {
     width: auto;
-    height: 28px;
+    /* 窄屏（<640px）。原来是固定 28px —— 导航条有 72px 高，标识只占 28px，
+       副标题「ENTERPRISE SOFTWARE DEVELOPMENT」那三行在手机上糊成一片，
+       用户 2026-09-22 要求调大。
+
+       这里的**约束是横向而不是纵向**：标识宽高比 332/98 = 3.388，高度每加 1px
+       就要多吃 3.4px 宽，而导航条那一行在 375px 的 iPhone 上只剩 13px 余量
+       （见下方 max-width: 639px 段落腾出的空间，以及 DECISIONS §98 的实测账）。
+       所以用 clamp 跟着视口走，而不是再钉一个固定值：
+       · 下限 34px —— 375px（iPhone SE）上放得下，还留 8.8px 余量；
+       · 9vw —— 390/414/430px 的机型自动拿到 35～39px；
+       · 上限 48px —— 再大就与 72px 的导航条挤在一起，且 ≥640px 会跳到 63px。 */
+    height: clamp(34px, 9vw, 48px);
   }
 
   /* 主题决定用哪一版标识；两版都是真实 SSW 素材 */
@@ -136,26 +147,6 @@
     background: var(--c-brand-hover);
   }
 
-  /* 窄屏紧凑版，保证标识 + 咨询按钮 + 菜单按钮单行放得下（交接文档 §2） */
-  @media (max-width: 639px) {
-    .nav-cta {
-      height: 44px;
-      gap: 6px;
-      padding-inline: 12px 4px;
-      font-size: 14px;
-    }
-
-    .nav-cta__circle {
-      width: 36px;
-      height: 36px;
-    }
-
-    .nav-cta__circle svg {
-      width: 18px;
-      height: 18px;
-    }
-  }
-
   .nav-cta__circle {
     display: flex;
     align-items: center;
@@ -177,6 +168,46 @@
 
   .nav-cta:hover .nav-cta__circle {
     transform: rotate(45deg) scale(1.15);
+  }
+
+  /* 窄屏紧凑版，保证标识 + 咨询按钮 + 菜单按钮单行放得下（交接文档 §2）。
+     **这一段必须排在上面那几条基础规则之后** —— `.nav-cta__circle` 与
+     媒体查询里的 `.nav-cta__circle` 特异度完全相同（0,1,0），媒体查询并不加权，
+     谁在后面谁生效。它原来写在基础规则之前，于是窄屏下圆圈拿到的是基础值 45px，
+     而按钮已经被压到 44px —— 圆圈比按钮还高 1px，上下都顶出边界，
+     这就是用户 2026-09-22 在 iPhone 上看到的「圆圈顶到按钮边边」。
+     见 docs/DECISIONS.md §97。 */
+  @media (max-width: 639px) {
+    /* 给左上角的标识腾横向空间（上面 .nav__logo 的 clamp 依赖这两条）。
+       375px 上的账：可用 334.5px，右侧一组原本吃掉 226.5px
+       （40.5 + 9 + 1 + 9 + 114 + 9 + 44），只剩 13.1px，标识连 32px 都放不下。
+       去掉分隔线、gap 9→6 之后右侧是 210.5px，标识拿到 34px（宽 115.2px）
+       仍余 8.8px。分隔线只是主题钮与咨询按钮之间的装饰竖线，
+       窄屏两者本来就挨得很近，去掉不损失任何信息。 */
+    .nav__actions {
+      gap: 6px;
+    }
+
+    .nav__divider {
+      display: none;
+    }
+
+    .nav-cta {
+      height: 44px;
+      gap: 6px;
+      padding-inline: 12px 4px;
+      font-size: 14px;
+    }
+
+    .nav-cta__circle {
+      width: 36px;
+      height: 36px;
+    }
+
+    .nav-cta__circle svg {
+      width: 18px;
+      height: 18px;
+    }
   }
 
   /* ── 汉堡与关闭按钮 ─────────────────────────────────────────────────── */
