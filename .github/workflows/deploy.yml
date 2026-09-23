@@ -52,13 +52,17 @@ jobs:
       - name: 构建
         run: npm run build
 
+      # 注意：以下 PowerShell 步骤内的字符串一律用英文。
+      # Windows PowerShell 5.1 按系统 ANSI 编码（中文系统为 GBK）读取 GitHub
+      # 生成的 UTF-8 脚本文件，中文会乱码成非法字符导致引号失配、解析失败。
+      #
       # 构建产物必须存在才继续 —— 防止构建因故没产出 dist 却返回成功，
       # 导致下一步把空目录镜像上去、把线上站点清空。
       - name: 确认产物存在
         shell: powershell
         run: |
           if (-not (Test-Path "dist\index.html")) {
-            Write-Error "dist\index.html 不存在，构建产物异常，中止发布"
+            Write-Error "dist/index.html not found - build output invalid, aborting deploy"
             exit 1
           }
 
@@ -71,8 +75,8 @@ jobs:
           robocopy "dist" "$env:DEPLOY_TARGET" /MIR /NFL /NDL /NJH /NP /R:2 /W:2
           $code = $LASTEXITCODE
           if ($code -ge 8) {
-            Write-Error "robocopy 失败，退出码 $code"
+            Write-Error "robocopy failed with exit code $code"
             exit $code
           }
-          Write-Host "发布完成，robocopy 退出码 $code（<8 为成功）"
+          Write-Host "Deploy complete. robocopy exit code $code (less than 8 means success)"
           exit 0
