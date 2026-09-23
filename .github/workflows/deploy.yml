@@ -37,26 +37,25 @@ jobs:
       - name: 安装依赖
         run: npm ci
 
-      # 发布门禁：类型检查 + 对比度检查 + 构建。
+      # 发布门禁：对比度检查 + 构建（build 内含 typecheck）。
       # 任一步失败则 job 终止，下面的拷贝不会执行，线上保持上一个版本。
       #
       # 刻意不跑 npm run verify —— 它里面的 format:check 和 seo:check 在
       # Windows 上会因为 git 检出的 CRLF 行尾全量报错（内容其实一致），
       # 会让每次部署都卡住。这两项属于代码风格守卫，不影响站点能否正常工作，
       # 留给本地和 code review 把关。
-      - name: 类型检查
-        run: npm run typecheck
-
       - name: 对比度检查
         run: npm run contrast
 
+      # npm run build = typecheck && vite build，沿用项目自己的定义，
+      # 以后 build 脚本改了这里会自动跟上。
       - name: 构建
-        run: npx vite build
+        run: npm run build
 
-      # 构建产物必须存在才继续 —— 防止 verify 因故没产出 dist 却返回成功，
+      # 构建产物必须存在才继续 —— 防止构建因故没产出 dist 却返回成功，
       # 导致下一步把空目录镜像上去、把线上站点清空。
       - name: 确认产物存在
-        shell: pwsh
+        shell: powershell
         run: |
           if (-not (Test-Path "dist\index.html")) {
             Write-Error "dist\index.html 不存在，构建产物异常，中止发布"
@@ -67,7 +66,7 @@ jobs:
       # 注意 robocopy 的退出码不遵循常规约定：0-7 都是成功（含"有文件被复制"
       # 和"有文件被删除"），8 及以上才是真失败。不做转换的话 CI 会误报。
       - name: 发布到站点目录
-        shell: pwsh
+        shell: powershell
         run: |
           robocopy "dist" "$env:DEPLOY_TARGET" /MIR /NFL /NDL /NJH /NP /R:2 /W:2
           $code = $LASTEXITCODE
