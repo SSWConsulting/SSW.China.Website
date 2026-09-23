@@ -1,0 +1,78 @@
+# main 更新 → 构建 → 发布到阿里云服务器站点目录。
+#
+# 跑在服务器本机的 self-hosted runner 上，所以"上传"就是本地目录拷贝，
+# 不需要 SSH、不需要密钥、服务器不用开任何入站端口。
+#
+# 设计说明：docs/superpowers/specs/2026-09-22-ci-cd-design.md
+# 服务器配置步骤：docs/DEPLOY-SETUP.md
+
+name: 构建并发布
+
+on:
+  # 只监听 main 的 push（PR 合并也会触发）。
+  # 刻意不对 PR 触发 —— 未合并的代码不应在生产服务器上执行。
+  push:
+    branches: [main]
+  # 允许在 GitHub 页面上手动重跑（回滚或排查时用）。
+  workflow_dispatch:
+
+# 同时只跑一个部署。连续合并两个 PR 时，避免两次 robocopy 互相打架。
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, windows, sswcn]
+    # 构建慢于 15 分钟必然是卡住了，别让它占着 runner 不放。
+    timeout-minutes: 15
+
+    env:
+      DEPLOY_TARGET: C:\SSW\Nginx\html\sswchina
+
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 安装依赖
+        run: npm ci
+
+      # 发布门禁：对比度检查 + 构建（build 内含 typecheck）。
+      # 任一步失败则 job 终止，下面的拷贝不会执行，线上保持上一个版本。
+      #
+      # 刻意不跑 npm run verify —— 它里面的 format:check 和 seo:check 在
+      # Windows 上会因为 git 检出的 CRLF 行尾全量报错（内容其实一致），
+      # 会让每次部署都卡住。这两项属于代码风格守卫，不影响站点能否正常工作，
+      # 留给本地和 code review 把关。
+      - name: 对比度检查
+        run: npm run contrast
+
+      # npm run build = typecheck && vite build，沿用项目自己的定义，
+      # 以后 build 脚本改了这里会自动跟上。
+      - name: 构建
+        run: npm run build
+
+      # 构建产物必须存在才继续 —— 防止构建因故没产出 dist 却返回成功，
+      # 导致下一步把空目录镜像上去、把线上站点清空。
+      - name: 确认产物存在
+        shell: powershell
+        run: |
+          if (-not (Test-Path "dist\index.html")) {
+            Write-Error "dist\index.html 不存在，构建产物异常，中止发布"
+            exit 1
+          }
+
+      # robocopy /MIR 镜像同步：新增的加上、删掉的删掉、没变的跳过。
+      # 注意 robocopy 的退出码不遵循常规约定：0-7 都是成功（含"有文件被复制"
+      # 和"有文件被删除"），8 及以上才是真失败。不做转换的话 CI 会误报。
+      - name: 发布到站点目录
+        shell: powershell
+        run: |
+          robocopy "dist" "$env:DEPLOY_TARGET" /MIR /NFL /NDL /NJH /NP /R:2 /W:2
+          $code = $LASTEXITCODE
+          if ($code -ge 8) {
+            Write-Error "robocopy 失败，退出码 $code"
+            exit $code
+          }
+          Write-Host "发布完成，robocopy 退出码 $code（<8 为成功）"
+          exit 0
