@@ -104,7 +104,9 @@ function initDeck(): void {
   function schedule(): void {
     window.clearTimeout(timer);
     restartProgress();
-    if (!playing) return;
+    // 后台时不排表：「静置后恢复播放」的计时器可能恰好在后台到点，
+    // 不拦的话会绕过下面 visibilitychange 的停表，在看不见时继续翻页。
+    if (!playing || document.hidden) return;
     timer = window.setTimeout(() => go(index + 1), dwell);
   }
 
@@ -123,6 +125,9 @@ function initDeck(): void {
   }
 
   on(document, 'keydown', (event: KeyboardEvent) => {
+    // 带修饰键的是浏览器快捷键：Ctrl/⌘+F 是查找、Alt+← 是后退 ——
+    // 不该顺带切全屏或翻页。
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
     if (event.key === 'ArrowRight' || event.key === 'PageDown') {
       go(index + 1);
       interact();

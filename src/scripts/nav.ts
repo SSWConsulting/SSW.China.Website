@@ -164,6 +164,17 @@ function setupMenu(toggle: HTMLButtonElement, panel: HTMLElement): MenuControlle
     if (event.matches) close({ returnFocus: false });
   });
 
+  // 从抽屉里点了跨页链接（服务详情页、落地中国……）时抽屉仍开着、滚动仍锁着，
+  // 页面进入往返缓存后点「返回」会原样恢复成那个状态。离开前收起，
+  // 并把焦点从即将隐藏的抽屉里撤出来 —— 不在离开时把焦点送回菜单按钮，
+  // 否则恢复后按钮上会凭空亮一圈焦点环。
+  window.addEventListener('pagehide', () => {
+    if (!isOpen()) return;
+    close({ returnFocus: false });
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && panel.contains(active)) active.blur();
+  });
+
   return { toggle, isOpen, close };
 }
 
@@ -191,7 +202,8 @@ function initAnchors(menu: MenuController): void {
     if (fromMenu) menu.close({ returnFocus: false });
 
     target.scrollIntoView({ behavior: motionOff() ? 'auto' : 'smooth', block: 'start' });
-    history.pushState(null, '', link.hash);
+    // 重复点同一个锚点不再叠历史记录，否则「返回」要按好几次才离开原地
+    if (location.hash !== link.hash) history.pushState(null, '', link.hash);
     focusSection(target);
   });
 }

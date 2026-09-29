@@ -95,13 +95,19 @@ function setupModal(panel: HTMLElement, menu: MenuController): void {
       qrRetry.textContent = '加载中…';
       delete qrImage.dataset.failed;
 
+      // load 与 error 只会来一个；用同一个 signal 一起摘掉，
+      // 否则没触发的那个会留到下一次重试时被旧的回调抢先执行。
+      const settled = new AbortController();
       const done = () => {
+        settled.abort();
         qrRetry.textContent = '重新加载';
         qrRetry.disabled = retries >= MAX_RETRIES && qrFailed();
         applyQrState();
+        // 重试成功后重试按钮随错误块一起隐藏，焦点不能跟着掉到 <body> 上
+        if (!qrFailed() && document.activeElement === qrRetry) closeButton?.focus();
       };
-      qrImage.addEventListener('load', done, { once: true });
-      qrImage.addEventListener('error', done, { once: true });
+      qrImage.addEventListener('load', done, { signal: settled.signal });
+      qrImage.addEventListener('error', done, { signal: settled.signal });
 
       const separator = originalSrc.includes('?') ? '&' : '?';
       qrImage.src = `${originalSrc}${separator}r=${retries}`;
@@ -142,10 +148,12 @@ function setupModal(panel: HTMLElement, menu: MenuController): void {
     trigger.focus();
   }
 
-  function open(trigger: HTMLElement): void {
+  function open(trigger: HTMLElement | null): void {
+    // 已经打开时再调 showModal() 会抛 InvalidStateError，也会把 returnTo 覆盖掉
+    if (dialog.open) return;
     // 从手机菜单里触发：先关菜单，并把返回焦点改指菜单按钮 ——
     // 菜单里的那个 CTA 马上就要不可见了（文档 §5）。
-    const fromMenu = Boolean(trigger.closest('[data-menu-panel]'));
+    const fromMenu = Boolean(trigger?.closest('[data-menu-panel]'));
     returnTo = fromMenu ? (menu.toggle ?? trigger) : trigger;
     if (menu.isOpen()) menu.close({ returnFocus: false });
 
@@ -209,4 +217,16 @@ function setupModal(panel: HTMLElement, menu: MenuController): void {
   });
 
   applyQrState();
+
+  /* ── 直达链接 /#wecom ───────────────────────────────────────────────────
+     无 JS 时 #wecom 是页面末尾的真实区块；JS 开启后该区块被搬进关闭的 <dialog>，
+     别人分享来的 /#wecom 会落到一个看不见的目标上。这里把它还原成「打开弹层」，
+     并从地址栏去掉这个片段 —— 否则关掉弹层后一刷新又会弹出来。 */
+  const openFromHash = (): void => {
+    if (location.hash !== '#wecom') return;
+    history.replaceState(history.state, '', location.pathname + location.search);
+    open(null);
+  };
+  window.addEventListener('hashchange', openFromHash);
+  openFromHash();
 }
