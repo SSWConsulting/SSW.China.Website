@@ -67,11 +67,17 @@ function initScrollSpy(): void {
   const spy = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
         const link = byId.get(entry.target.id);
         if (!link) continue;
-        clear();
-        link.setAttribute('aria-current', 'true');
+        if (entry.isIntersecting) {
+          clear();
+          link.setAttribute('aria-current', 'true');
+        } else {
+          // 区块离开中线时只摘它自己的高亮 —— 滚回首屏（没有对应导航项）、
+          // 或「返回」把页面恢复到顶部时，不能残留上一次的当前项。
+          // 只摘自己的，所以跨界时新旧两条记录的先后顺序无关紧要。
+          link.removeAttribute('aria-current');
+        }
       }
     },
     { rootMargin: '-50% 0px -50% 0px', threshold: 0 },
