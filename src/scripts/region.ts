@@ -53,4 +53,7 @@ function setup(toggle: HTMLButtonElement, menu: HTMLElement): void {
     if (next && host.contains(next)) return;
     close();
   });
+
+  // 点地区链接离开时收起，否则从往返缓存「返回」会恢复成展开状态
+  window.addEventListener('pagehide', () => close());
 }

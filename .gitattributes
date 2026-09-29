@@ -1,0 +1,11 @@
+# 一律以 LF 检出：Windows 上 CRLF 会让 format:check / seo:check 全量误报。
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.mp4 binary
+*.woff2 binary
+*.pptx binary

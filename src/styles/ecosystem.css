@@ -236,7 +236,11 @@
     border-block-end-color: var(--c-brand);
   }
 
+  /* SVG 只有 viewBox 时默认按 300×150 渲染，会把链接文字挤成一字一行 */
   .entry__link-icon {
+    flex-shrink: 0;
+    inline-size: 1em;
+    block-size: 1em;
     transition: transform var(--t-gesture) var(--ease-io);
   }
 

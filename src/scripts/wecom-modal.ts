@@ -95,13 +95,18 @@ function setupModal(panel: HTMLElement, menu: MenuController): void {
       qrRetry.textContent = '加载中…';
       delete qrImage.dataset.failed;
 
+      // load/error 只来一个，用同一个 signal 成对摘除，免得残留到下次重试
+      const settled = new AbortController();
       const done = () => {
+        settled.abort();
         qrRetry.textContent = '重新加载';
         qrRetry.disabled = retries >= MAX_RETRIES && qrFailed();
         applyQrState();
+        // 成功后重试按钮被隐藏，焦点移到关闭按钮
+        if (!qrFailed() && document.activeElement === qrRetry) closeButton?.focus();
       };
-      qrImage.addEventListener('load', done, { once: true });
-      qrImage.addEventListener('error', done, { once: true });
+      qrImage.addEventListener('load', done, { signal: settled.signal });
+      qrImage.addEventListener('error', done, { signal: settled.signal });
 
       const separator = originalSrc.includes('?') ? '&' : '?';
       qrImage.src = `${originalSrc}${separator}r=${retries}`;
@@ -142,10 +147,12 @@ function setupModal(panel: HTMLElement, menu: MenuController): void {
     trigger.focus();
   }
 
-  function open(trigger: HTMLElement): void {
+  function open(trigger: HTMLElement | null): void {
+    // 防重入：重复 showModal() 会抛错并覆盖 returnTo
+    if (dialog.open) return;
     // 从手机菜单里触发：先关菜单，并把返回焦点改指菜单按钮 ——
     // 菜单里的那个 CTA 马上就要不可见了（文档 §5）。
-    const fromMenu = Boolean(trigger.closest('[data-menu-panel]'));
+    const fromMenu = Boolean(trigger?.closest('[data-menu-panel]'));
     returnTo = fromMenu ? (menu.toggle ?? trigger) : trigger;
     if (menu.isOpen()) menu.close({ returnFocus: false });
 
@@ -209,4 +216,15 @@ function setupModal(panel: HTMLElement, menu: MenuController): void {
   });
 
   applyQrState();
+
+  /* ── 直达链接 /#wecom ───────────────────────────────────────────────────
+     区块已被搬进关闭的 <dialog>，直达链接改为打开弹层；
+     同时去掉片段，免得关闭后刷新又弹出来。 */
+  const openFromHash = (): void => {
+    if (location.hash !== '#wecom') return;
+    history.replaceState(history.state, '', location.pathname + location.search);
+    open(null);
+  };
+  window.addEventListener('hashchange', openFromHash);
+  openFromHash();
 }

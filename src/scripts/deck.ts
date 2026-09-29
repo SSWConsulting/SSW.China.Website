@@ -104,7 +104,8 @@ function initDeck(): void {
   function schedule(): void {
     window.clearTimeout(timer);
     restartProgress();
-    if (!playing) return;
+    // 后台不排表：「恢复播放」计时器可能在后台到点
+    if (!playing || document.hidden) return;
     timer = window.setTimeout(() => go(index + 1), dwell);
   }
 
@@ -123,6 +124,8 @@ function initDeck(): void {
   }
 
   on(document, 'keydown', (event: KeyboardEvent) => {
+    // 让出浏览器快捷键（Ctrl/⌘+F 查找、Alt+← 后退）
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
     if (event.key === 'ArrowRight' || event.key === 'PageDown') {
       go(index + 1);
       interact();

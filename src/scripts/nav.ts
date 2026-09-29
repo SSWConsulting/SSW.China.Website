@@ -67,11 +67,15 @@ function initScrollSpy(): void {
   const spy = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
         const link = byId.get(entry.target.id);
         if (!link) continue;
-        clear();
-        link.setAttribute('aria-current', 'true');
+        if (entry.isIntersecting) {
+          clear();
+          link.setAttribute('aria-current', 'true');
+        } else {
+          // 离开中线只摘自己的高亮：滚回首屏时不残留，跨界时也与记录顺序无关
+          link.removeAttribute('aria-current');
+        }
       }
     },
     { rootMargin: '-50% 0px -50% 0px', threshold: 0 },
@@ -164,6 +168,15 @@ function setupMenu(toggle: HTMLButtonElement, panel: HTMLElement): MenuControlle
     if (event.matches) close({ returnFocus: false });
   });
 
+  // 点抽屉里的跨页链接离开时收起，否则从往返缓存「返回」会恢复成打开＋锁滚动。
+  // 焦点只撤出抽屉、不送回按钮，免得恢复后按钮上凭空亮焦点环。
+  window.addEventListener('pagehide', () => {
+    if (!isOpen()) return;
+    close({ returnFocus: false });
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && panel.contains(active)) active.blur();
+  });
+
   return { toggle, isOpen, close };
 }
 
@@ -191,15 +204,12 @@ function initAnchors(menu: MenuController): void {
     if (fromMenu) menu.close({ returnFocus: false });
 
     target.scrollIntoView({ behavior: motionOff() ? 'auto' : 'smooth', block: 'start' });
-    history.pushState(null, '', link.hash);
+    // 重复点同一锚点不叠历史记录
+    if (location.hash !== link.hash) history.pushState(null, '', link.hash);
     focusSection(target);
   });
 }
 
-/**
- * 服务详情页上把「AI 服务」标成当前页。
- * scrollspy 在这些页面没有可观察的区块，因此这一处不会与它打架。
- */
 /**
  * 标记当前页对应的导航项。
  *

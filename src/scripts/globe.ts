@@ -148,13 +148,13 @@ function mountGlobe(
   setOnSelect: (fn: (index: number) => void) => void,
 ): void {
   const wrap = canvas.parentElement as HTMLElement;
-  /* 列表里的第一个办公室就是默认视角。地球**直接从它开始**，不做入场补间 ——
-     第一帧就在杭州上空，而不是从 phi=0 转过去。
-     （之前是 target = offices[0] 的经纬度，靠 lerp 飞过去。） */
-  const [initialPhi, initialTheta] = locationToAngles(offices[0]!.lat, offices[0]!.lng);
+  /* 地球直接从当前选中的办公室（默认第一个）开始，不做入场补间。
+     cobe 按需加载，加载期间用户可能已换了选中项，所以不能写死 offices[0]。 */
+  let currentIndex = getSelected();
+  const initialOffice = offices[currentIndex] ?? offices[0]!;
+  const [initialPhi, initialTheta] = locationToAngles(initialOffice.lat, initialOffice.lng);
   let phi = initialPhi;
   let theta = initialTheta;
-  let currentIndex = getSelected();
   let target: [number, number] | null = null;
   let speed = 1;
   let dragging = false;
@@ -234,7 +234,7 @@ function mountGlobe(
       baseColor: skin().baseColor,
       markerColor: MARKER_RGB,
       glowColor: skin().glowColor,
-      markers: markers(0),
+      markers: markers(currentIndex),
       arcs: [
         { from: [-27.47, 153.02], to: [-33.84, 151.21] },
         { from: [-37.81, 144.96], to: [-33.84, 151.21] },
