@@ -35,20 +35,19 @@ function label(theme: Theme): string {
 export function initTheme(): void {
   const toggle = qs<HTMLButtonElement>('[data-theme-toggle]');
 
-  /* 与 head.html 引导脚本同一套优先级：已存选择 → 系统偏好。
-     只在结论真的变化时才写属性 —— 地球靠 MutationObserver 换肤，不该空跑。 */
+  // 与 head.html 引导脚本同一优先级：已存选择 → 系统偏好。
+  // 结论不变就不写属性，免得触发地球的 MutationObserver 空跑。
   const sync = (): void => {
     const next = stored() ?? (systemQuery.matches ? 'light' : 'dark');
     if (current() !== next) document.documentElement.dataset.theme = next;
     toggle?.setAttribute('aria-label', label(next));
   };
 
-  // 从往返缓存（bfcache）恢复的页面不会重跑引导脚本：
-  // 在别的页面切过主题再点「返回」，这里仍是离开时的旧主题，必须重新对齐。
+  // 往返缓存恢复时不会重跑引导脚本，需重新对齐
   window.addEventListener('pageshow', (event) => {
     if (event.persisted) sync();
   });
-  // 其他标签页切换主题时同步（storage 事件只在「别的」文档里派发）。
+  // 其他标签页切换主题时同步
   window.addEventListener('storage', (event) => {
     if (event.key === STORAGE_KEY || event.key === null) sync();
   });

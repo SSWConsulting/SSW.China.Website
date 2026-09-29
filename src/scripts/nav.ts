@@ -73,9 +73,7 @@ function initScrollSpy(): void {
           clear();
           link.setAttribute('aria-current', 'true');
         } else {
-          // 区块离开中线时只摘它自己的高亮 —— 滚回首屏（没有对应导航项）、
-          // 或「返回」把页面恢复到顶部时，不能残留上一次的当前项。
-          // 只摘自己的，所以跨界时新旧两条记录的先后顺序无关紧要。
+          // 离开中线只摘自己的高亮：滚回首屏时不残留，跨界时也与记录顺序无关
           link.removeAttribute('aria-current');
         }
       }
@@ -170,10 +168,8 @@ function setupMenu(toggle: HTMLButtonElement, panel: HTMLElement): MenuControlle
     if (event.matches) close({ returnFocus: false });
   });
 
-  // 从抽屉里点了跨页链接（服务详情页、落地中国……）时抽屉仍开着、滚动仍锁着，
-  // 页面进入往返缓存后点「返回」会原样恢复成那个状态。离开前收起，
-  // 并把焦点从即将隐藏的抽屉里撤出来 —— 不在离开时把焦点送回菜单按钮，
-  // 否则恢复后按钮上会凭空亮一圈焦点环。
+  // 点抽屉里的跨页链接离开时收起，否则从往返缓存「返回」会恢复成打开＋锁滚动。
+  // 焦点只撤出抽屉、不送回按钮，免得恢复后按钮上凭空亮焦点环。
   window.addEventListener('pagehide', () => {
     if (!isOpen()) return;
     close({ returnFocus: false });
@@ -208,16 +204,12 @@ function initAnchors(menu: MenuController): void {
     if (fromMenu) menu.close({ returnFocus: false });
 
     target.scrollIntoView({ behavior: motionOff() ? 'auto' : 'smooth', block: 'start' });
-    // 重复点同一个锚点不再叠历史记录，否则「返回」要按好几次才离开原地
+    // 重复点同一锚点不叠历史记录
     if (location.hash !== link.hash) history.pushState(null, '', link.hash);
     focusSection(target);
   });
 }
 
-/**
- * 服务详情页上把「AI 服务」标成当前页。
- * scrollspy 在这些页面没有可观察的区块，因此这一处不会与它打架。
- */
 /**
  * 标记当前页对应的导航项。
  *

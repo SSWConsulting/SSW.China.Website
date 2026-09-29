@@ -54,7 +54,6 @@ function setup(toggle: HTMLButtonElement, menu: HTMLElement): void {
     close();
   });
 
-  // 菜单里是跳往其他地区站点的链接：点完离开时下拉仍开着，
-  // 从往返缓存「返回」时会原样恢复成展开状态。离开前收起。
+  // 点地区链接离开时收起，否则从往返缓存「返回」会恢复成展开状态
   window.addEventListener('pagehide', () => close());
 }

@@ -72,17 +72,13 @@ function setupCarousel(host: HTMLElement): void {
     });
   });
 
+  // 宽度变化会改变卡片偏移，当前圆点也要重算
+  const syncAll = (): void => {
+    syncVisibility();
+    syncFromScroll();
+  };
+
   on(track, 'scroll', syncFromScroll, { passive: true } as AddEventListenerOptions);
-  // 宽度变化会改变卡片偏移，当前圆点也要跟着重算，不能只管显隐
-  on(
-    window,
-    'resize',
-    () => {
-      syncVisibility();
-      syncFromScroll();
-    },
-    { passive: true } as AddEventListenerOptions,
-  );
-  syncVisibility();
-  syncFromScroll();
+  on(window, 'resize', syncAll, { passive: true } as AddEventListenerOptions);
+  syncAll();
 }
