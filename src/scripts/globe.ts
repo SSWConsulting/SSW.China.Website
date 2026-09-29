@@ -151,10 +151,13 @@ function mountGlobe(
   /* 列表里的第一个办公室就是默认视角。地球**直接从它开始**，不做入场补间 ——
      第一帧就在杭州上空，而不是从 phi=0 转过去。
      （之前是 target = offices[0] 的经纬度，靠 lerp 飞过去。） */
-  const [initialPhi, initialTheta] = locationToAngles(offices[0]!.lat, offices[0]!.lng);
+  let currentIndex = getSelected();
+  // cobe 是按需加载的：加载期间用户若已点了别的办公室，起始视角要跟着它，
+  // 否则标记高亮在 A、镜头却停在 B，直到下一次点击才对上。
+  const initialOffice = offices[currentIndex] ?? offices[0]!;
+  const [initialPhi, initialTheta] = locationToAngles(initialOffice.lat, initialOffice.lng);
   let phi = initialPhi;
   let theta = initialTheta;
-  let currentIndex = getSelected();
   let target: [number, number] | null = null;
   let speed = 1;
   let dragging = false;
@@ -234,7 +237,7 @@ function mountGlobe(
       baseColor: skin().baseColor,
       markerColor: MARKER_RGB,
       glowColor: skin().glowColor,
-      markers: markers(0),
+      markers: markers(currentIndex),
       arcs: [
         { from: [-27.47, 153.02], to: [-33.84, 151.21] },
         { from: [-37.81, 144.96], to: [-33.84, 151.21] },
