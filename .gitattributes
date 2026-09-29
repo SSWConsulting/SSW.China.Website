@@ -1,0 +1,17 @@
+# 仓库内一律 LF，检出时也保持 LF —— 不受各机器 core.autocrlf 设置影响。
+#
+# 没有这一条时，Windows（含 self-hosted runner）按 autocrlf 检出成 CRLF，
+# 而 prettier 默认要求 LF、seo.mjs --check 逐字节比对生成物，
+# 于是 format:check / seo:check 在 Windows 上全量报错（内容其实一致），
+# npm run verify 永远不绿，CI 也只能跳过这两项。
+* text=auto eol=lf
+
+# 二进制素材：显式声明，避免 text=auto 误判后做换行转换。
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.mp4 binary
+*.woff2 binary
+*.pptx binary
