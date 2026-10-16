@@ -29,10 +29,11 @@ Tina 本地开发的几个坑（均实测）：
 - `npm run build` 没有 `PUBLIC_TINA_CLIENT_ID` / `TINA_TOKEN` 时会**跳过** `/admin/`（`scripts/build-admin.mjs`），
   这是有意的：本地模式的后台连的是 localhost，发布出去也打不开。接入步骤见 `docs/TINACMS.md`。
 
-## Pull request
+## 提交与 Pull request
 
-PR 的标题与描述**一律用英文**写（仓库在 SSWConsulting 组织下，评审者不一定读中文）。
-提交信息、代码注释与 `docs/` 仍沿用中文。
+**提交信息、PR 标题与描述一律用英文**（仓库在 SSWConsulting 组织下，评审者不一定读中文；
+GitHub 文件列表旁显示的就是提交信息首行）。引用页面上的中文文案时保留原文并附英文释义。
+代码注释与 `docs/` 仍沿用中文。
 
 ## 生产部署
 
