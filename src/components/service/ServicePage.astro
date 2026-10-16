@@ -1,0 +1,296 @@
+---
+/**
+ * 服务详情页模板：AI 底座中台、AI 业务工作流共用。
+ * 文案来自 content/pages/<slug>.json（后台「页面：AI 底座中台 / AI 业务工作流」）。
+ *
+ * 结构化数据（Service / BreadcrumbList / FAQPage）由同一份文案生成 ——
+ * FAQPage 与页面上可见的问答天然一致（Google 要求两者一致，旧版靠 seo:check 拦漂移）。
+ */
+import Base from '../../layouts/Base.astro';
+import JsonLd from '../JsonLd.astro';
+import Cta from '../sections/Cta.astro';
+import ServiceCard from '../partials/ServiceCard.astro';
+import { site } from '../../config/site.ts';
+import { br } from '../../lib/content.ts';
+import { pad2, roman, type ServiceContent } from '../../lib/service.ts';
+
+interface Props {
+  content: ServiceContent;
+  /** 站内路径，例如 '/services/ai-platform/'。 */
+  path: string;
+  /** 区块 id 前缀，例如 'platform' ⇒ #platform-faq-title。 */
+  prefix: string;
+  bodyClass: string;
+  /** 底部「其他 AI 服务」里放哪两张卡片。 */
+  others: ('platform' | 'workflow' | 'apps')[];
+  /**
+   * 支柱编号（I / II / III）是否对读屏隐藏。
+   * 改版前两页不一致：AI 底座中台页隐藏、AI 业务工作流页没有隐藏。迁移时原样保留，
+   * 统一与否是可访问性取舍，单独决定（见 docs/DECISIONS.md）。
+   */
+  pillarNumHidden: boolean;
+}
+
+const { content: c, path, prefix, bodyClass, others, pillarNumHidden } = Astro.props;
+const origin = site.seo.origin;
+const id = (s: string) => `${prefix}-${s}-title`;
+---
+
+<Base title={c.seo.title} description={c.seo.description} path={path} bodyClass={bodyClass}>
+  <JsonLd
+    slot="head"
+    data={{
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: c.name,
+      description: c.seo.description,
+      serviceType: c.name,
+      provider: { '@id': `${origin}/#organization` },
+      areaServed: { '@type': 'Country', name: '中国' },
+      url: `${origin}${path}`,
+    }}
+  />
+  <JsonLd
+    slot="head"
+    data={{
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: '首页', item: `${origin}/` },
+        { '@type': 'ListItem', position: 2, name: 'AI 服务', item: `${origin}/#ai-services` },
+        { '@type': 'ListItem', position: 3, name: c.name },
+      ],
+    }}
+  />
+  <JsonLd
+    slot="head"
+    data={{
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: c.faq.items.map((f) => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: { '@type': 'Answer', text: f.answer },
+      })),
+    }}
+  />
+
+  <main id="main" tabindex="-1">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <div class="container">
+        <ol>
+          <li><a href="/">首页</a></li>
+          <li><a href="/#ai-services">AI 服务</a></li>
+          <li aria-current="page">{c.name}</li>
+        </ol>
+      </div>
+    </nav>
+
+    {/* 页面标题与导语不挂 data-reveal —— 首屏文字必须立即可读（交接文档 §4）。 */}
+    <section class="section page-head" aria-labelledby="page-title">
+      <div class="service-hero-media" aria-hidden="true">
+        <img src={c.hero.image.src} width={c.hero.image.w} height={c.hero.image.h} alt="" fetchpriority="high" />
+      </div>
+      <div class="container page-head__inner">
+        <div class="page-head__copy">
+          <h1 id="page-title">{c.name}</h1>
+          <p class="lead page-head__lede">{c.hero.lede}</p>
+          <p class="page-head__body">
+            {c.hero.body}
+          </p>
+          <div class="btn-row page-head__actions">
+            <a class="btn btn--primary" href="#wecom" data-wecom>{c.hero.primaryButton}</a>
+            <a class="btn" href="#usecases">{c.hero.secondaryButton}</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-lg pillars" aria-labelledby={id('value')}>
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.pillars.eyebrow}</p>
+          <h2 id={id('value')} class="display" data-reveal data-words>{c.pillars.title}</h2>
+        </div>
+        <div class="pillars__body">
+          <p class="pillars__intro" data-reveal>
+            {c.pillars.intro}
+          </p>
+          <ol class="pillars__list" data-reveal-group>
+            {
+              c.pillars.items.map((item, i) => (
+                <li class="pillar" data-reveal>
+                  <span class="pillar__num" aria-hidden={pillarNumHidden ? 'true' : undefined}>{roman(i)}</span>
+                  <div>
+                    <h3 class="pillar__title">{item.title}</h3>
+                    <p class="pillar__text">{item.text}</p>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-lg service-usecases" id="usecases" aria-labelledby={id('usecases')}>
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.usecases.eyebrow}</p>
+          <h2 id={id('usecases')} class="display" data-reveal data-words>{c.usecases.title}</h2>
+          {c.usecases.intro && <p class="head__intro" data-reveal>{c.usecases.intro}</p>}
+        </div>
+        <ul class="service-usecases__grid" data-reveal-group>
+          {
+            c.usecases.items.map((item, i) => (
+              <li data-reveal>
+                <span>{pad2(i)}</span>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    {/* 详细说明承接上方标题区，不另设可达名称，避免与 page-title 重复标注。 */}
+    <section class="section services page-detail" aria-labelledby={id('capabilities')}>
+      <div class="container">
+        <div class="head page-detail__head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.capabilities.eyebrow}</p>
+          <h2 id={id('capabilities')} class="display display--sm" data-reveal>{c.capabilities.title}</h2>
+        </div>
+        <div class="service">
+          <div class="service__copy" data-reveal-group>
+            <dl class="capabilities">
+              {
+                c.capabilities.items.map((item) => (
+                  <div class="capability" data-reveal>
+                    <dt>{item.term}</dt>
+                    <dd>{item.detail}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+            <p class="service__fit" data-reveal>
+              <span class="service__fit-label">{c.capabilities.fitLabel}</span>
+              {c.capabilities.fit}
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-lg scope" id="scope" aria-labelledby={id('scope')}>
+      <div class="container scope__layout">
+        <div class="scope__intro" data-reveal>
+          <p class="eyebrow">{c.scope.eyebrow}</p>
+          <h2 id={id('scope')} class="display"><Fragment set:html={br(c.scope.title)} /></h2>
+          <p class="head__intro">{c.scope.intro}</p>
+          <div class="scope__fit">
+            <span class="scope__fit-label">{c.scope.fitLabel}</span>
+            <p>{c.scope.fit}</p>
+          </div>
+        </div>
+        <div class="scope__deliverables" data-reveal-group>
+          {
+            c.scope.deliverables.map((d, i) => (
+              <details class="deliverable" open data-reveal>
+                {/* 四个 span 之间刻意没有空白：它们是行内元素，空白会变成可见间距。 */}
+                <summary><span class="deliverable__number">{pad2(i)}</span><span class="deliverable__heading"><span class="deliverable__title">{d.title}</span><span class="deliverable__subtitle">{d.subtitle}</span></span><span class="deliverable__toggle"></span></summary>
+                <div class="deliverable__body">
+                  <p>{d.body}</p>
+                  <ul class="deliverable__outputs">
+                    {d.outputs.map((o) => <li>{o}</li>)}
+                  </ul>
+                </div>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="section-lg process" id="process" aria-labelledby={id('process')}>
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.process.eyebrow}</p>
+          <h2 id={id('process')} class="display" data-reveal data-words>{c.process.title}</h2>
+        </div>
+        <ol class="process__list" data-reveal-group>
+          {
+            c.process.steps.map((step, i) => (
+              <li class="pstep" data-reveal>
+                <span class="pstep__num">{pad2(i)}</span>
+                <div>
+                  <h3 class="pstep__title">{step.title}</h3>
+                  <p class="pstep__text">{step.text}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="section-lg service-beyond" aria-labelledby={id('beyond')}>
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.beyond.eyebrow}</p>
+          <h2 id={id('beyond')} class="display" data-reveal data-words>{c.beyond.title}</h2>
+          {c.beyond.intro && <p class="head__intro" data-reveal>{c.beyond.intro}</p>}
+        </div>
+        <ul class="beyond__grid" data-reveal-group>
+          {
+            c.beyond.items.map((item) => (
+              <li class="beyond__item" data-reveal>
+                <h3 class="beyond__title">{item.title}</h3>
+                <p class="beyond__text">{item.text}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="section-lg faq" aria-labelledby={id('faq')}>
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.faq.eyebrow}</p>
+          <h2 id={id('faq')} class="display" data-reveal data-words>{c.faq.title}</h2>
+        </div>
+        <div class="faq__list" data-reveal-group>
+          {
+            c.faq.items.map((f) => (
+              <details class="faq__item" data-reveal>
+                <summary class="faq__q">{f.question}</summary>
+                <div class="faq__a">
+                  <p>{f.answer}</p>
+                </div>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="section services page-more" aria-labelledby="more-title">
+      <div class="container">
+        <div class="section__head" data-reveal-group>
+          <span class="accent-rule" data-reveal aria-hidden="true"></span>
+          <h2 id="more-title" data-reveal>{c.more.title}</h2>
+        </div>
+
+        <div class="core-cards" data-core-cards>
+          <ul class="core-cards__track" data-core-track data-reveal-group>
+            {others.map((s) => <ServiceCard service={s} />)}
+          </ul>
+          <div class="core-cards__dots" data-core-dots hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <Cta copy={c.cta} />
+  </main>
+</Base>

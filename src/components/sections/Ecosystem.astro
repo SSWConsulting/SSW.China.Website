@@ -1,13 +1,26 @@
 ---
 import { site } from '../../config/site.ts';
-import { need } from '../../lib/template.ts';
+import { home } from '../../lib/pages.ts';
+
+const eco = home.ecosystem;
+const products = [
+  { key: 'tina', entry: site.ecosystem.tina, copy: eco.tina, href: 'https://tina.io/', host: 'tina.io' },
+  {
+    key: 'yak',
+    entry: site.ecosystem.yakshaver,
+    copy: eco.yakshaver,
+    href: 'https://yakshaver.ai/',
+    host: 'yakshaver.ai',
+  },
+];
+const fire = eco.fireug;
 ---
 
 <section class="section ecosystem" id="ecosystem" aria-labelledby="ecosystem-title">
   <div class="container">
     <div class="section__head" data-reveal-group>
       <span class="accent-rule" data-reveal aria-hidden="true"></span>
-      <h2 id="ecosystem-title" data-reveal>我们的产品与技术社区</h2>
+      <h2 id="ecosystem-title" data-reveal>{eco.title}</h2>
     </div>
 
     {/* ══════════════════════════════════════════════════════════════════
@@ -21,109 +34,62 @@ import { need } from '../../lib/template.ts';
          卡片正文仍是交接文档的中文，未改写。
          ══════════════════════════════════════════════════════════════════ */}
     <div class="ecosystem__products" data-reveal-group>
-      <a
-        class="product-card product-card--tina"
-        href="https://tina.io/"
-        target="_blank"
-        rel="noopener noreferrer"
-        data-reveal
-      >
-        {site.ecosystem?.tina?.art ? (<>
-        <img
-          class="product-card__art"
-          src={need(site.ecosystem?.tina?.art?.src, 'ecosystem.tina.art.src')}
-          alt=""
-          aria-hidden="true"
-          width={need(site.ecosystem?.tina?.art?.w, 'ecosystem.tina.art.w')}
-          height={need(site.ecosystem?.tina?.art?.h, 'ecosystem.tina.art.h')}
-          loading="lazy"
-        />
-        </>) : null}
+      {
+        products.map(({ key, entry, copy, href, host }) => (
+          <a
+            class={`product-card product-card--${key}`}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-reveal
+          >
+            {entry.art && (
+              <img
+                class="product-card__art"
+                src={entry.art.src}
+                alt=""
+                aria-hidden="true"
+                width={entry.art.w}
+                height={entry.art.h}
+                loading="lazy"
+              />
+            )}
 
-        <div class="product-card__body">
-          {site.ecosystem?.tina?.logo ? (<>
-          <img
-            class="product-card__logo"
-            src={need(site.ecosystem?.tina?.logo?.src, 'ecosystem.tina.logo.src')}
-            alt=""
-            aria-hidden="true"
-            width={need(site.ecosystem?.tina?.logo?.w, 'ecosystem.tina.logo.w')}
-            height={need(site.ecosystem?.tina?.logo?.h, 'ecosystem.tina.logo.h')}
-          />
-          {/* 标识是图，名称由这里承担 —— 与 ssw.com.au 一致。 */}
-          <h3 class="sr-only">{need(site.ecosystem?.tina?.name, 'ecosystem.tina.name')}</h3>
-          </>) : (<>
-          {/* 没有真实标识时不留空图框，直接以真实名称纯文字呈现。 */}
-          <h3 class="product-card__name">{need(site.ecosystem?.tina?.name, 'ecosystem.tina.name')}</h3>
-          </>)}
+            <div class="product-card__body">
+              {entry.logo ? (
+                <Fragment>
+                  <img
+                    class="product-card__logo"
+                    src={entry.logo.src}
+                    alt=""
+                    aria-hidden="true"
+                    width={entry.logo.w}
+                    height={entry.logo.h}
+                  />
+                  {/* 标识是图，名称由这里承担 —— 与 ssw.com.au 一致。 */}
+                  <h3 class="sr-only">{entry.name}</h3>
+                </Fragment>
+              ) : (
+                /* 没有真实标识时不留空图框，直接以真实名称纯文字呈现。 */
+                <h3 class="product-card__name">{entry.name}</h3>
+              )}
 
-          <p class="product-card__desc">可视化编辑网站内容，以 Git 管理内容版本，让内容团队与开发者协作更顺畅。</p>
+              <p class="product-card__desc">{copy.description}</p>
 
-          <ul class="product-card__tags">
-            <li>无头 CMS</li>
-            <li>基于 Git</li>
-          </ul>
-        </div>
+              <ul class="product-card__tags">
+                {copy.tags.map((tag) => <li>{tag}</li>)}
+              </ul>
+            </div>
 
-        <span class="product-card__cta">
-          了解更多
-          {/* 可见文字按用户要求统一成「了解更多」。两张卡的可访问名称仍然可区分 ——
-               整个 <a> 的名称里含产品名（标识的 alt）与下面这句目标说明。 */}
-          <span class="sr-only">（Tina，在新标签页打开 tina.io）</span>
-        </span>
-      </a>
-
-      <a
-        class="product-card product-card--yak"
-        href="https://yakshaver.ai/"
-        target="_blank"
-        rel="noopener noreferrer"
-        data-reveal
-      >
-        {site.ecosystem?.yakshaver?.art ? (<>
-        <img
-          class="product-card__art"
-          src={need(site.ecosystem?.yakshaver?.art?.src, 'ecosystem.yakshaver.art.src')}
-          alt=""
-          aria-hidden="true"
-          width={need(site.ecosystem?.yakshaver?.art?.w, 'ecosystem.yakshaver.art.w')}
-          height={need(site.ecosystem?.yakshaver?.art?.h, 'ecosystem.yakshaver.art.h')}
-          loading="lazy"
-        />
-        </>) : null}
-
-        <div class="product-card__body">
-          {site.ecosystem?.yakshaver?.logo ? (<>
-          <img
-            class="product-card__logo"
-            src={need(site.ecosystem?.yakshaver?.logo?.src, 'ecosystem.yakshaver.logo.src')}
-            alt=""
-            aria-hidden="true"
-            width={need(site.ecosystem?.yakshaver?.logo?.w, 'ecosystem.yakshaver.logo.w')}
-            height={need(site.ecosystem?.yakshaver?.logo?.h, 'ecosystem.yakshaver.logo.h')}
-          />
-          {/* 标识是图，名称由这里承担 —— 与 ssw.com.au 一致。 */}
-          <h3 class="sr-only">{need(site.ecosystem?.yakshaver?.name, 'ecosystem.yakshaver.name')}</h3>
-          </>) : (<>
-          {/* 没有真实标识时不留空图框，直接以真实名称纯文字呈现。 */}
-          <h3 class="product-card__name">{need(site.ecosystem?.yakshaver?.name, 'ecosystem.yakshaver.name')}</h3>
-          </>)}
-
-          <p class="product-card__desc">
-            将录屏中的问题与想法转化为任务和缺陷报告，并连接 GitHub、Azure DevOps 等协作工具。
-          </p>
-
-          <ul class="product-card__tags">
-            <li>AI 缺陷报告</li>
-            <li>任务自动生成</li>
-          </ul>
-        </div>
-
-        <span class="product-card__cta">
-          了解更多
-          <span class="sr-only">（YakShaver，在新标签页打开 yakshaver.ai）</span>
-        </span>
-      </a>
+            {/* 可见文字统一成「了解更多」。两张卡的可访问名称仍然可区分 ——
+                 整个 <a> 的名称里含产品名（标识的 alt）与下面这句目标说明。 */}
+            <span class="product-card__cta">
+              {eco.productCta}
+              <span class="sr-only">（{entry.name}，在新标签页打开 {host}）</span>
+            </span>
+          </a>
+        ))
+      }
     </div>
 
     {/* ══════════════════════════════════════════════════════════════
@@ -135,24 +101,24 @@ import { need } from '../../lib/template.ts';
       <span class="community__glow" aria-hidden="true"></span>
 
       <div class="community__head">
-        <p class="entry__kind">技术社区</p>
+        <p class="entry__kind">{fire.kind}</p>
         {site.ecosystem?.fireug?.logo ? (<>
-        {/* 深底／浅底两版都是真实素材（见 site.config.ts 里的注释），
+        {/* 深底／浅底两版都是真实素材（见「站点设置 → 产品与技术社区」），
              不是同一张图套滤镜；由 CSS 按主题切换显示，与导航区 SSW 标识同一机制。 */}
         <img
           class="community__logo community__logo--dark"
-          src={need(site.ecosystem?.fireug?.logo?.src, 'ecosystem.fireug.logo.src')}
-          alt={need(site.ecosystem?.fireug?.logoAlt, 'ecosystem.fireug.logoAlt')}
-          width={need(site.ecosystem?.fireug?.logo?.w, 'ecosystem.fireug.logo.w')}
-          height={need(site.ecosystem?.fireug?.logo?.h, 'ecosystem.fireug.logo.h')}
+          src={site.ecosystem.fireug.logo.src}
+          alt={site.ecosystem.fireug.logoAlt}
+          width={site.ecosystem.fireug.logo.w}
+          height={site.ecosystem.fireug.logo.h}
         />
         {site.ecosystem?.fireug?.logoLight ? (<>
         <img
           class="community__logo community__logo--light"
-          src={need(site.ecosystem?.fireug?.logoLight?.src, 'ecosystem.fireug.logoLight.src')}
-          alt={need(site.ecosystem?.fireug?.logoAlt, 'ecosystem.fireug.logoAlt')}
-          width={need(site.ecosystem?.fireug?.logoLight?.w, 'ecosystem.fireug.logoLight.w')}
-          height={need(site.ecosystem?.fireug?.logoLight?.h, 'ecosystem.fireug.logoLight.h')}
+          src={site.ecosystem.fireug.logoLight.src}
+          alt={site.ecosystem.fireug.logoAlt}
+          width={site.ecosystem.fireug.logoLight.w}
+          height={site.ecosystem.fireug.logoLight.h}
         />
         </>) : (<>
         {/* 没有浅底版时的降级：浅色主题下仍显示深底版，
@@ -160,17 +126,17 @@ import { need } from '../../lib/template.ts';
              但比空白更诚实地反映「素材暂缺浅底版」）。 */}
         <img
           class="community__logo community__logo--light"
-          src={need(site.ecosystem?.fireug?.logo?.src, 'ecosystem.fireug.logo.src')}
-          alt={need(site.ecosystem?.fireug?.logoAlt, 'ecosystem.fireug.logoAlt')}
-          width={need(site.ecosystem?.fireug?.logo?.w, 'ecosystem.fireug.logo.w')}
-          height={need(site.ecosystem?.fireug?.logo?.h, 'ecosystem.fireug.logo.h')}
+          src={site.ecosystem.fireug.logo.src}
+          alt={site.ecosystem.fireug.logoAlt}
+          width={site.ecosystem.fireug.logo.w}
+          height={site.ecosystem.fireug.logo.h}
         />
         </>)}
         </>) : (<>
-        <h3 class="community__name">{need(site.ecosystem?.fireug?.name, 'ecosystem.fireug.name')}</h3>
+        <h3 class="community__name">{site.ecosystem.fireug.name}</h3>
         </>)}
-        <p class="community__tagline">一群程序员搞的技术频道</p>
-        <p class="community__desc">通过技术分享、视频与交流活动，和开发者一起学习，交流工程实践。</p>
+        <p class="community__tagline">{fire.tagline}</p>
+        <p class="community__desc">{fire.description}</p>
 
         <div class="community__actions">
           <a
@@ -205,7 +171,7 @@ import { need } from '../../lib/template.ts';
                 stroke-linecap="round"
               />
             </svg>
-            访问 B 站
+            {fire.bilibiliLabel}
           </a>
           <a
             class="community__channel"
@@ -226,7 +192,7 @@ import { need } from '../../lib/template.ts';
               />
               <path d="M10.2 9.3v5.4l4.6-2.7z" fill="currentColor" />
             </svg>
-            访问油管
+            {fire.youtubeLabel}
             <span class="sr-only">（YouTube，中国大陆可能无法访问）</span>
           </a>
         </div>
@@ -234,18 +200,14 @@ import { need } from '../../lib/template.ts';
 
       {/* 数字取自 FireUG 官网原文（fireusergroup.com），不做滚动计数。 */}
       <dl class="community__stats">
-        <div class="community__stat">
-          <dt>播放量</dt>
-          <dd>1m+</dd>
-        </div>
-        <div class="community__stat">
-          <dt>全网粉丝</dt>
-          <dd>60k+</dd>
-        </div>
-        <div class="community__stat">
-          <dt>视频发布</dt>
-          <dd>200+</dd>
-        </div>
+        {
+          fire.stats.map((stat) => (
+            <div class="community__stat">
+              <dt>{stat.label}</dt>
+              <dd>{stat.value}</dd>
+            </div>
+          ))
+        }
       </dl>
     </article>
   </div>

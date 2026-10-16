@@ -1,0 +1,82 @@
+---
+/**
+ * 核心 AI 服务卡片（首页三张、各服务页底部「其他 AI 服务」两张）。
+ * 标题与简介在「全站通用 → 服务卡片」里改；链接与图标是结构，留在代码里。
+ */
+import { shared } from '../../lib/shared.ts';
+
+interface Props {
+  service: 'platform' | 'workflow' | 'apps';
+}
+
+const { service } = Astro.props;
+const href = {
+  platform: '/services/ai-platform/',
+  workflow: '/services/ai-workflow/',
+  apps: '/services/ai-apps/',
+}[service];
+const card = shared.serviceCards[service];
+---
+
+<li class="core-cards__slide" data-reveal>
+  <a class="core-card" href={href}>
+    <span class="core-card__media" aria-hidden="true">
+      <svg
+        viewBox="0 0 48 48"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        focusable="false"
+      >
+        {
+          service === 'platform' && (
+            <Fragment>
+              <path d="M24 5 44 15 24 25 4 15 24 5Z" />
+              <path d="M4 23.5 24 33.5 44 23.5" />
+              <path d="M4 32 24 42 44 32" />
+            </Fragment>
+          )
+        }
+        {
+          service === 'workflow' && (
+            <Fragment>
+              <rect x="3" y="18" width="13" height="12" rx="3" />
+              <rect x="17.5" y="4" width="13" height="12" rx="3" />
+              <rect x="17.5" y="32" width="13" height="12" rx="3" />
+              <rect x="32" y="18" width="13" height="12" rx="3" />
+              <path d="M16 24h1.5a6 6 0 0 0 6-6v-2" />
+              <path d="M16 24h1.5a6 6 0 0 1 6 6v2" />
+              <path d="M30.5 10H32a6 6 0 0 1 6 6v2" />
+              <path d="M30.5 38H32a6 6 0 0 0 6-6v-2" />
+            </Fragment>
+          )
+        }
+        {
+          service === 'apps' && (
+            <Fragment>
+              <rect x="4" y="8" width="40" height="32" rx="4" />
+              <path d="M4 17.5h40" />
+              <path d="M24 21.5l2.4 5.6 5.6 2.4-5.6 2.4L24 37.5l-2.4-5.6-5.6-2.4 5.6-2.4 2.4-5.6Z" />
+            </Fragment>
+          )
+        }
+      </svg>
+    </span>
+    <span class="core-card__body">
+      <span class="core-card__title" data-card-title>{card.title}</span>
+      <span class="core-card__text">
+        {card.text}
+      </span>
+      <span class="core-card__arrow" aria-hidden="true">
+        <svg viewBox="0 0 16 16" fill="currentColor" focusable="false">
+          <path
+            fill-rule="evenodd"
+            d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
+          />
+        </svg>
+      </span>
+    </span>
+  </a>
+</li>

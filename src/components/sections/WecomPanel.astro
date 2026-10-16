@@ -1,6 +1,7 @@
 ---
 import { site } from '../../config/site.ts';
-import { need } from '../../lib/template.ts';
+import { shared } from '../../lib/shared.ts';
+const { wecom } = shared;
 ---
 
 {/*
@@ -16,18 +17,18 @@ import { need } from '../../lib/template.ts';
       <span aria-hidden="true">✕</span>
     </button>
 
-    <h2 class="wecom__title" id="wecom-title">联系我们</h2>
-    <p class="wecom__desc" id="wecom-desc">聊聊你的业务场景与 AI 落地需求。</p>
+    <h2 class="wecom__title" id="wecom-title">{wecom.title}</h2>
+    <p class="wecom__desc" id="wecom-desc">{wecom.description}</p>
 
     {site.wecom?.qrImage ? (<>
     <figure class="wecom__qr" data-qr-figure>
       <img
         class="wecom__qr-img"
         data-qr-img
-        src={need(site.wecom?.qrImage?.src, 'wecom.qrImage.src')}
-        width={need(site.wecom?.qrImage?.w, 'wecom.qrImage.w')}
-        height={need(site.wecom?.qrImage?.h, 'wecom.qrImage.h')}
-        alt="SSW 企业微信联系人二维码"
+        src={site.wecom.qrImage.src}
+        width={site.wecom.qrImage.w}
+        height={site.wecom.qrImage.h}
+        alt={wecom.qrAlt}
         onerror="this.dataset.failed = '1'"
       />
     </figure>
@@ -40,15 +41,15 @@ import { need } from '../../lib/template.ts';
     {/* 桌面那句提示与「打开二维码图片」链接按用户要求去掉 ——
          海报自己带标题，扫码这件事不需要再讲一遍。
          触屏的这句留着：手机上流程不是当场扫，而是保存到相册再从相册选。 */}
-    <p class="wecom__hint" data-hint="mobile">长按二维码保存到相册，再打开微信扫一扫，从相册选择二维码。</p>
+    <p class="wecom__hint" data-hint="mobile">{wecom.mobileHint}</p>
     </>) : (<>
-    <p class="wecom__pending">{need(site.wecom?.pendingNotice, 'wecom.pendingNotice')}</p>
+    <p class="wecom__pending">{site.wecom.pendingNotice}</p>
     </>)}
 
     {site.wecom?.searchableId ? (<>
     <div class="wecom__id" data-id-row>
       <p class="wecom__id-text">
-        企业微信号：<code class="wecom__id-value" data-id-value>{need(site.wecom?.searchableId, 'wecom.searchableId')}</code>
+        企业微信号：<code class="wecom__id-value" data-id-value>{site.wecom.searchableId}</code>
       </p>
       <button class="btn btn--secondary wecom__copy" type="button" data-id-copy>复制账号</button>
     </div>

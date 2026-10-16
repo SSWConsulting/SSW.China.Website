@@ -1,3 +1,8 @@
+---
+import { home } from '../../lib/pages.ts';
+const { filmstrip } = home;
+---
+
 {/* ══════════════════════════════════════════════════════════════════════
      视频通栏 —— 照搬 ssw.com.au 首页 "AI solutions that deliver, the first time."
      线上取值（18px 根字号）：min-height 36rem / md 80vh、底色纯黑、
@@ -29,9 +34,9 @@
   <span class="filmstrip__scrim" aria-hidden="true"></span>
 
   <div class="filmstrip__inner">
-    <h2 id="filmstrip-title" class="filmstrip__title">让 AI 在日常工作中发挥作用</h2>
+    <h2 id="filmstrip-title" class="filmstrip__title">{filmstrip.title}</h2>
     <div class="filmstrip__actions">
-      <a class="filmstrip__cta" href="#wecom" data-wecom data-ripple>联系我们</a>
+      <a class="filmstrip__cta" href="#wecom" data-wecom data-ripple>{filmstrip.button}</a>
     </div>
   </div>
 </section>

@@ -1,10 +1,12 @@
 import raw from '../../content/settings/site.json' with { type: 'json' };
 import type {
   CaseStudy,
+  ClientLogo,
   EcosystemEntry,
   FilingRecord,
   HeroImage,
   ImageAsset,
+  RecognitionBadge,
   SiteConfig,
   Statistic,
 } from './types';
@@ -91,6 +93,18 @@ function caseStudy(v: unknown): CaseStudy | null {
   };
 }
 
+function clientLogo(v: unknown): ClientLogo | null {
+  const img = image(v);
+  const name = str(obj(v)?.name);
+  return img && name ? { ...img, name } : null;
+}
+
+function badge(v: unknown): RecognitionBadge | null {
+  const o = obj(v);
+  const label = str(o?.label);
+  return label ? { label, icon: image(o?.icon) } : null;
+}
+
 const present = <T>(x: T | null): x is T => x !== null;
 
 /** 可整段关闭的区块：键缺失或显式 `null` ⇒ 关闭；Tina 里用 `enabled: false` 也表示关闭。 */
@@ -135,7 +149,12 @@ export function toSiteConfig(input: unknown): SiteConfig {
       searchableId: str(wecom?.searchableId),
       pendingNotice: str(wecom?.pendingNotice) ?? '',
     },
-    advantage: advantage ? { stats: list(advantage.stats).map(statistic).filter(present) } : null,
+    advantage: advantage
+      ? {
+          title: str(advantage.title) ?? 'SSW 的积累',
+          stats: list(advantage.stats).map(statistic).filter(present),
+        }
+      : null,
     about: {
       recognition: aboutRec
         ? {
@@ -149,10 +168,21 @@ export function toSiteConfig(input: unknown): SiteConfig {
           image: image(whyUs.image),
           videoUrl: str(whyUs.videoUrl),
           caption: str(whyUs.caption),
-          recognition: whyUsRec ? { pendingClearance: bool(whyUsRec.pendingClearance) } : null,
+          recognition: whyUsRec
+            ? {
+                pendingClearance: bool(whyUsRec.pendingClearance),
+                badges: list(whyUsRec.badges).map(badge).filter(present),
+              }
+            : null,
         }
       : null,
-    clients: clients ? { pendingClearance: bool(clients.pendingClearance) } : null,
+    clients: clients
+      ? {
+          title: str(clients.title) ?? 'SSW 服务过的部分客户',
+          pendingClearance: bool(clients.pendingClearance),
+          logos: list(clients.logos).map(clientLogo).filter(present),
+        }
+      : null,
     cases: list(c.cases).map(caseStudy).filter(present),
     aiApps: {
       heroImage: heroImage(aiApps?.heroImage),

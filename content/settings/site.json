@@ -23,10 +23,10 @@
       "h": 1375
     },
     "qrScanVerified": false,
-    "searchableId": null,
     "pendingNotice": "二维码尚未配置。配置完成后，此处显示可扫描的企业微信二维码。"
   },
   "advantage": {
+    "title": "SSW 的积累",
     "stats": [
       {
         "figure": "7,000",
@@ -66,13 +66,82 @@
       "h": 1080
     },
     "videoUrl": "https://www.bilibili.com/video/BV1MN411m7mn/",
-    "caption": null,
     "recognition": {
-      "pendingClearance": true
+      "pendingClearance": true,
+      "badges": [
+        {
+          "label": "Microsoft Solutions Partner",
+          "icon": {
+            "src": "/media/recognition/microsoft-squares.png",
+            "w": 960,
+            "h": 960
+          }
+        },
+        {
+          "label": "MAPA Learning Excellence Award"
+        }
+      ]
     }
   },
   "clients": {
-    "pendingClearance": true
+    "title": "SSW 服务过的部分客户",
+    "pendingClearance": true,
+    "logos": [
+      {
+        "name": "复旦大学",
+        "src": "/media/client-logos/fudan.png",
+        "w": 337,
+        "h": 140
+      },
+      {
+        "name": "Toll",
+        "src": "/media/client-logos/toll.png",
+        "w": 654,
+        "h": 210
+      },
+      {
+        "name": "Symantec",
+        "src": "/media/client-logos/symantec.png",
+        "w": 654,
+        "h": 210
+      },
+      {
+        "name": "Microsoft",
+        "src": "/media/client-logos/microsoft.png",
+        "w": 654,
+        "h": 210
+      },
+      {
+        "name": "Event Cinemas",
+        "src": "/media/client-logos/event-cinemas.png",
+        "w": 400,
+        "h": 128
+      },
+      {
+        "name": "Domain",
+        "src": "/media/client-logos/domain.png",
+        "w": 400,
+        "h": 128
+      },
+      {
+        "name": "Cisco",
+        "src": "/media/client-logos/cisco.png",
+        "w": 654,
+        "h": 210
+      },
+      {
+        "name": "Commonwealth Bank",
+        "src": "/media/client-logos/cba.png",
+        "w": 654,
+        "h": 210
+      },
+      {
+        "name": "Allianz",
+        "src": "/media/client-logos/allianz.png",
+        "w": 400,
+        "h": 128
+      }
+    ]
   },
   "cases": [],
   "aiApps": {
@@ -159,14 +228,11 @@
     }
   },
   "footer": {
-    "legalName": null,
     "copyrightHolder": "SSW",
     "copyrightYear": 2026,
-    "privacyUrl": null,
     "icp": {
       "number": "浙ICP备20009588号",
       "url": "https://beian.miit.gov.cn/"
-    },
-    "publicSecurity": null
+    }
   }
 }

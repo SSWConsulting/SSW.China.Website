@@ -101,7 +101,9 @@ export interface Statistic {
 }
 
 export interface AdvantageConfig {
-  /** 最多 3 项（模板里写死了 3 个位置，多余的不会渲染）。 */
+  /** 区块标题（首页、关于我们、AI 应用定制页共用）。 */
+  title: string;
+  /** 最多 3 项（版式是四栏栅格：标题一格 + 三个数字，多余的不会渲染）。 */
   stats: Statistic[];
 }
 
@@ -134,11 +136,16 @@ export interface CaseStudy {
   isPlaceholder: boolean;
 }
 
+/** 一个客户标识。必须是**透明底**图片（卡片上由 CSS 滤镜统一转白）。 */
+export interface ClientLogo extends ImageAsset {
+  /** 客户名称，作为图片的替代文本。 */
+  name: string;
+}
+
 /**
  * 客户标识跑马灯。
  *
- * 名单硬编码在 `src/partials/client-logos.html`（`@include` 不支持循环，
- * 且这条跑马灯要把同一份名单重复三次），这里只做开关与发布闸门。
+ * 跑马灯把同一份名单渲染三条轨道（无缝循环），名单只维护 `logos` 这一份。
  *
  * 里面全是**第三方商标**（Microsoft、Cisco、Commonwealth Bank、Allianz 等），
  * 取自 ssw.com.au。把它们放在中国站上，等于以中国站主体的名义主张这些客户关系 ——
@@ -148,8 +155,17 @@ export interface CaseStudy {
  * null ⇒ 整段不渲染。
  */
 export interface ClientsConfig {
+  /** 区块标题（仅读屏可见）。 */
+  title: string;
   /** 名单尚未确认可用于中国站。确认后改为 false。 */
   pendingClearance: boolean;
+  logos: ClientLogo[];
+}
+
+/** 一枚资质徽章。图标可选；没有图标时只显示文字。 */
+export interface RecognitionBadge {
+  label: string;
+  icon: ImageAsset | null;
 }
 
 /**
@@ -171,13 +187,13 @@ export interface WhyUsConfig {
   /** 配图/视频下方的说明文字。null ⇒ 不输出。 */
   caption: string | null;
   /**
-   * 资质与荣誉徽章。名单硬编码在区块标记里（只有两条，不值得做成循环）。
+   * 资质与荣誉徽章。
    *
    * 里面是 Microsoft Solutions Partner 与 MAPA 奖项 —— 这些是**资质主张**，
    * 且徽章图标是 Microsoft 商标。是否可由中国站主体主张，需业务与法务确认，
    * 因此默认带 `pendingClearance: true`，会阻塞发布。null ⇒ 整块不渲染。
    */
-  recognition: { pendingClearance: boolean } | null;
+  recognition: { pendingClearance: boolean; badges: RecognitionBadge[] } | null;
 }
 
 /** 一条备案信息及其目标链接。 */

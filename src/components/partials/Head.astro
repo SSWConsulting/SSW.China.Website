@@ -1,7 +1,9 @@
 ---
 import '../../styles/index.css';
 import { site } from '../../config/site.ts';
-import { need, ld } from '../../lib/template.ts';
+import JsonLd from '../JsonLd.astro';
+
+const origin = site.seo.origin;
 ---
 
 {/* 移动端渲染的前提：没有这一行，手机浏览器会按 980px 桌面宽度排版再整体缩放，
@@ -13,19 +15,18 @@ import { need, ld } from '../../lib/template.ts';
 
 {/* ══════════════════════════════════════════════════════════════════════
      SEO / GEO：**全站共用**的那部分。
-     每页各自不同的 canonical / og:url / og:title / og:description 写在各页
-     自己的 <head> 里 —— 构建期模板不支持给 @include 传参，与 <title>、
-     <meta description> 同一处理方式。见 docs/DECISIONS.md §96。
+     每页各自不同的 <title>、description、canonical、og:*、twitter:* 由
+     layouts/Base.astro 按页面传入的 SEO 文案统一输出。见 docs/DECISIONS.md §96。
      ══════════════════════════════════════════════════════════════════════ */}
-<meta property="og:site_name" content={need(site.seo?.siteName, 'seo.siteName')} />
+<meta property="og:site_name" content={site.seo.siteName} />
 <meta property="og:type" content="website" />
 <meta property="og:locale" content="zh_CN" />
 <meta name="twitter:card" content="summary_large_image" />
 {site.seo?.ogImage ? (<>
-<meta property="og:image" content={`${need(site.seo?.origin, 'seo.origin')}${need(site.seo?.ogImage?.src, 'seo.ogImage.src')}`} />
-<meta property="og:image:width" content={String(need(site.seo?.ogImage?.w, 'seo.ogImage.w'))} />
-<meta property="og:image:height" content={String(need(site.seo?.ogImage?.h, 'seo.ogImage.h'))} />
-<meta name="twitter:image" content={`${need(site.seo?.origin, 'seo.origin')}${need(site.seo?.ogImage?.src, 'seo.ogImage.src')}`} />
+<meta property="og:image" content={`${site.seo.origin}${site.seo.ogImage.src}`} />
+<meta property="og:image:width" content={String(site.seo.ogImage.w)} />
+<meta property="og:image:height" content={String(site.seo.ogImage.h)} />
+<meta name="twitter:image" content={`${site.seo.origin}${site.seo.ogImage.src}`} />
 </>) : null}
 
 {/* ══════════════════════════════════════════════════════════════════════
@@ -42,34 +43,36 @@ import { need, ld } from '../../lib/template.ts';
      不写未核实的字段（如统一社会信用代码、员工总数区间）。
      见 docs/DECISIONS.md §96。
      ══════════════════════════════════════════════════════════════════════ */}
-<script is:inline type="application/ld+json" set:html={ld(`{
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "@id": "${need(site.seo?.origin, 'seo.origin')}/#organization",
-    "name": "SSW",
-    "alternateName": "SSW 中国",
-    "legalName": "智鹏瑞尔软件（杭州）有限公司",
-    "url": "${need(site.seo?.origin, 'seo.origin')}/",
-    "logo": "${need(site.seo?.origin, 'seo.origin')}/media/ssw-logo.svg",
-    "foundingDate": "1990",
-    "description": "SSW 是源于澳大利亚的软件咨询公司，1990 年成立，在全球 15 个国家为企业提供软件开发、技术咨询、数字化转型及创新解决方案。SSW 中国提供 AI 底座中台、AI 业务工作流、AI 应用定制与 FDE 驻场/远程协作服务。",
-    "email": "info@ssw.com.au",
-    "telephone": "+86-571-8517-8910",
-    "address": {
-      "@type": "PostalAddress",
-      "addressCountry": "CN",
-      "addressRegion": "浙江省",
-      "addressLocality": "杭州市",
-      "streetAddress": "拱墅区新天地街 406 号星城发展大厦 2 幢 305 室",
-      "postalCode": "310004"
+<JsonLd
+  data={{
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${origin}/#organization`,
+    name: 'SSW',
+    alternateName: 'SSW 中国',
+    legalName: '智鹏瑞尔软件（杭州）有限公司',
+    url: `${origin}/`,
+    logo: `${origin}/media/ssw-logo.svg`,
+    foundingDate: '1990',
+    description: 'SSW 是源于澳大利亚的软件咨询公司，1990 年成立，在全球 15 个国家为企业提供软件开发、技术咨询、数字化转型及创新解决方案。SSW 中国提供 AI 底座中台、AI 业务工作流、AI 应用定制与 FDE 驻场/远程协作服务。',
+    email: 'info@ssw.com.au',
+    telephone: '+86-571-8517-8910',
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'CN',
+      addressRegion: '浙江省',
+      addressLocality: '杭州市',
+      streetAddress: '拱墅区新天地街 406 号星城发展大厦 2 幢 305 室',
+      postalCode: '310004',
     },
-    "sameAs": [
-      "https://www.ssw.com.au",
-      "https://ssw.fr",
-      "https://space.bilibili.com/545713776",
-      "https://www.youtube.com/@fireusergroup"
-    ]
-  }`)} />
+    sameAs: [
+      'https://www.ssw.com.au',
+      'https://ssw.fr',
+      'https://space.bilibili.com/545713776',
+      'https://www.youtube.com/@fireusergroup',
+    ],
+  }}
+/>
 
 {/* Privacy-friendly analytics by Plausible */}
 <script is:inline async src="https://plausible.io/js/pa-ulnbMrV4jHS07vS8kXX18.js"></script>

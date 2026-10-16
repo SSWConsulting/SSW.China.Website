@@ -10,3 +10,6 @@ tina/tina-lock.json
 # prettier-plugin-astro 会把 `</span\n>` 这类刻意消除空白的写法重排成带空白的形式，
 # 改变行内元素的间距（交付范围卡片的编号与标题之间会多出空格）。.astro 手工保持格式。
 *.astro
+
+# content/ 由 TinaCMS 后台读写，格式以 Tina 的输出为准
+content

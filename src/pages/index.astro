@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { site } from '../config/site.ts';
-import { need, ld } from '../lib/template.ts';
+import JsonLd from '../components/JsonLd.astro';
 import Hero from '../components/sections/Hero.astro';
 import AiServices from '../components/sections/AiServices.astro';
 import Advantage from '../components/sections/Advantage.astro';
@@ -12,24 +12,22 @@ import Clients from '../components/sections/Clients.astro';
 import WhyUs from '../components/sections/WhyUs.astro';
 import Ecosystem from '../components/sections/Ecosystem.astro';
 import Globe from '../components/sections/Globe.astro';
+import { home } from '../lib/pages.ts';
 ---
 
-<Base
-  title="SSW｜让 AI 真正落地企业业务"
-  description="从 AI 中台、业务工作流到定制应用，SSW 帮助企业把 AI 接入现有系统与业务流程，推动方案上线并持续迭代。"
-  path="/"
->
-<script slot="head" is:inline type="application/ld+json" set:html={ld(`{
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "@id": "${need(site.seo?.origin, 'seo.origin')}/#website",
-        "name": "${need(site.seo?.siteName, 'seo.siteName')}",
-        "url": "${need(site.seo?.origin, 'seo.origin')}/",
-        "inLanguage": "zh-CN",
-        "publisher": {
-          "@id": "${need(site.seo?.origin, 'seo.origin')}/#organization"
-        }
-      }`)} />
+<Base title={home.seo.title} description={home.seo.description} path="/">
+<JsonLd
+  slot="head"
+  data={{
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${site.seo.origin}/#website`,
+    name: site.seo.siteName,
+    url: `${site.seo.origin}/`,
+    inLanguage: 'zh-CN',
+    publisher: { '@id': `${site.seo.origin}/#organization` },
+  }}
+/>
 
 
     <main id="main" tabindex="-1">
@@ -38,11 +36,7 @@ import Globe from '../components/sections/Globe.astro';
       <Advantage />
       <AiSolutions />
       <Fde />
-      {/*
-        案例：cases 为空时整段不渲染，不保留空白、占位卡片或“敬请期待”。
-        当前放着一条显式标记的占位案例（见 site.config.ts），
-        卡片上有「示例内容」角标，且 check:assets 会阻塞发布。
-      */}
+      {/* 案例：「站点设置 → 案例」为空时整段不渲染（当前为空，按用户要求先隐藏）。 */}
       <Cases />
       <Clients />
       <WhyUs />
@@ -50,8 +44,8 @@ import Globe from '../components/sections/Globe.astro';
       <Globe />
       {/*
         收尾 CTA（「你的业务，哪一步最值得用 AI 改进？」）已按用户要求从首页去掉。
-        sections/cta.html 本身保留 —— 三个服务详情页与 /chinafy/ 仍在用它。
-        要在首页恢复：把 @include sections/cta.html 加回这里即可。
+        Cta 组件本身保留 —— 服务详情页、/chinafy/ 与 /about/ 仍在用它。
+        要在首页恢复：在这里加回 <Cta /> 即可。
       */}
     </main>
 </Base>

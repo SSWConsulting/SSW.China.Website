@@ -1,3 +1,8 @@
+---
+import { shared } from '../../lib/shared.ts';
+const { nav } = shared;
+---
+
 <header class="nav" id="top" data-nav>
   <div class="nav__inner">
     <a class="nav__brand" href="/" aria-label="SSW 首页">
@@ -35,23 +40,19 @@
           </svg>
         </button>
       </div>
+      {/* 「FDE 服务」的锚点仍是 #delivery（区块 id 未改）。整页链接（/chinafy/ 等）
+           不是锚点：scrollspy 只收 isSamePage() 为真的项，会自动跳过它们。 */}
       <ul>
-        <li><a href="/#ai-services">AI 服务</a></li>
-        {/* 锚点 id 仍是 #delivery（区块 id 未改），只换可见文字。 */}
-        <li><a href="/#delivery">FDE 服务</a></li>
-        {/* 整页链接，不是锚点：scrollspy 只收 isSamePage() 为真的项，会自动跳过它。 */}
-        <li><a href="/chinafy/">落地中国</a></li>
-        <li><a href="/about/">关于我们</a></li>
+        {nav.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
       </ul>
 
       {/* 窄屏专用：导航条那一行已经排满（标识 + 两个圆钮 + 咨询按钮 + 菜单键），
            再塞第五个控件会挤，所以 <1024px 时地区入口放在抽屉里。
            ≥1024px 由右上角的圆钮下拉承担，这一块隐藏。 */}
       <div class="nav__drawer-regions">
-        <p class="nav__drawer-label">其他地区</p>
+        <p class="nav__drawer-label">{nav.otherRegionsLabel}</p>
         <ul>
-          <li><a href="https://www.ssw.com.au">SSW 澳大利亚</a></li>
-          <li><a href="https://ssw.fr">SSW 法国</a></li>
+          {nav.otherRegions.map((r) => <li><a href={r.href}>SSW {r.name}</a></li>)}
         </ul>
       </div>
     </nav>
@@ -90,16 +91,17 @@
         <ul class="nav__region-menu" id="region-menu" data-region-menu hidden>
           <li>
             <span class="nav__region-item" aria-current="true">
-              中国
+              {nav.currentRegion}
               <span class="nav__region-current">当前</span>
             </span>
           </li>
-          <li>
-            <a class="nav__region-item" href="https://www.ssw.com.au">澳大利亚</a>
-          </li>
-          <li>
-            <a class="nav__region-item" href="https://ssw.fr">法国</a>
-          </li>
+          {
+            nav.otherRegions.map((r) => (
+              <li>
+                <a class="nav__region-item" href={r.href}>{r.name}</a>
+              </li>
+            ))
+          }
         </ul>
       </div>
 
@@ -128,7 +130,7 @@
       <span class="nav__divider" aria-hidden="true"></span>
 
       <a class="nav-cta" href="#wecom" data-wecom>
-        <span class="nav-cta__label">联系我们</span>
+        <span class="nav-cta__label">{nav.contactLabel}</span>
         <span class="nav-cta__circle" aria-hidden="true">
           <svg viewBox="0 0 16 16" focusable="false">
             <path

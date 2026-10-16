@@ -4,7 +4,7 @@
  *
  * 每页不同的只有 <title>、description、路径与 body 类名，以 props 传入；
  * canonical / og:url / og:title / og:description / twitter:* 由它们推导，
- * 不会再出现复制粘贴时漏改某一处的情况（旧模板不能给 @include 传参，只能每页手写）。
+ * 不会再出现复制粘贴时漏改某一处的情况（改版前的模板不能传参，只能每页手写）。
  * 每页专属的 JSON-LD 放进 `slot="head"`。
  */
 import { site } from '../config/site.ts';

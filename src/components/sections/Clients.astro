@@ -1,9 +1,9 @@
 ---
 import { site } from '../../config/site.ts';
-import ClientLogos from '../partials/ClientLogos.astro';
+const clients = site.clients;
 ---
 
-{site.clients ? (<>
+{clients && (<>
 {/* ══════════════════════════════════════════════════════════════════════
      客户标识跑马灯 —— 照搬 ssw.com.au 首页 "collective brain" 上方那一条。
      线上机制：一个 overflow:hidden 的视口里放**三条相同的轨道**，
@@ -14,18 +14,23 @@ import ClientLogos from '../partials/ClientLogos.astro';
      指针移入暂停（线上是 group-hover:[animation-play-state:paused]）。
      ══════════════════════════════════════════════════════════════════════ */}
 <section class="clients" aria-labelledby="clients-title">
-  <h2 id="clients-title" class="sr-only">SSW 服务过的部分客户</h2>
+  <h2 id="clients-title" class="sr-only">{clients.title}</h2>
 
   <div class="clients__viewport">
-    <ul class="clients__track">
-      <ClientLogos />
-    </ul>
-    <ul class="clients__track" aria-hidden="true">
-      <ClientLogos />
-    </ul>
-    <ul class="clients__track" aria-hidden="true">
-      <ClientLogos />
-    </ul>
+    {/* 三条相同的轨道：名单只维护「站点设置 → 客户标识跑马灯」这一份。
+         卡片上由 CSS 滤镜统一转白 —— 新增标识必须是**透明底**，
+         否则不透明背景会被染成一整块黑方块。全部是第三方商标，用量与授权见 DECISIONS §35、§41。 */}
+    {
+      [false, true, true].map((hidden) => (
+        <ul class="clients__track" aria-hidden={hidden ? 'true' : undefined}>
+          {clients.logos.map((logo) => (
+            <li class="clients__item">
+              <img src={logo.src} alt={logo.name} width={logo.w} height={logo.h} loading="lazy" />
+            </li>
+          ))}
+        </ul>
+      ))
+    }
   </div>
 </section>
-</>) : null}
+</>)}

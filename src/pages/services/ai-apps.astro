@@ -1,483 +1,275 @@
 ---
+/**
+ * AI 应用定制。文案：content/pages/ai-apps.json（后台「页面：AI 应用定制」）；
+ * 首屏与四张切入点卡片的配图在「站点设置 → AI 应用定制页素材」（带占位闸门）。
+ */
 import Base from '../../layouts/Base.astro';
-import { site } from '../../config/site.ts';
-import { need, ld } from '../../lib/template.ts';
+import JsonLd from '../../components/JsonLd.astro';
 import Advantage from '../../components/sections/Advantage.astro';
 import Cta from '../../components/sections/Cta.astro';
+import { site } from '../../config/site.ts';
+import { br } from '../../lib/content.ts';
+import { faqText, loadApps, pad2, roman } from '../../lib/service.ts';
+
+const c = loadApps();
+const path = '/services/ai-apps/';
+const origin = site.seo.origin;
+const heroImage = site.aiApps.heroImage;
+const images = site.aiApps.useCaseImages;
 ---
 
-<Base
-  title="AI 应用定制｜SSW"
-  description="有明确的 AI 想法，但现有工具和工作流满足不了？我们可以开发专属应用，改造现有软件，把 AI 接进 ERP、CRM 和内部系统。"
-  path="/services/ai-apps/"
-  bodyClass="aiapps-page"
->
-<script slot="head" is:inline type="application/ld+json" set:html={ld(`{
-        "@context": "https://schema.org",
-        "@type": "Service",
-        "name": "AI 应用定制",
-        "description": "有明确的 AI 想法，但现有工具和工作流满足不了？我们可以开发专属应用，改造现有软件，把 AI 接进 ERP、CRM 和内部系统。",
-        "serviceType": "AI 应用定制",
-        "provider": {
-          "@id": "${need(site.seo?.origin, 'seo.origin')}/#organization"
-        },
-        "areaServed": {
-          "@type": "Country",
-          "name": "中国"
-        },
-        "url": "${need(site.seo?.origin, 'seo.origin')}/services/ai-apps/"
-      }`)} />
-<script slot="head" is:inline type="application/ld+json" set:html={ld(`{
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "首页",
-            "item": "${need(site.seo?.origin, 'seo.origin')}/"
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "AI 服务",
-            "item": "${need(site.seo?.origin, 'seo.origin')}/#ai-services"
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "name": "AI 应用定制"
-          }
-        ]
-      }`)} />
-<script slot="head" is:inline type="application/ld+json" set:html={ld(`{
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "费用怎么算？",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "每个项目按目标来定范围，没有统一报价。第一次沟通始终免费；方案评审阶段会给出尽可能准确的范围、价格与周期。"
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "我们的数据会被拿去训练别人的模型吗？",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "除非你希望如此，否则不会。我们基于企业协议构建，你的提示词与数据不会用于训练；要求更严格时，把模型部署在你自己的基础设施上，数据不出你的环境。"
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "该用哪个模型？",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "这个决定由双方一起做，把你的数据、预算与合规要求摆在桌面上。我们会把架构做成可以换模型的——因为今天最好的那个，通常不会一直是最好的。"
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "能和我们现有的团队一起做吗？",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "可以。既可以由 SSW 团队端到端接手，也可以把我们的工程师嵌进你现有的团队。"
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "怎么保证项目质量？",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "靠四件长期在做的事： 整洁架构：为可扩展、可测试、可维护而设计。 Scrum：保持透明、客户参与，用快速反馈循环调整方向。 DevOps：让开发与部署更快也更可靠。 公开的最佳实践：我们把做法整理成 SSW Rules 与 SSW TV，公开可查。"
-            }
-          }
-        ]
-      }`)} />
+<Base title={c.seo.title} description={c.seo.description} path={path} bodyClass="aiapps-page">
+  <JsonLd
+    slot="head"
+    data={{
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: c.name,
+      description: c.seo.description,
+      serviceType: c.name,
+      provider: { '@id': `${origin}/#organization` },
+      areaServed: { '@type': 'Country', name: '中国' },
+      url: `${origin}${path}`,
+    }}
+  />
+  <JsonLd
+    slot="head"
+    data={{
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: '首页', item: `${origin}/` },
+        { '@type': 'ListItem', position: 2, name: 'AI 服务', item: `${origin}/#ai-services` },
+        { '@type': 'ListItem', position: 3, name: c.name },
+      ],
+    }}
+  />
+  <JsonLd
+    slot="head"
+    data={{
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: c.faq.items.map((f) => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: { '@type': 'Answer', text: faqText(f) },
+      })),
+    }}
+  />
 
+  <main id="main" tabindex="-1">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <div class="container">
+        <ol>
+          <li><a href="/">首页</a></li>
+          <li><a href="/#ai-services">AI 服务</a></li>
+          <li aria-current="page">{c.name}</li>
+        </ol>
+      </div>
+    </nav>
 
-    <main id="main" tabindex="-1">
-      <nav class="breadcrumb" aria-label="面包屑">
-        <div class="container">
-          <ol>
-            <li><a href="/">首页</a></li>
-            <li><a href="/#ai-services">AI 服务</a></li>
-            <li aria-current="page">AI 应用定制</li>
+    {/* 首屏：2026-09-18 按用户要求改成与另外两个服务页一样的结构
+         （.page-head + .service-hero-media，图在右侧、深色渐变、白字）。
+         原因与取舍见 src/styles/ai-apps.css 里这块规则前的注释，以及 docs/DECISIONS.md §84。
+         页面标题与导语不挂 data-reveal —— 首屏文字必须立即可读（交接文档 §4）。 */}
+    <section class="page-head" aria-labelledby="page-title">
+      {
+        heroImage && (
+          <div class="service-hero-media" data-placeholder={String(heroImage.isPlaceholder)} aria-hidden="true">
+            <img src={heroImage.src} alt="" width={heroImage.w} height={heroImage.h} fetchpriority="high" />
+          </div>
+        )
+      }
+      <div class="container page-head__inner">
+        <div class="page-head__copy">
+          <h1 id="page-title">{c.hero.title}</h1>
+          <p class="lead page-head__lede">{c.hero.lede}</p>
+          <p class="page-head__body">{c.hero.body}</p>
+          <div class="btn-row page-head__actions">
+            <a class="btn btn--primary" href="#wecom" data-wecom data-ripple>{c.hero.primaryButton}</a>
+            <a class="btn" href="#usecases">{c.hero.secondaryButton}</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* ══ 主张：罗马数字清单（模板 Pillars 的做法） ═══════════════ */}
+    <section class="section-lg pillars" aria-labelledby="pillars-title">
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.pillars.eyebrow}</p>
+          <h2 id="pillars-title" class="display" data-reveal data-words>{c.pillars.title}</h2>
+        </div>
+
+        <div class="pillars__body">
+          <p class="pillars__intro" data-reveal>
+            {c.pillars.intro}
+          </p>
+
+          <ol class="pillars__list" data-reveal-group>
+            {
+              c.pillars.items.map((item, i) => (
+                <li class="pillar" data-reveal>
+                  <span class="pillar__num" aria-hidden="true">{roman(i)}</span>
+                  <div>
+                    <h3 class="pillar__title">{item.title}</h3>
+                    <p class="pillar__text">{item.text}</p>
+                  </div>
+                </li>
+              ))
+            }
           </ol>
         </div>
-      </nav>
+      </div>
+    </section>
 
-      {/* 首屏：2026-09-18 按用户要求改成与另外两个服务页一样的结构
-           （.page-head + .service-hero-media，图在右侧、深色渐变、白字），
-           不再是本页独有的通栏图+锚点导航条那一套。原因与取舍见
-           src/styles/ai-apps.css 里这块规则前的注释，以及 docs/DECISIONS.md §84。
-           页面标题与导语不挂 data-reveal —— 首屏文字必须立即可读（交接文档 §4）。 */}
-      <section class="page-head" aria-labelledby="page-title">
-        {site.aiApps?.heroImage ? (<>
-        <div class="service-hero-media" data-placeholder={need(site.aiApps?.heroImage?.isPlaceholder, 'aiApps.heroImage.isPlaceholder')} aria-hidden="true">
-          <img
-            src={need(site.aiApps?.heroImage?.src, 'aiApps.heroImage.src')}
-            alt=""
-            width={need(site.aiApps?.heroImage?.w, 'aiApps.heroImage.w')}
-            height={need(site.aiApps?.heroImage?.h, 'aiApps.heroImage.h')}
-            fetchpriority="high"
-          />
+    {/* ══ 切入点：图片在上、文字在下的卡片（模板 Services 的做法）。
+         配图按顺序对应「站点设置 → 四张切入点卡片配图」；某一项没有图 ⇒ 该卡片降级为纯排版。 ══ */}
+    <section class="section-lg usecases" id="usecases" aria-labelledby="usecases-title">
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.usecases.eyebrow}</p>
+          <h2 id="usecases-title" class="display" data-reveal data-words>{c.usecases.title}</h2>
+          {c.usecases.intro && <p class="head__intro" data-reveal>{c.usecases.intro}</p>}
         </div>
-        </>) : null}
-        <div class="container page-head__inner">
-          <div class="page-head__copy">
-            <h1 id="page-title">现成工具不够用，我们按需开发</h1>
-            <p class="lead page-head__lede">有明确的 AI 想法，但现有工具和工作流满足不了？</p>
-            <p class="page-head__body">我们可以开发专属应用，改造现有软件，把 AI 接进 ERP、CRM 和内部系统。</p>
-            <div class="btn-row page-head__actions">
-              <a class="btn btn--primary" href="#wecom" data-wecom data-ripple>联系我们</a>
-              <a class="btn" href="#usecases">看看能做什么</a>
-            </div>
+
+        <ul class="usecases__grid" data-reveal-group>
+          {
+            c.usecases.items.map((item, i) => {
+              const img = images[i];
+              return (
+                <li class="ucard" data-reveal>
+                  {img && (
+                    <div class="ucard__media" data-placeholder={String(img.isPlaceholder)} aria-hidden="true">
+                      <img src={img.src} alt="" width={img.w} height={img.h} loading="lazy" />
+                    </div>
+                  )}
+                  <span class="ucard__index" aria-hidden="true">
+                    {pad2(i)}
+                  </span>
+                  <h3 class="ucard__title">{item.title}</h3>
+                  <p class="ucard__text">{item.text}</p>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="section-lg scope" id="scope" aria-labelledby="scope-title">
+      <div class="container scope__layout">
+        <div class="scope__intro" data-reveal>
+          <p class="eyebrow">{c.scope.eyebrow}</p>
+          <h2 id="scope-title" class="display"><Fragment set:html={br(c.scope.title)} /></h2>
+          <p class="head__intro">{c.scope.intro}</p>
+          <div class="scope__fit">
+            <span class="scope__fit-label">{c.scope.fitLabel}</span>
+            <p>{c.scope.fit}</p>
           </div>
+          <a class="builtby__link" href="#wecom" data-wecom>{c.scope.contactLink} <span aria-hidden="true">↗</span></a>
         </div>
-      </section>
+        <div class="scope__deliverables" data-reveal-group>
+          {
+            c.scope.deliverables.map((d, i) => (
+              <details class="deliverable" open data-reveal>
+                {/* span 之间刻意没有空白：它们是行内元素，空白会变成可见间距。 */}
+                <summary><span class="deliverable__number" aria-hidden="true">{pad2(i)}</span><span class="deliverable__heading"><span class="deliverable__title">{d.title}</span><span class="deliverable__subtitle">{d.subtitle}</span></span><span class="deliverable__toggle" aria-hidden="true"></span></summary>
+                <div class="deliverable__body">
+                  <p>{d.body}</p>
+                  <ul class="deliverable__outputs" aria-label={`${d.title}内容`}>
+                    {d.outputs.map((o) => <li>{o}</li>)}
+                  </ul>
+                </div>
+              </details>
+            ))
+          }
+          <p class="scope__note">{c.scope.note}</p>
+        </div>
+      </div>
+    </section>
 
-      {/* ══ 三条主张：罗马数字清单（模板 Pillars 的做法） ═══════════════ */}
-      <section class="section-lg pillars" aria-labelledby="pillars-title">
-        <div class="container">
-          <div class="head" data-reveal-group>
-            <p class="eyebrow" data-reveal>来自实际项目</p>
-            <h2 id="pillars-title" class="display" data-reveal data-words>按你的业务开发，接进现有系统</h2>
-          </div>
+    {/* 全站共用的数据统计（真实全球口径，见「站点设置 → 数据统计」） */}
+    <Advantage />
 
-          <div class="pillars__body">
-            <p class="pillars__intro" data-reveal>
-              先明确谁来使用、需要完成什么，再设计功能、连接数据，并通过实际任务验证效果。
-            </p>
+    {/* ══ 合作流程：编号大字 + 竖排（模板 Approach 的做法） ═══════════ */}
+    <section class="section-lg process" id="process" aria-labelledby="process-title">
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.process.eyebrow}</p>
+          <h2 id="process-title" class="display" data-reveal data-words>{c.process.title}</h2>
+        </div>
 
-            <ol class="pillars__list" data-reveal-group>
-              <li class="pillar" data-reveal>
-                <span class="pillar__num" aria-hidden="true">I</span>
-                <div>
-                  <h3 class="pillar__title">功能贴合业务</h3>
-                  <p class="pillar__text">围绕实际用户和任务设计功能与界面，让操作符合团队的工作方式。</p>
+        <ol class="process__list" data-reveal-group>
+          {
+            c.process.steps.map((step, i) => (
+              <li class="pstep" data-reveal>
+                <span class="pstep__num" aria-hidden="true">{pad2(i)}</span>
+                <div class="pstep__body">
+                  <h3 class="pstep__title">{step.title}</h3>
+                  <p class="pstep__text">{step.text}</p>
                 </div>
               </li>
-              <li class="pillar" data-reveal>
-                <span class="pillar__num" aria-hidden="true">II</span>
-                <div>
-                  <h3 class="pillar__title">接好数据与权限</h3>
-                  <p class="pillar__text">连接所需业务系统，明确应用可以读取什么、执行什么操作。</p>
-                </div>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    {/* ══ 模型之外 ═══════════════════════════════════════════════════ */}
+    <section class="section-lg beyond" aria-labelledby="beyond-title">
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.beyond.eyebrow}</p>
+          <h2 id="beyond-title" class="display" data-reveal data-words>{c.beyond.title}</h2>
+          {c.beyond.intro && <p class="head__intro" data-reveal>{c.beyond.intro}</p>}
+        </div>
+
+        <ul class="beyond__grid" data-reveal-group>
+          {
+            c.beyond.items.map((item) => (
+              <li class="beyond__item" data-reveal>
+                <h3 class="beyond__title">{item.title}</h3>
+                <p class="beyond__text">{item.text}</p>
               </li>
-              <li class="pillar" data-reveal>
-                <span class="pillar__num" aria-hidden="true">III</span>
-                <div>
-                  <h3 class="pillar__title">上线后方便维护</h3>
-                  <p class="pillar__text">完成测试、部署与交接，明确后续维护和调整方式。</p>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    {/* ══ 常见问题。原生 details，无 JS 也能展开。 ═════════════════════ */}
+    <section class="section-lg faq" aria-labelledby="faq-title">
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.faq.eyebrow}</p>
+          <h2 id="faq-title" class="display" data-reveal data-words>{c.faq.title}</h2>
+        </div>
+
+        <div class="faq__list" data-reveal-group>
+          {
+            c.faq.items.map((f) => (
+              <details class="faq__item" data-reveal>
+                <summary class="faq__q">{f.question}</summary>
+                <div class="faq__a">
+                  <p>{f.answer}</p>
+                  {f.points && f.points.length > 0 && (
+                    <ul class="faq__points">
+                      {f.points.map((p) => (
+                        <li>
+                          <b>{p.term}</b>：{p.text}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-              </li>
-            </ol>
-          </div>
+              </details>
+            ))
+          }
         </div>
-      </section>
+      </div>
+    </section>
 
-      {/* ══ 四个切入点：图片在上、文字在下的卡片（模板 Services 的做法） ══ */}
-      <section class="section-lg usecases" id="usecases" aria-labelledby="usecases-title">
-        <div class="container">
-          <div class="head" data-reveal-group>
-            <p class="eyebrow" data-reveal>AI 在你的业务里</p>
-            <h2 id="usecases-title" class="display" data-reveal data-words>AI 能为你的业务做什么</h2>
-            <p class="head__intro" data-reveal>从一件耗时太久的事开始，或者从客户一直想要的那个功能开始。</p>
-          </div>
-
-          <ul class="usecases__grid" data-reveal-group>
-            <li class="ucard" data-reveal>
-              {site.aiApps?.useCaseImages?.[0] ? (<>
-              <div
-                class="ucard__media"
-                data-placeholder={need(site.aiApps?.useCaseImages?.[0]?.isPlaceholder, 'aiApps.useCaseImages.0.isPlaceholder')}
-                aria-hidden="true"
-              >
-                <img
-                  src={need(site.aiApps?.useCaseImages?.[0]?.src, 'aiApps.useCaseImages.0.src')}
-                  alt=""
-                  width={need(site.aiApps?.useCaseImages?.[0]?.w, 'aiApps.useCaseImages.0.w')}
-                  height={need(site.aiApps?.useCaseImages?.[0]?.h, 'aiApps.useCaseImages.0.h')}
-                  loading="lazy"
-                />
-              </div>
-              </>) : null}
-              <span class="ucard__index" aria-hidden="true">01</span>
-              <h3 class="ucard__title">专属 AI 应用</h3>
-              <p class="ucard__text">围绕具体岗位或业务任务，开发专用界面、处理逻辑和审核功能。</p>
-            </li>
-
-            <li class="ucard" data-reveal>
-              {site.aiApps?.useCaseImages?.[1] ? (<>
-              <div
-                class="ucard__media"
-                data-placeholder={need(site.aiApps?.useCaseImages?.[1]?.isPlaceholder, 'aiApps.useCaseImages.1.isPlaceholder')}
-                aria-hidden="true"
-              >
-                <img
-                  src={need(site.aiApps?.useCaseImages?.[1]?.src, 'aiApps.useCaseImages.1.src')}
-                  alt=""
-                  width={need(site.aiApps?.useCaseImages?.[1]?.w, 'aiApps.useCaseImages.1.w')}
-                  height={need(site.aiApps?.useCaseImages?.[1]?.h, 'aiApps.useCaseImages.1.h')}
-                  loading="lazy"
-                />
-              </div>
-              </>) : null}
-              <span class="ucard__index" aria-hidden="true">02</span>
-              <h3 class="ucard__title">现有系统增加 AI</h3>
-              <p class="ucard__text">在 ERP、CRM 或内部系统中加入 AI 功能，让员工在熟悉的软件里使用。</p>
-            </li>
-
-            <li class="ucard" data-reveal>
-              {site.aiApps?.useCaseImages?.[2] ? (<>
-              <div
-                class="ucard__media"
-                data-placeholder={need(site.aiApps?.useCaseImages?.[2]?.isPlaceholder, 'aiApps.useCaseImages.2.isPlaceholder')}
-                aria-hidden="true"
-              >
-                <img
-                  src={need(site.aiApps?.useCaseImages?.[2]?.src, 'aiApps.useCaseImages.2.src')}
-                  alt=""
-                  width={need(site.aiApps?.useCaseImages?.[2]?.w, 'aiApps.useCaseImages.2.w')}
-                  height={need(site.aiApps?.useCaseImages?.[2]?.h, 'aiApps.useCaseImages.2.h')}
-                  loading="lazy"
-                />
-              </div>
-              </>) : null}
-              <span class="ucard__index" aria-hidden="true">03</span>
-              <h3 class="ucard__title">产品增加 AI 功能</h3>
-              <p class="ucard__text">为面向客户的产品开发搜索、推荐或 AI 助手。</p>
-            </li>
-
-            <li class="ucard" data-reveal>
-              {site.aiApps?.useCaseImages?.[3] ? (<>
-              <div
-                class="ucard__media"
-                data-placeholder={need(site.aiApps?.useCaseImages?.[3]?.isPlaceholder, 'aiApps.useCaseImages.3.isPlaceholder')}
-                aria-hidden="true"
-              >
-                <img
-                  src={need(site.aiApps?.useCaseImages?.[3]?.src, 'aiApps.useCaseImages.3.src')}
-                  alt=""
-                  width={need(site.aiApps?.useCaseImages?.[3]?.w, 'aiApps.useCaseImages.3.w')}
-                  height={need(site.aiApps?.useCaseImages?.[3]?.h, 'aiApps.useCaseImages.3.h')}
-                  loading="lazy"
-                />
-              </div>
-              </>) : null}
-              <span class="ucard__index" aria-hidden="true">04</span>
-              <h3 class="ucard__title">企业 AI 平台</h3>
-              <p class="ucard__text">当现成工具难以满足统一接入、知识检索和权限管理需求时，定制所需的平台能力。</p>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="section-lg scope" id="scope" aria-labelledby="scope-title">
-        <div class="container scope__layout">
-          <div class="scope__intro" data-reveal>
-            <p class="eyebrow">交付范围</p>
-            <h2 id="scope-title" class="display">从业务想法，<br />到日常可用的应用</h2>
-            <p class="head__intro">场景、体验、数据连接，由同一个团队串起来。每一部分，都围绕真实用户的工作展开。</p>
-            <div class="scope__fit">
-              <span class="scope__fit-label">适合这样的你</span>
-              <p>已有明确的业务需求，需要一个面向实际用户、能接入现有系统的专属工具。</p>
-            </div>
-            <a class="builtby__link" href="#wecom" data-wecom>聊聊你的应用需求 <span aria-hidden="true">↗</span></a>
-          </div>
-          <div class="scope__deliverables" data-reveal-group>
-            <details class="deliverable" open data-reveal>
-              <summary>
-                <span class="deliverable__number" aria-hidden="true">01</span
-                ><span class="deliverable__heading"
-                  ><span class="deliverable__title">场景设计</span
-                  ><span class="deliverable__subtitle">先明确，什么值得做</span></span
-                ><span class="deliverable__toggle" aria-hidden="true"></span>
-              </summary>
-              <div class="deliverable__body">
-                <p>明确谁来使用、完成什么任务、如何判断结果可用，把业务需求转成可执行的应用方案。</p>
-                <ul class="deliverable__outputs" aria-label="场景设计内容">
-                  <li>用户与任务梳理</li>
-                  <li>核心操作流程</li>
-                  <li>验收标准</li>
-                </ul>
-              </div>
-            </details>
-            <details class="deliverable" open data-reveal>
-              <summary>
-                <span class="deliverable__number" aria-hidden="true">02</span
-                ><span class="deliverable__heading"
-                  ><span class="deliverable__title">应用开发</span
-                  ><span class="deliverable__subtitle">让 AI 成为顺手的工具</span></span
-                ><span class="deliverable__toggle" aria-hidden="true"></span>
-              </summary>
-              <div class="deliverable__body">
-                <p>根据实际工作开发新应用，或改造现有软件，让用户能发起任务、检查结果，并在需要时接手。</p>
-                <ul class="deliverable__outputs" aria-label="应用开发内容">
-                  <li>定制操作界面</li>
-                  <li>AI 能力接入</li>
-                  <li>结果反馈与确认</li>
-                </ul>
-              </div>
-            </details>
-            <details class="deliverable" open data-reveal>
-              <summary>
-                <span class="deliverable__number" aria-hidden="true">03</span
-                ><span class="deliverable__heading"
-                  ><span class="deliverable__title">系统集成</span
-                  ><span class="deliverable__subtitle">接进你已有的工作方式</span></span
-                ><span class="deliverable__toggle" aria-hidden="true"></span>
-              </summary>
-              <div class="deliverable__body">
-                <p>连接业务数据、现有系统和已有 AI 基础能力，让应用在合适的权限范围内读取信息、协作处理任务。</p>
-                <ul class="deliverable__outputs" aria-label="系统集成内容">
-                  <li>企业知识连接</li>
-                  <li>业务系统对接</li>
-                  <li>访问权限配置</li>
-                </ul>
-              </div>
-            </details>
-            <p class="scope__note">具体交付项与验收方式，在方案评审时共同确认。</p>
-          </div>
-        </div>
-      </section>
-
-      {/* 全站共用的数据统计（真实全球口径，见 site.config.ts） */}
-      <Advantage />
-
-      {/* ══ 合作流程：编号大字 + 竖排（模板 Approach 的做法） ═══════════ */}
-      <section class="section-lg process" id="process" aria-labelledby="process-title">
-        <div class="container">
-          <div class="head" data-reveal-group>
-            <p class="eyebrow" data-reveal>合作流程</p>
-            <h2 id="process-title" class="display" data-reveal data-words>和 SSW 合作是什么样的</h2>
-          </div>
-
-          <ol class="process__list" data-reveal-group>
-            <li class="pstep" data-reveal>
-              <span class="pstep__num" aria-hidden="true">01</span>
-              <div class="pstep__body">
-                <h3 class="pstep__title">初次沟通</h3>
-                <p class="pstep__text">和一位资深工程师聊一次，把项目讲清楚。</p>
-              </div>
-            </li>
-            <li class="pstep" data-reveal>
-              <span class="pstep__num" aria-hidden="true">02</span>
-              <div class="pstep__body">
-                <h3 class="pstep__title">方案评审</h3>
-                <p class="pstep__text">明确实施范围、阶段安排、费用与验收方式。</p>
-              </div>
-            </li>
-            <li class="pstep" data-reveal>
-              <span class="pstep__num" aria-hidden="true">03</span>
-              <div class="pstep__body">
-                <h3 class="pstep__title">开发与交付</h3>
-                <p class="pstep__text">可以由 SSW 团队负责实施，也可以通过 FDE 服务加入你的团队共同开发。</p>
-              </div>
-            </li>
-            <li class="pstep" data-reveal>
-              <span class="pstep__num" aria-hidden="true">04</span>
-              <div class="pstep__body">
-                <h3 class="pstep__title">上线之后</h3>
-                <p class="pstep__text">上线后继续跟进，把项目稳妥地交接出去。</p>
-              </div>
-            </li>
-          </ol>
-        </div>
-      </section>
-
-      {/* ══ 模型之外 ═══════════════════════════════════════════════════ */}
-      <section class="section-lg beyond" aria-labelledby="beyond-title">
-        <div class="container">
-          <div class="head" data-reveal-group>
-            <p class="eyebrow" data-reveal>不只是模型</p>
-            <h2 id="beyond-title" class="display" data-reveal data-words>让应用上线，也方便后续维护</h2>
-            <p class="head__intro" data-reveal>根据应用的实际需要安排验证、部署和交接，让团队能够使用和维护。</p>
-          </div>
-
-          <ul class="beyond__grid" data-reveal-group>
-            <li class="beyond__item" data-reveal>
-              <h3 class="beyond__title">需求验证</h3>
-              <p class="beyond__text">用样例和原型确认功能是否满足实际工作。</p>
-            </li>
-            <li class="beyond__item" data-reveal>
-              <h3 class="beyond__title">系统改造</h3>
-              <p class="beyond__text">为现有软件增加所需接口、功能和操作界面。</p>
-            </li>
-            <li class="beyond__item" data-reveal>
-              <h3 class="beyond__title">部署与运行</h3>
-              <p class="beyond__text">根据使用规模和部署要求安排运行环境。</p>
-            </li>
-            <li class="beyond__item" data-reveal>
-              <h3 class="beyond__title">测试与交接</h3>
-              <p class="beyond__text">完成测试，整理部署、维护和使用文档。</p>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      {/* ══ 常见问题。原生 details，无 JS 也能展开。 ═════════════════════ */}
-      <section class="section-lg faq" aria-labelledby="faq-title">
-        <div class="container">
-          <div class="head" data-reveal-group>
-            <p class="eyebrow" data-reveal>问与答</p>
-            <h2 id="faq-title" class="display" data-reveal data-words>常见问题</h2>
-          </div>
-
-          <div class="faq__list" data-reveal-group>
-            <details class="faq__item" data-reveal>
-              <summary class="faq__q">费用怎么算？</summary>
-              <div class="faq__a">
-                <p>
-                  每个项目按目标来定范围，没有统一报价。第一次沟通始终免费；方案评审阶段会给出尽可能准确的范围、价格与周期。
-                </p>
-              </div>
-            </details>
-
-            <details class="faq__item" data-reveal>
-              <summary class="faq__q">我们的数据会被拿去训练别人的模型吗？</summary>
-              <div class="faq__a">
-                <p>
-                  除非你希望如此，否则不会。我们基于企业协议构建，你的提示词与数据不会用于训练；要求更严格时，把模型部署在你自己的基础设施上，数据不出你的环境。
-                </p>
-              </div>
-            </details>
-
-            <details class="faq__item" data-reveal>
-              <summary class="faq__q">该用哪个模型？</summary>
-              <div class="faq__a">
-                <p>
-                  这个决定由双方一起做，把你的数据、预算与合规要求摆在桌面上。我们会把架构做成可以换模型的——因为今天最好的那个，通常不会一直是最好的。
-                </p>
-              </div>
-            </details>
-
-            <details class="faq__item" data-reveal>
-              <summary class="faq__q">能和我们现有的团队一起做吗？</summary>
-              <div class="faq__a">
-                <p>可以。既可以由 SSW 团队端到端接手，也可以把我们的工程师嵌进你现有的团队。</p>
-              </div>
-            </details>
-
-            <details class="faq__item" data-reveal>
-              <summary class="faq__q">怎么保证项目质量？</summary>
-              <div class="faq__a">
-                <p>靠四件长期在做的事：</p>
-                <ul class="faq__points">
-                  <li><b>整洁架构</b>：为可扩展、可测试、可维护而设计。</li>
-                  <li><b>Scrum</b>：保持透明、客户参与，用快速反馈循环调整方向。</li>
-                  <li><b>DevOps</b>：让开发与部署更快也更可靠。</li>
-                  <li><b>公开的最佳实践</b>：我们把做法整理成 SSW Rules 与 SSW TV，公开可查。</li>
-                </ul>
-              </div>
-            </details>
-          </div>
-        </div>
-      </section>
-
-      <Cta />
-    </main>
+    <Cta />
+  </main>
 </Base>

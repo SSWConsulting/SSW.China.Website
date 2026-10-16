@@ -9,7 +9,7 @@
  * <head>。因此 --check 必须在 astro build 之后跑（npm run verify 里已经按此排序）。
  *
  * 为什么要脚本而不是手写这两个文件：它们里面全是绝对 URL，域名来自
- * src/config/site.config.ts 的 seo.origin。手写会在换域名、加页面时悄悄过期，
+ * content/settings/site.json 的 seo.origin（后台「站点设置 → SEO / 域名」）。手写会在换域名、加页面时悄悄过期，
  * 而过期的 sitemap / canonical 比没有更糟 —— 会把搜索引擎指到不存在的地址。
  *
  * --check 模式检查四件事：

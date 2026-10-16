@@ -1,10 +1,25 @@
+---
+/**
+ * 收尾 CTA。默认文案在「全站通用 → 收尾 CTA」；
+ * 个别页面有自己的措辞（如 AI 底座中台页），由页面把 `copy` 传进来。
+ * 标记、类名、行为（data-wecom / data-ripple / cta__sheen 扫光）各页完全一致。
+ */
+import { shared } from '../../lib/shared.ts';
+
+interface Props {
+  copy?: { title: string; lead: string; button: string } | undefined;
+}
+
+const copy = Astro.props.copy ?? shared.cta;
+---
+
 <section class="section cta" aria-labelledby="cta-title">
   <div class="container cta__inner" data-reveal-group>
     <span class="accent-rule cta__rule" data-reveal aria-hidden="true"></span>
-    <h2 id="cta-title" class="cta__title" data-reveal>你的业务，哪一步最值得用 AI 改进？</h2>
-    <p class="lead cta__lead" data-reveal>联系我们，聊聊你的业务场景与落地需求。</p>
+    <h2 id="cta-title" class="cta__title" data-reveal>{copy.title}</h2>
+    <p class="lead cta__lead" data-reveal>{copy.lead}</p>
     <div class="btn-row cta__actions" data-reveal>
-      <a class="btn btn--primary" href="#wecom" data-wecom data-ripple>联系我们</a>
+      <a class="btn btn--primary" href="#wecom" data-wecom data-ripple>{copy.button}</a>
     </div>
   </div>
   <span class="cta__sheen" aria-hidden="true" data-oneshot="sheen"></span>

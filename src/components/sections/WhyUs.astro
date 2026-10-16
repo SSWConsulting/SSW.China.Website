@@ -1,9 +1,11 @@
 ---
 import { site } from '../../config/site.ts';
-import { need } from '../../lib/template.ts';
+import { home } from '../../lib/pages.ts';
+const why = site.whyUs;
+const copy = home.whyUs;
 ---
 
-{site.whyUs ? (<>
+{why && (<>
 {/* ══════════════════════════════════════════════════════════════════════
      为什么选择 SSW —— 照搬 ssw.com.au 首页 "Why choose SSW?"。
      线上版式（18px 根字号）：上排 lg 五等分栅格，配图占 3、说明卡占 2，gap 36px；
@@ -22,19 +24,19 @@ import { need } from '../../lib/template.ts';
 <section class="whyus" id="why-us" aria-labelledby="whyus-title">
   <div class="container">
     <div class="whyus__top">
-      {site.whyUs?.image ? (<>
+      {why.image && (<>
       <div class="whyus__media">
         <img
           class="whyus__img"
-          src={need(site.whyUs?.image?.src, 'whyUs.image.src')}
+          src={why.image.src}
           alt=""
           aria-hidden="true"
-          width={need(site.whyUs?.image?.w, 'whyUs.image.w')}
-          height={need(site.whyUs?.image?.h, 'whyUs.image.h')}
+          width={why.image.w}
+          height={why.image.h}
           loading="lazy"
         />
-        {site.whyUs?.videoUrl ? (<>
-        <a class="whyus__play" href={need(site.whyUs?.videoUrl, 'whyUs.videoUrl')} target="_blank" rel="noopener noreferrer">
+        {why.videoUrl && (<>
+        <a class="whyus__play" href={why.videoUrl} target="_blank" rel="noopener noreferrer">
           <span class="sr-only">播放视频（在新标签页打开）</span>
           {/* 三角本身是填充的；再描一圈同色圆角连接的边，尖角就被磨圆了。 */}
           <svg
@@ -50,48 +52,47 @@ import { need } from '../../lib/template.ts';
             <path d="M8.5 6.2v11.6l10-5.8z" />
           </svg>
         </a>
-        </>) : null}
+        </>)}
       </div>
-      </>) : null}
+      </>)}
 
       <div class="whyus__card">
-        <h2 id="whyus-title" class="whyus__title">为什么选择 SSW</h2>
-        <p class="whyus__intro">30 多年来，SSW 的咨询服务已为 15 个国家的数千家客户交付软件方案。</p>
-        {/* 新增文案，需文案负责人确认：这一段是把 ssw.com.au 原有的两条要点
-             （Hands-on expertise / Results that matter）压缩成一句，不是新造的主张。
-             原来那两条独立要点已按用户要求删除。 */}
-        <p class="whyus__intro">
-          每一项技术我们先自己用起来，再把经验整理成公开的最佳实践；给出的每一条建议，都说得清依据、代价，以及你的团队下一步该做什么。
-        </p>
+        <h2 id="whyus-title" class="whyus__title">{copy.title}</h2>
+        {/* 第二段是新增文案，需文案负责人确认：它把 ssw.com.au 原有的两条要点
+             （Hands-on expertise / Results that matter）压缩成一句，不是新造的主张。 */}
+        {copy.paragraphs.map((p) => <p class="whyus__intro">{p}</p>)}
         {/* 资质徽章现在住在右侧说明卡里（原本在下方独立一栏）。 */}
-        {site.whyUs?.recognition ? (<>
+        {why.recognition && (<>
         <div class="whyus__recognition">
-          <p class="whyus__recognition-label">资质与荣誉</p>
+          <p class="whyus__recognition-label">{copy.recognitionLabel}</p>
           <ul class="whyus__badges">
-            <li class="whyus__badge">
-              <img
-                class="whyus__badge-icon"
-                src="/media/recognition/microsoft-squares.png"
-                alt=""
-                aria-hidden="true"
-                width="960"
-                height="960"
-                loading="lazy"
-              />
-              Microsoft Solutions Partner
-            </li>
-            <li class="whyus__badge">MAPA Learning Excellence Award</li>
+            {why.recognition.badges.map((b) => (
+              <li class="whyus__badge">
+                {b.icon && (
+                  <img
+                    class="whyus__badge-icon"
+                    src={b.icon.src}
+                    alt=""
+                    aria-hidden="true"
+                    width={b.icon.w}
+                    height={b.icon.h}
+                    loading="lazy"
+                  />
+                )}
+                {b.label}
+              </li>
+            ))}
           </ul>
         </div>
-        </>) : null}
+        </>)}
       </div>
     </div>
 
-    {site.whyUs?.caption ? (<>
+    {why.caption && (<>
     <div class="whyus__caption-row">
-      <p class="whyus__caption">{need(site.whyUs?.caption, 'whyUs.caption')}</p>
+      <p class="whyus__caption">{why.caption}</p>
     </div>
-    </>) : null}
+    </>)}
   </div>
 </section>
-</>) : null}
+</>)}

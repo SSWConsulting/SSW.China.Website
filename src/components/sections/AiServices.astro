@@ -1,17 +1,16 @@
 ---
-import CardPlatform from '../partials/CardPlatform.astro';
-import CardWorkflow from '../partials/CardWorkflow.astro';
-import CardApps from '../partials/CardApps.astro';
+import ServiceCard from '../partials/ServiceCard.astro';
+import { home } from '../../lib/pages.ts';
+const { services } = home;
 ---
 
 <section class="section services" id="ai-services" aria-labelledby="services-title">
   <div class="container">
     <div class="section__head" data-reveal-group>
       <span class="accent-rule" data-reveal aria-hidden="true"></span>
-      <h2 id="services-title" data-reveal>想让整个团队用好 AI，不知道从哪入手？</h2>
+      <h2 id="services-title" data-reveal>{services.title}</h2>
       <p class="section__intro" data-reveal>
-        有人还没用上，有人用得不错，但大家还在各自摸索。我们帮你搭好团队共用的 AI 中台底座，把 AI
-        用进日常工作；遇到现成工具解决不了的需求，也能为你定制开发。三类服务，可以从你需要的一项开始。
+        {services.intro}
       </p>
     </div>
 
@@ -23,9 +22,9 @@ import CardApps from '../partials/CardApps.astro';
          ══════════════════════════════════════════════════════════════════ */}
     <div class="core-cards" data-core-cards>
       <ul class="core-cards__track" data-core-track data-reveal-group>
-        <CardPlatform />
-        <CardWorkflow />
-        <CardApps />
+        <ServiceCard service="platform" />
+        <ServiceCard service="workflow" />
+        <ServiceCard service="apps" />
       </ul>
 
       {/* 圆点由 JS 按卡片数量生成，且仅在轨道真的可横向滚动时才出现；

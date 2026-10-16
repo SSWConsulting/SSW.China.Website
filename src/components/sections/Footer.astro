@@ -1,6 +1,7 @@
 ---
 import { site } from '../../config/site.ts';
-import { need } from '../../lib/template.ts';
+import { shared } from '../../lib/shared.ts';
+const { footer } = shared;
 ---
 
 {/* ══════════════════════════════════════════════════════════════════════
@@ -29,13 +30,13 @@ import { need } from '../../lib/template.ts';
 
       {/* 地址、邮箱、电话与 #offices 区块的杭州办公室是同一份真实信息，
            非新增素材，只是复用到页脚这个位置。地址取自 ssw.cn 官网原文
-           （详见 globe.html 里同一段文字旁的注释与 docs/DECISIONS.md §34）。 */}
+           （详见 Globe.astro 里同一段文字旁的注释与 docs/DECISIONS.md §34）。 */}
       <address class="footer__contact">
-        <p class="footer__contact-line">浙江省杭州市拱墅区新天地街 406 号星城发展大厦 2 幢 305 室，邮政编码 310004</p>
+        <p class="footer__contact-line">{footer.address}</p>
         <p class="footer__contact-line">
-          <a href="mailto:info@ssw.com.au">info@ssw.com.au</a>
+          <a href={`mailto:${footer.email}`}>{footer.email}</a>
           <span aria-hidden="true"> · </span>
-          <a href="tel:+8657185178910">+86 571 8517 8910</a>
+          <a href={footer.phoneHref}>{footer.phone}</a>
         </p>
       </address>
     </div>
@@ -43,31 +44,31 @@ import { need } from '../../lib/template.ts';
     <div class="footer__legal">
       <div class="footer__legal-main">
         {site.footer?.copyrightHolder ? (<>
-        <p class="footer__line">© {need(site.footer?.copyrightYear, 'footer.copyrightYear')} {need(site.footer?.copyrightHolder, 'footer.copyrightHolder')}</p>
+        <p class="footer__line">© {site.footer.copyrightYear} {site.footer.copyrightHolder}</p>
         </>) : null}
 
         {site.footer?.legalName ? (<>
-        <p class="footer__line">{need(site.footer?.legalName, 'footer.legalName')}</p>
+        <p class="footer__line">{site.footer.legalName}</p>
         </>) : null}
       </div>
 
       <div class="footer__legal-links">
         {site.footer?.privacyUrl ? (<>
         <p class="footer__line">
-          <a href={need(site.footer?.privacyUrl, 'footer.privacyUrl')}>隐私政策</a>
+          <a href={site.footer.privacyUrl}>隐私政策</a>
         </p>
         </>) : null}
 
         {site.footer?.icp ? (<>
         <p class="footer__line">
-          <a href={need(site.footer?.icp?.url, 'footer.icp.url')} target="_blank" rel="noopener noreferrer">{need(site.footer?.icp?.number, 'footer.icp.number')}</a>
+          <a href={site.footer.icp.url} target="_blank" rel="noopener noreferrer">{site.footer.icp.number}</a>
         </p>
         </>) : null}
 
         {site.footer?.publicSecurity ? (<>
         <p class="footer__line">
-          <a href={need(site.footer?.publicSecurity?.url, 'footer.publicSecurity.url')} target="_blank" rel="noopener noreferrer"
-            >{need(site.footer?.publicSecurity?.number, 'footer.publicSecurity.number')}</a
+          <a href={site.footer.publicSecurity.url} target="_blank" rel="noopener noreferrer"
+            >{site.footer.publicSecurity.number}</a
           >
         </p>
         </>) : null}
