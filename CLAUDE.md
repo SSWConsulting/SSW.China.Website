@@ -18,9 +18,25 @@ npm run preflight  # verify + 素材检查（发布闸门，当前必然失败�
 ```
 
 `npm run contrast` 单独跑对比度；`npm run check:assets` 单独看发布阻塞项。
-**没有测试套件**，`verify` 就是回归防线。
+**没有测试套件**，`verify` 就是回归防线。`npm run dev:site` 只起网站、不起 Tina。
 
-## 云端预览发布
+Tina 本地开发的几个坑（均实测）：
+
+- `npm run dev` 占用 4001（GraphQL）与 9000（datalayer）端口；它开着时再跑 `tinacms build`
+  会报「Datalayer server is busy on port 9000」，先停掉 dev。
+- 本地后台有自己的索引：在后台之外改了 `content/`（如 `git checkout`），后台仍显示旧值，
+  此时在后台保存会把旧值写回去。重启 `npm run dev` 再编辑。
+- `npm run build` 没有 `PUBLIC_TINA_CLIENT_ID` / `TINA_TOKEN` 时会**跳过** `/admin/`（`scripts/build-admin.mjs`），
+  这是有意的：本地模式的后台连的是 localhost，发布出去也打不开。接入步骤见 `docs/TINACMS.md`。
+
+## 生产部署
+
+`main` 有 push ⇒ `.github/workflows/deploy.yml` 在阿里云服务器上的 self-hosted Windows runner
+（标签 `windows,sswcn`）里构建，`robocopy /MIR` 到 nginx 站点目录。CI 只跑 `contrast` + `build`，
+**不跑 `format:check` / `seo:check`**（Windows 检出的 CRLF 会让它们全量报错），这两项靠本地 `verify` 把关。
+TinaCloud 把后台的编辑直接提交到 `main`，所以每次编辑都会触发一次部署。服务器配置见 `docs/DEPLOY-SETUP.md`。
+
+## 云端预览发布（WorkBuddy）
 
 给同伴预览走「静态站点」发布：**把 `dist/` 当作站点根目录**上传（静态服务），
 **不要发布仓库根目录** —— 根目录不是 HTTP 服务。目录式入口的干净 URL
@@ -59,7 +75,7 @@ curl -s "$URL/?t=$(date +%s)" -o /tmp/live.html && diff -q /tmp/live.html dist/i
 - **中文文案**：`docs/spec/SSW-cn-首页文案与视觉设计说明.md`。页面上的中文住在 `content/` 的 JSON 里，
   逐句照抄自该文档，**不要在实现中改写文案**。任何该文档之外的新增文案都要在 `docs/DECISIONS.md` 里
   标注「需文案负责人确认」。编辑在后台改文案属于内容运营，不受此限；但代码改动不要顺手改 `content/`。
-- **判断记录**：`docs/DECISIONS.md`（约 39 条）记录每一处「文档未规定、由实现推断」
+- **判断记录**：`docs/DECISIONS.md`（100 多条，新条目用 `## §NNN 标题` 追加在末尾）记录每一处「文档未规定、由实现推断」
   或「与 ssw.com.au 有意不同」的取值与理由，`docs/VERIFY.md` 记录已执行的验证。
   **改动涉及取舍时，追加一条，不要改写既有条目。**
 
@@ -80,6 +96,8 @@ tina/collections/*.ts     对应的后台表单（字段说明就是给编辑看
 - 改 schema 要两边一起改：`src/lib/*.ts`（zod，页面读取）与 `tina/collections/*.ts`（后台表单）。
 - 多行字段（标题断行、地址）用 `br()` 把换行变成 `<br />`：`<Fragment set:html={br(x)} />`。
 - 结构化数据由 `components/JsonLd.astro` 输出，从同一份文案生成 —— FAQPage 与可见问答天然一致。
+- `.astro` 里的说明性注释写成 `{/* */}`（不进产物）；不要写 `<!-- -->`，它会原样输出。
+  JSX 表达式里，元素前面不能放 JS 注释（`cond && ( /* … */ <section>` 会让编译器报错），把注释挪到表达式外面。
 
 **行内空白是承重的，三处配置与它有关，不要"顺手优化"：**
 
@@ -127,7 +145,7 @@ tina/collections/*.ts     对应的后台表单（字段说明就是给编辑看
 | ------------------------- | --------------------------------------- | ---- |
 | 地球无条件自转            | `globe.ts` 的 `AUTO_SPIN`               | §19  |
 | 悬停手势（箭头旋转/放大） | `--t-gesture: 300ms`（不乘 `--motion`） | §31  |
-| 背景视频原生 autoplay     | `sections/ai-solutions.html`            | §33  |
+| 背景视频原生 autoplay     | `components/sections/AiSolutions.astro` | §33  |
 | 按钮涟漪                  | `--t-ripple: 600ms`                     | §38  |
 
 历史教训：曾把**悬停终态**写成 `rotate(calc(45deg * var(--motion)))`，
@@ -190,3 +208,5 @@ CSS 一次性动效的**基础规则持有最终状态**；"隐藏/偏移"的起
 - **视口模拟会中途失效**（`resize_window` 报成功但 `innerWidth` 不变）。
   窄屏版式可改为直接收窄容器宽度做等效验证，并在 `VERIFY.md` 里注明是等效而非实测。
 - 面板未显示时 `document.hidden` 为 true，视频会被浏览器暂停 —— 不是代码问题。
+- **截图的坐标系可能与视口不一致**（截图 800×600，实际视口 1024×768），按截图坐标点击会偏。
+  点击、输入改用 `find` / `read_page` 拿到的 `ref`。
