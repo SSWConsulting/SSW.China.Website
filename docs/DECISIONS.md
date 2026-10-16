@@ -3465,3 +3465,66 @@ cover 比例与 `object-position` 画进 canvas，对标题/正文矩形内每�
 
 **换照片或改这几个数时**，把上面的量法重跑一遍 —— 数值是跟这张
 `home-hero-ai-team-v22.png` 绑定的，换图直接失效。
+
+## §100 迁移到 Astro + TinaCMS：总体取舍
+
+2026-10-16，仓库迁到 `SSWConsulting/SSW.China.Website`，同时按用户要求用 TinaCMS 重构。
+
+- **框架选 Astro，输出纯静态。** 产物仍是 `dist/`，部署方式（self-hosted runner + robocopy 到 nginx）不变。
+  不引入 SSR 适配器，也不需要服务器跑 Node。
+- **后端选 TinaCloud**（用户确认），不自托管。自托管要额外维护数据库、鉴权和一个常驻 Node 服务。
+- **Tina 只负责 `/admin/`，不参与页面渲染。** 页面在 `astro build` 时直接读 `content/` 下的 JSON，
+  不经过 Tina 的 GraphQL 客户端。构建因此不依赖 TinaCloud 的可用性，也不需要凭据（没有凭据时只是不发布 `/admin/`）。
+- **先做表单编辑，可视化编辑留到第二期。** `@tinacms/astro` 的可视化编辑要求可编辑区域包在 `<TinaIsland>` 里，
+  官方推荐 SSR。它在纯静态 nginx 下能否工作需要实测，本次不接入。
+- 迁移分两步提交：先做产物一致的 Astro 移植，再把文案搬进 `content/`。每一步都与改版前的构建产物做了逐页对比（见 VERIFY.md 末节）。
+
+## §101 保住与改版前完全相同的渲染结果
+
+三处配置偏离 Astro 默认值，都是为了让产物与改版前一致：
+
+1. `compressHTML: false`。Astro 的 HTML 压缩会删掉行内元素之间跨行的空白，
+   实测会让「中国 当前」变成「中国当前」，「适合场景 公司准备…」粘连。
+2. `vite.build.cssMinify: 'esbuild'`。Vite 8 默认用 Lightning CSS，它会把 `index.css` 首行的
+   `@layer tokens, base, layout, components, motion;` 当作冗余删掉。虽然层级的首次出现顺序恰好相同，
+   但这条声明是动效总开关的承重结构，必须显式留在产物里。改用 esbuild 后，CSS 与改版前**逐字节一致**。
+3. `.astro` 文件不交给 prettier。prettier-plugin-astro 会把交付项 summary 里刻意紧贴的 `</span\n><span` 重排出空白，
+   在行内元素之间产生可见间距。
+
+打包产物目录沿用 `/assets/`（Astro 默认是 `/_astro/`），nginx 侧不需要跟着改。
+
+## §102 内容模型：结构在代码，文案在 content/
+
+- **页面结构（区块、顺序、版式）留在代码里**，后台只编辑文字、列表与素材。这个站对版式的约束很严
+  （照搬 ssw.com.au 的像素值、动效规则），所以不做自由拼搭的 blocks。
+- 三个 JSON 层次：`content/pages/*`（各页）、`content/global/shared.json`（跨页共用）、
+  `content/settings/site.json`（原 `site.config.ts`：素材、开关、发布闸门）。
+- **两条读取路径，语义不同**：页面文案缺必填项 ⇒ 构建失败（zod）；素材配置缺失 ⇒ `null` ⇒ 诚实降级（`site.ts`）。
+- **Tina 的 JSON 形状**：它不接受值为 `null` 的对象（索引报 `Cannot convert undefined or null to object`），
+  用「键不存在」表示未填，清空字符串写成 `""`。`site.ts` 把两者都收敛成 `null`，原有的 `null` 约定不受影响。
+  实测后台保存、清空、再保存的往返结果均符合预期。
+- 改版前因为 `@include` 不支持循环而重复写的标记，现在改为循环：七个办公室、九个客户标识、案例、
+  数据统计、FAQ、交付项等。客户标识名单与资质徽章从模板挪进「站点设置」，可以在后台增删
+  （新增仍受商标授权闸门约束）。
+- 三张服务卡片原本是三个几乎相同的 partial，合并为 `ServiceCard`。
+  「AI 底座中台」「AI 业务工作流」两页同构，共用 `ServicePage` 模板。
+- **结构化数据从同一份文案生成。** FAQPage 与页面上可见的问答天然一致；
+  Service / Breadcrumb 的名称与描述取自页面的服务名和 SEO 描述。改版前要靠 `seo:check` 拦截两者漂移。
+- 服务页编号（01、02…，I、II、III）由顺序自动生成，后台增删项不会出现编号错位。
+
+## §103 迁移中原样保留的不一致（待决定）
+
+**AI 业务工作流页的支柱编号（I / II / III）没有 `aria-hidden`**，而 AI 底座中台页和 AI 应用定制页都有。
+读屏在这一页会多念一遍罗马数字。这是改版前就存在的差异，迁移时用 `ServicePage` 的 `pillarNumHidden`
+参数原样保留，没有顺手统一。统一成隐藏只需把 `src/pages/services/ai-workflow.astro` 里的参数改为 `true`，
+但这属于可访问性取舍，单独决定。
+
+## §104 文案编辑流程的变化
+
+- 改版前，中文文案只能由开发者照抄规格文档后改代码上线。现在编辑可以在后台直接改，保存后
+  **TinaCloud 提交到 main 并自动部署**，中间没有 PR 审核。需要「先审后发」时，可以开启 TinaCloud 的
+  Editorial Workflow（付费），由它为每次编辑建分支并开 PR。
+- 「文案逐句照抄规格文档」这条约束仍然约束**代码改动**：开发者不要在实现里改写 `content/`。
+  后台的编辑属于内容运营，由文案负责人把关。
+- `Organization` 结构化数据（法定名称、地址、sameAs 等）仍写在 `Head.astro` 里，没有放进后台。
+  这些是已核实的主体信息，改动前需要核实，不应在后台随手修改。

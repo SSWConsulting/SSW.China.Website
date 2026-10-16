@@ -5,8 +5,9 @@
   "type": "module",
   "description": "SSW.cn 首页 — 让 AI 真正落地企业业务",
   "scripts": {
-    "dev": "astro dev",
-    "build": "npm run typecheck && astro build",
+    "dev": "tinacms dev --noTelemetry -c \"astro dev\"",
+    "dev:site": "astro dev",
+    "build": "npm run typecheck && node scripts/build-admin.mjs && astro build",
     "preview": "astro preview --port 4173",
     "typecheck": "astro check",
     "check:assets": "node scripts/check-assets.mjs",
@@ -33,5 +34,8 @@
   "dependencies": {
     "astro": "7.3.8",
     "cobe": "^2.0.1"
+  },
+  "engines": {
+    "node": ">=22.18"
   }
 }

@@ -1,6 +1,6 @@
 # SSW.cn（2026 改版）
 
-深炭黑 + SSW 红 `#CC4141` 的中文官网：首页 + 三个 AI 服务详情页。技术栈：Vite + 原生 TypeScript + 原生 CSS。
+深炭黑 + SSW 红 `#CC4141` 的中文官网：首页 + 三个 AI 服务详情页。技术栈：[Astro](https://astro.build)（纯静态输出）+ 原生 TypeScript + 原生 CSS，文案与素材由 [TinaCMS](https://tina.io) 后台编辑（见 [`docs/TINACMS.md`](docs/TINACMS.md)）。
 
 导航条与首屏按 [ssw.com.au](https://www.ssw.com.au) 的版式实现，并新增了「SSW 遍布全球」区块与明暗主题切换。
 运行时依赖只有一个 [`cobe`](https://www.npmjs.com/package/cobe)（13KB，WebGL 点阵地球），
@@ -26,31 +26,35 @@
 （不加载 `index.css` 与 `main.ts`），只复用令牌、base 与动效总开关。
 它不挂进导航、带 `noindex`，是一个单独发给现场大屏的地址。
 
-新增页面的做法：在 `services/<slug>/index.html` 建文件（照抄现有那三个的骨架），
-再把入口加进 `vite.config.ts` 的 `build.rollupOptions.input`。
+新增页面的做法：在 `src/pages/` 下建 `.astro` 文件（文件路径即 URL，`services/foo.astro` ⇒ `/services/foo/`），
+文案放进 `content/pages/<slug>.json`，在 `src/lib/pages.ts` 写它的 schema，在 `tina/collections/` 加对应的后台集合，
+最后把页面登记进 `scripts/seo.mjs` 的 `PAGES`。
 
 ## 运行
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173
+npm run dev        # http://localhost:5173 ，编辑后台 http://localhost:5173/admin/index.html
 ```
 
 | 命令                   | 作用                                                               |
 | ---------------------- | ------------------------------------------------------------------ |
-| `npm run dev`          | 本地开发预览                                                       |
-| `npm run build`        | 类型检查 + 生产构建到 `dist/`                                      |
+| `npm run dev`          | 本地开发预览 + 本地模式的 Tina 编辑后台（保存即写本地文件）        |
+| `npm run dev:site`     | 只启动网站，不启动编辑后台                                         |
+| `npm run build`        | 类型检查 + 编辑后台（有 TinaCloud 凭据时）+ 生产构建到 `dist/`     |
 | `npm run preview`      | 预览生产构建（http://localhost:4173）                              |
-| `npm run typecheck`    | `tsc --noEmit`                                                     |
+| `npm run typecheck`    | `astro check`（含 `.astro` 模板与 TS）                             |
 | `npm run contrast`     | 从 `tokens.css` 读取真实令牌校验对比度，并阻止品牌红被用作文字颜色 |
 | `npm run check:assets` | 打印待补素材表；存在发布阻塞项时退出码非零                         |
 | `npm run fonts:sync`   | 从 `node_modules` 同步 Inter 拉丁子集到 `public/fonts/`            |
 | `npm run verify`       | typecheck + 格式检查 + 对比度 + 构建（日常应当全绿）               |
 | `npm run preflight`    | `verify` + 素材检查 —— **发布前的闸门**，素材未补齐时会失败        |
 
-## 补充素材：只需要改一个文件
+## 改文案、补素材：在编辑后台里改
 
-把文件放进 `public/media/`，然后在 [`src/config/site.config.ts`](src/config/site.config.ts) 填入路径与原始像素尺寸。
+文案在后台的各「页面」集合里改；图片、二维码、备案号、案例、客户标识与发布闸门在「站点设置」里改
+（对应文件 [`content/settings/site.json`](content/settings/site.json)）。图片可以在后台直接上传到 `public/media/`，
+填写时连同**原始像素尺寸**一起填。接入与使用说明见 [`docs/TINACMS.md`](docs/TINACMS.md)。
 
 所有 `null` 都有明确的诚实降级行为（构建期条件渲染，因此 JS 关闭时同样成立），逐项说明见 [`docs/PENDING-ASSETS.md`](docs/PENDING-ASSETS.md)。
 
@@ -58,8 +62,8 @@ npm run dev        # http://localhost:5173
 
 `npm run check:assets` 会列出阻塞项。当前两项：
 
-1. **真实企业微信二维码** —— 配置 `wecom.qrImage` 后，必须**在另一台设备实扫验证**，并在手机上验证长按保存与「打开二维码图片」。在此之前咨询面板显示的是诚实的未配置空状态，不会出现任何可扫描的假码。
-2. **中国站 ICP 备案信息** —— 配置 `footer.icp`。**不得填写占位或推测的备案号**，也不得把澳洲站的法律信息直接搬过来。
+1. **真实企业微信二维码** —— 配置「站点设置 → 企业微信咨询」后，必须**在另一台设备实扫验证**，并在手机上验证长按保存与「打开二维码图片」。在此之前咨询面板显示的是诚实的未配置空状态，不会出现任何可扫描的假码。
+2. **中国站 ICP 备案信息** —— 配置「站点设置 → 页脚与备案」。**不得填写占位或推测的备案号**，也不得把澳洲站的法律信息直接搬过来。
 
 其余素材（可搜索企业微信号、产品标识、团队照片、法定名称、隐私政策链接）缺失不阻塞发布，页面会自动省略对应内容而不是留空框。
 
@@ -76,23 +80,25 @@ npm run dev        # http://localhost:5173
 
 ## 本次实现刻意不做的事
 
-- **案例目前是占位内容**：`src/sections/cases.html` 与 `cases` 配置项存在，但整段带发布闸门（`npm run check:assets` 会点名）。将来拿到获准公开的真实案例，按文档 §案例 的字段清单替换。采集字段见 `docs/PENDING-ASSETS.md`。
+- **案例目前隐藏**：「站点设置 → 案例」为空，整段不渲染。占位案例的数据留在 `src/config/placeholder-cases.json`，放出来时整段带发布闸门（`npm run check:assets` 会点名）。将来拿到获准公开的真实案例，按文档 §案例 的字段清单在后台填写。采集字段见 `docs/PENDING-ASSETS.md`。
 - 不虚构客户、成果数字、资质、团队规模、照片、二维码、备案号、法定名称。
 - 图示一律标注为示意，不出现「运行中／成功率／客户名称」等模拟状态，不绘制未经验证的产品界面。
 
 ## 结构
 
 ```
-index.html            首页骨架
-services/*/index.html AI 服务详情页骨架（每个目录一个页面 ⇒ 干净 URL）
-src/partials/*.html   跨页面共用的碎片：head、body 首尾、三张服务卡片
-src/sections/*.html   一区块一文件，中文文案就住在这里
-src/config/           唯一的素材配置面（types.ts 是契约，site.config.ts 是取值）
+src/pages/            每个文件一个页面（文件路径即 URL）
+src/layouts/Base.astro 页面外壳：<head>、SEO 标签、导航、页脚、咨询面板
+src/components/       区块（sections/）、共用碎片（partials/）、服务页模板（service/）
+src/lib/              content.ts 读取并校验 content/；pages.ts、shared.ts、service.ts 是各文件的 schema
+src/config/           site.ts 收敛「站点设置」并给出发布阻塞项；types.ts 是素材契约
 src/styles/           tokens.css 是闭合令牌集；motion.css 含全部 @keyframes 与唯一的动效开关
 src/scripts/          nav / wecom-modal / reveal / motion，全部是渐进增强
-build/html-include.ts ~90 行本地 Vite 插件：@include / @if / @else / {{ }}
+content/              文案与素材配置（JSON），由 TinaCMS 后台读写
+tina/                 TinaCMS 配置与后台集合定义
 docs/DECISIONS.md     所有「文档未规定、由实现推断」的取值与理由
 docs/VERIFY.md        验收清单与已执行的验证结果
+docs/TINACMS.md       编辑后台的接入、使用规则与已知限制
 ```
 
 两条评审规则：**所有 `@keyframes` 只出现在 `motion.css`**；**`tokens.css` 之外不出现时长／位移字面量**。

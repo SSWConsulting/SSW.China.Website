@@ -2,8 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-SSW.cn 2026 改版：Vite + 原生 TypeScript + 原生 CSS 的多页静态站（首页 + 三个 AI 服务详情页）。
-运行时依赖只有 `cobe`（WebGL 点阵地球，≥1024px 才按需加载）。
+SSW.cn 2026 改版：Astro（纯静态输出）+ 原生 TypeScript + 原生 CSS 的多页站，
+文案与素材在 `content/` 下的 JSON 里，由 TinaCMS（TinaCloud）后台编辑。
+运行时依赖只有 `cobe`（WebGL 点阵地球，≥1024px 才按需加载）；Tina 只参与 `/admin/`，不进页面。
 
 `README.md` 已覆盖命令表、页面清单、目录结构与补充素材的流程 —— **本文件只记那些
 需要读多个文件才能发现的约定**，不重复 README。
@@ -11,8 +12,8 @@ SSW.cn 2026 改版：Vite + 原生 TypeScript + 原生 CSS 的多页静态站（
 ## 常用命令
 
 ```bash
-npm run dev        # localhost:5173
-npm run verify     # typecheck + 格式检查 + 对比度 + 构建 —— 每次改动后都应全绿
+npm run dev        # localhost:5173（含本地模式的 Tina 后台 /admin/index.html）
+npm run verify     # astro check + 格式检查 + 对比度 + 构建 + SEO 检查 —— 每次改动后都应全绿
 npm run preflight  # verify + 素材检查（发布闸门，当前必然失败，见下）
 ```
 
@@ -47,52 +48,58 @@ curl -s "$URL/?t=$(date +%s)" -o /tmp/live.html && diff -q /tmp/live.html dist/i
 构建有两个环境坑（均实测）：
 
 - **ARM Mac 上构建报 `MODULE_NOT_FOUND` 时，先重跑 `npm install`。**
-  `node_modules` 里若残留 `@rollup/rollup-darwin-x64` 而机器是 arm64，
-  `vite build` 会在加载 rollup 原生模块时直接失败。重装即补上 `darwin-arm64` 变体。
-- **`vite build` 默认先清空 `dist/`**（`emptyOutDir`）。若环境把该删除判定为批量删除而拒绝，
-  整个构建不会执行。替代做法是输出到独立目录 `npx vite build --outDir dist-preview`
-  （再发布该目录）—— 代价是绕过 `npm run build` 里的 `typecheck`，需另跑 `npm run typecheck`。
+  `node_modules` 里若残留 x64 的原生模块（rollup/rolldown 的 `*-darwin-x64`）而机器是 arm64，
+  构建会在加载原生模块时直接失败。重装即补上 `darwin-arm64` 变体。
+- **构建默认先清空 `dist/`**。若环境把该删除判定为批量删除而拒绝，整个构建不会执行。
+  替代做法是输出到独立目录 `npx astro build --outDir dist-preview`（再发布该目录）——
+  代价是绕过 `npm run build` 里的 `typecheck`，需另跑 `npm run typecheck`。
 
 ## 两个事实来源
 
-- **中文文案**：`docs/spec/SSW-cn-首页文案与视觉设计说明.md`。页面上的中文逐句照抄，
-  **不要在实现中改写文案**。任何该文档之外的新增文案都要在 `docs/DECISIONS.md` 里
-  标注「需文案负责人确认」。
+- **中文文案**：`docs/spec/SSW-cn-首页文案与视觉设计说明.md`。页面上的中文住在 `content/` 的 JSON 里，
+  逐句照抄自该文档，**不要在实现中改写文案**。任何该文档之外的新增文案都要在 `docs/DECISIONS.md` 里
+  标注「需文案负责人确认」。编辑在后台改文案属于内容运营，不受此限；但代码改动不要顺手改 `content/`。
 - **判断记录**：`docs/DECISIONS.md`（约 39 条）记录每一处「文档未规定、由实现推断」
   或「与 ssw.com.au 有意不同」的取值与理由，`docs/VERIFY.md` 记录已执行的验证。
   **改动涉及取舍时，追加一条，不要改写既有条目。**
 
-## 构建期模板：`build/html-include.ts`
+## 内容与模板
 
-约 90 行的本地 Vite 插件，提供三个原语：
-
-```html
-<!-- @include sections/hero.html -->
-<!-- @if wecom.qrImage -->
-A
-<!-- @else -->
-B
-<!-- @endif -->
-{{ wecom.searchableId }}
+```
+content/pages/*.json      各页文案 + SEO          ← src/lib/pages.ts / service.ts 的 zod schema 校验
+content/global/shared.json 导航、页脚、咨询面板、默认 CTA、服务卡片、办公室 ← src/lib/shared.ts
+content/settings/site.json 素材、开关、发布闸门     ← src/config/site.ts 收敛成 types.ts 的契约
+tina/collections/*.ts     对应的后台表单（字段说明就是给编辑看的规则）
 ```
 
-- 条件与插值**在构建期求值** —— 所以「素材缺失时的诚实降级」在 JS 关闭时同样成立，
-  缺失分支的标记根本不会进入产物。
-- `{{ }}` 的键不存在或为 `null` 会**抛错**（避免空 `src`/`href` 上线）。
-- **不支持循环**。多条目要么用索引访问（`{{ cases.0.title }}` + `@if cases.1`），
-  要么把一份名单写成 partial 再 `@include` 多次（客户标识跑马灯就是三条轨道共用一份）。
+- **两条读取路径，语义不同。** 页面文案走 `lib/content.ts` 的 `load()` + zod：必填项缺失 ⇒ **构建失败**
+  （后台把必填项清空不会悄悄上线缺字的页面）。素材配置走 `config/site.ts`：缺失 ⇒ `null` ⇒ 诚实降级，不是错误。
+- **Tina 写 JSON 的形状**：不接受值为 `null` 的对象（索引会失败），用「键不存在」表示未填；
+  清空字符串字段会写成 `""`。`site.ts` 把这两种都收敛成 `null`；`opt` 也把空串视同未填。
+  **不要往 `site.json` 里写 `null`。**
+- 改 schema 要两边一起改：`src/lib/*.ts`（zod，页面读取）与 `tina/collections/*.ts`（后台表单）。
+- 多行字段（标题断行、地址）用 `br()` 把换行变成 `<br />`：`<Fragment set:html={br(x)} />`。
+- 结构化数据由 `components/JsonLd.astro` 输出，从同一份文案生成 —— FAQPage 与可见问答天然一致。
 
-新增页面：建 `services/<slug>/index.html`，再把入口加进 `vite.config.ts` 的
-`build.rollupOptions.input`（目录式入口 ⇒ 干净 URL）。
+**行内空白是承重的，三处配置与它有关，不要"顺手优化"：**
 
-## 素材配置：`src/config/site.config.ts`
+- `astro.config.mjs` 里 `compressHTML: false` —— Astro 的压缩会删掉行内元素之间跨行的空白
+  （「中国 当前」→「中国当前」）。
+- `.astro` 不交给 prettier（`.prettierignore`）—— prettier-plugin-astro 会把交付项那四个
+  紧贴的 `<span>` 重排出空白。模板里写成一行的地方（`deliverable` 的 summary、`stage__focus`）是刻意的。
+- `vite.build.cssMinify: 'esbuild'` —— 默认的 Lightning CSS 会删掉 `@layer` 顺序声明（见下节）。
 
-唯一需要非作者编辑的文件。`types.ts` 是带注释的契约。
+新增页面：建 `src/pages/<path>.astro`（文件路径即 URL，`build.format: 'directory'` ⇒ 干净 URL），
+文案进 `content/pages/<slug>.json` + schema + Tina 集合，再登记进 `scripts/seo.mjs` 的 `PAGES`。
 
-- **`null` 表示「尚未提供」，永远不是占位字符串。** 每个 `null` 都有明确的降级行为
+## 素材配置：`content/settings/site.json`
+
+后台「站点设置」。`src/config/types.ts` 是带注释的契约，`src/config/site.ts` 负责收敛与 `publishBlockers()`。
+
+- **未提供 = 键不存在（或空串），永远不是占位字符串。** 每个缺省都有明确的降级行为
   （不留空图框、不输出半截版权行、不产生指向不存在页面的链接）。
 - `publishBlockers()` 返回发布阻塞项，`check:assets` 消费它。当前有五条
-  （企业微信二维码、ICP 备案、占位案例、客户标识商标授权、资质徽章授权）——
+  （企业微信二维码实扫、占位照片、客户标识商标授权、两处资质授权）——
   **preflight 失败是预期状态**，不要为了让它通过而改配置。
 
 ## CSS 架构
@@ -183,9 +190,3 @@ CSS 一次性动效的**基础规则持有最终状态**；"隐藏/偏移"的起
 - **视口模拟会中途失效**（`resize_window` 报成功但 `innerWidth` 不变）。
   窄屏版式可改为直接收窄容器宽度做等效验证，并在 `VERIFY.md` 里注明是等效而非实测。
 - 面板未显示时 `document.hidden` 为 true，视频会被浏览器暂停 —— 不是代码问题。
-
-## README 中已过时的一处
-
-README 的「本次实现刻意不做的事」写着「案例模块整段不存在：没有 `cases` 区块文件，
-配置里也没有对应字段」。**这已过时** —— 用户后来要求加入占位案例，
-现在有 `src/sections/cases.html` 与 `cases` 配置项（带发布闸门）。修改 README 时请一并更正。

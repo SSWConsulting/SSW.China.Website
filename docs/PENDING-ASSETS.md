@@ -1,9 +1,11 @@
 # 待补素材：放哪、填哪、页面会怎么变
 
-所有素材都通过一个文件配置：[`src/config/site.config.ts`](../src/config/site.config.ts)。
-文件放进 `public/media/`（该目录原样输出、路径不带 hash，可直接替换）。
+所有素材都在编辑后台的「站点设置」里配置（对应文件 [`content/settings/site.json`](../content/settings/site.json)，
+接入方式见 [`TINACMS.md`](TINACMS.md)）。图片放进 `public/media/`（后台可直接上传；该目录原样输出、
+路径不带 hash，可直接替换），并填写原始像素尺寸。
 
-约定：`null` 表示「尚未提供」，**永远不写占位字符串**。条件渲染发生在构建期，
+约定：字段**留空**表示「尚未提供」（下文沿用旧写法称作 `null`；`src/config/site.ts` 会把留空、
+缺失的键都收敛成 `null`），**永远不写占位字符串**。条件渲染发生在构建期，
 因此下面每一条降级行为在 JS 关闭时同样成立。
 
 运行 `npm run check:assets` 查看当前状态与发布阻塞项。

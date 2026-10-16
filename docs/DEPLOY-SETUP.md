@@ -13,7 +13,7 @@
 ```
 你合并 PR 到 main
   └─> 服务器上的 runner 收到任务
-       ├─ 拉代码 → npm ci → 类型检查 + 对比度 + 构建
+       ├─ 拉代码 → npm ci → 对比度 + 类型检查 + 编辑后台 + 构建
        ├─ 校验失败 → 停止（线上保持原样）
        └─ 校验通过 → 拷贝 dist 到 C:\SSW\Nginx\html\sswchina
 ```
@@ -73,6 +73,13 @@ Set-Location C:\actions-runner
 
 回到 GitHub 的 **Settings → Actions → Runners**，
 应该能看到这台 runner 显示绿色 **Idle**。
+
+## 编辑后台（TinaCMS）的凭据
+
+`/admin/` 编辑后台需要两个 GitHub secret：`PUBLIC_TINA_CLIENT_ID` 与 `TINA_TOKEN`。
+取得与配置方法见 [`TINACMS.md`](TINACMS.md)。没配置时部署照常进行，只是产物里不含 `/admin/`。
+
+编辑在后台保存后，TinaCloud 会把改动提交到 main，从而触发这里的部署流程，不需要另外配置。
 
 ## 首次发布
 
