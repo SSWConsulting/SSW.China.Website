@@ -1,0 +1,140 @@
+---
+import '../../styles/index.css';
+import { site } from '../../config/site.ts';
+import JsonLd from '../JsonLd.astro';
+
+const origin = site.seo.origin;
+---
+
+{/* 移动端渲染的前提：没有这一行，手机浏览器会按 980px 桌面宽度排版再整体缩放，
+     所有响应式断点失效，Google 的移动优先索引也会判成「非移动友好」。
+     2026-09-22 的 SEO 体检发现除 /deck/ 外全站都缺这一行，在此补上
+     （/deck/ 自己的 head 里本来就有）。见 docs/DECISIONS.md §96。 */}
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#181818" />
+
+{/* ══════════════════════════════════════════════════════════════════════
+     SEO / GEO：**全站共用**的那部分。
+     每页各自不同的 <title>、description、canonical、og:*、twitter:* 由
+     layouts/Base.astro 按页面传入的 SEO 文案统一输出。见 docs/DECISIONS.md §96。
+     ══════════════════════════════════════════════════════════════════════ */}
+<meta property="og:site_name" content={site.seo.siteName} />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="zh_CN" />
+<meta name="twitter:card" content="summary_large_image" />
+{site.seo?.ogImage ? (<>
+<meta property="og:image" content={`${site.seo.origin}${site.seo.ogImage.src}`} />
+<meta property="og:image:width" content={String(site.seo.ogImage.w)} />
+<meta property="og:image:height" content={String(site.seo.ogImage.h)} />
+<meta name="twitter:image" content={`${site.seo.origin}${site.seo.ogImage.src}`} />
+</>) : null}
+
+{/* ══════════════════════════════════════════════════════════════════════
+     结构化数据：Organization（全站共用，每页都输出）。
+     既服务传统 SEO（知识面板、富媒体结果），也服务 GEO —— 生成式引擎抓到
+     任何一页都能拿到完整的主体信息，不必依赖它恰好抓到首页。
+
+     **里面每一条都是已核实的真实信息**，出处：
+     · 法定名称、成立年份、办公室与顾问数量 —— 用户 2026-09-22 提供的
+       「关于 SSW 中国」正文，与 /about/ 页面上可见的文字一致；
+     · 地址、电话、邮箱 —— 与首页 #offices 杭州办公室面板同一份数据
+       （地址取自 ssw.cn 官网原文，见 docs/DECISIONS.md §34）；
+     · sameAs 四个地址都是本站其它地方已经在用的真实外链。
+     不写未核实的字段（如统一社会信用代码、员工总数区间）。
+     见 docs/DECISIONS.md §96。
+     ══════════════════════════════════════════════════════════════════════ */}
+<JsonLd
+  data={{
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${origin}/#organization`,
+    name: 'SSW',
+    alternateName: 'SSW 中国',
+    legalName: '智鹏瑞尔软件（杭州）有限公司',
+    url: `${origin}/`,
+    logo: `${origin}/media/ssw-logo.svg`,
+    foundingDate: '1990',
+    description: 'SSW 是源于澳大利亚的软件咨询公司，1990 年成立，在全球 15 个国家为企业提供软件开发、技术咨询、数字化转型及创新解决方案。SSW 中国提供 AI 底座中台、AI 业务工作流、AI 应用定制与 FDE 驻场/远程协作服务。',
+    email: 'info@ssw.com.au',
+    telephone: '+86-571-8517-8910',
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'CN',
+      addressRegion: '浙江省',
+      addressLocality: '杭州市',
+      streetAddress: '拱墅区新天地街 406 号星城发展大厦 2 幢 305 室',
+      postalCode: '310004',
+    },
+    sameAs: [
+      'https://www.ssw.com.au',
+      'https://ssw.fr',
+      'https://space.bilibili.com/545713776',
+      'https://www.youtube.com/@fireusergroup',
+    ],
+  }}
+/>
+
+{/* Privacy-friendly analytics by Plausible */}
+<script is:inline async src="https://plausible.io/js/pa-ulnbMrV4jHS07vS8kXX18.js"></script>
+<script is:inline>
+  window.plausible =
+    window.plausible ||
+    function () {
+      (plausible.q = plausible.q || []).push(arguments);
+    };
+  plausible.init =
+    plausible.init ||
+    function (i) {
+      plausible.o = i || {};
+    };
+  plausible.init();
+</script>
+{/* 图标整套取自 ssw.com.au（用户要求「和 ssw.com.au 的一样」）：
+     四方块 SSW 标记 + 白底，与线上逐字节相同。
+     刻意与线上保持一致的两点：
+     · 不提供 SVG 图标 —— 线上没有，我们原来那个 favicon.svg 是**整个字标**
+       （90×60 的横向锁定标），16px 下糊成一团，已删除。
+     · 不引入 site.webmanifest —— 线上那份写着 theme_color/background_color 白色、
+       display: standalone，与本站深色为默认的设计冲突，且会把站点变成可安装应用，
+       超出「改 favicon」的范围。需要 PWA 再单独议。 */}
+<link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+<link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#cc4141" />
+<link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+
+{/*
+      预渲染引导脚本：必须在样式表之前执行，样式首次应用时 html.js 已存在，不会闪现。
+      只做两件事：标记 JS 可用；把 ?motion=off 变成动效总开关的属性。
+    */}
+<script is:inline>
+  (function () {
+    var d = document.documentElement;
+    d.classList.add('js');
+    // 主题：已存选择 → 系统偏好 → 深色（交接文档的设计基准）。
+    // 无 JS 时该属性不存在，:root 的深色令牌即生效。
+    try {
+      var stored = localStorage.getItem('ssw-cn-theme');
+      d.dataset.theme =
+        stored === 'light' || stored === 'dark'
+          ? stored
+          : matchMedia('(prefers-color-scheme: light)').matches
+            ? 'light'
+            : 'dark';
+    } catch (e) {
+      d.dataset.theme = 'dark';
+    }
+    try {
+      if (new URLSearchParams(location.search).get('motion') === 'off') {
+        d.dataset.motion = 'off';
+      }
+    } catch (e) {
+      /* URL 解析失败不应影响页面 */
+    }
+  })();
+</script>
+
+
+<script>
+  import '../../scripts/main.ts';
+</script>

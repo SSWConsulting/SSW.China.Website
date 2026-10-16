@@ -1,0 +1,132 @@
+---
+/**
+ * 展会／交流会现场的全屏轮播页。不挂导航、不进 sitemap、带 noindex。
+ * 文案：content/pages/deck.json（后台「页面：演示轮播」）。
+ */
+import HeadDeck from '../components/partials/HeadDeck.astro';
+import { br } from '../lib/content.ts';
+import { deck as d } from '../lib/pages.ts';
+import { pad2, roman } from '../lib/service.ts';
+
+const page = (n: number, label: string) => `第 ${n} 页：${label}`;
+const processAt = 3 + d.services.length;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{d.seo.title}</title>
+    <meta name="description" content={d.seo.description} />
+    <meta name="robots" content="noindex" />
+    <HeadDeck />
+  </head>
+
+  <body class="deck-page">
+    <a class="skip-link" href="#deck">跳至内容</a>
+
+    {/*
+      全屏轮播。每一页都是一段完整、静态可读的内容：
+      JS 不跑时所有页依次纵向排开（见 deck.css 的 :root:not(.js) 分支），
+      不会出现「只看得到第一页、其余全部消失」的死页面。
+    */}
+    <main class="deck" id="deck" tabindex="-1" data-deck>
+      <div class="deck__progress" data-deck-progress aria-hidden="true"><span></span></div>
+
+      <div class="deck__stage">
+        {/* ── 1 ── */}
+        <section class="dslide dslide--cover" data-slide data-label={d.cover.label} aria-label={page(1, d.cover.label)}>
+          <p class="dslide__kicker" style="--i: 0">{d.cover.kicker}</p>
+          <h1 class="dslide__title dslide__title--xl" style="--i: 1"><Fragment set:html={br(d.cover.title)} /></h1>
+          <ul class="dslide__tags" style="--i: 2">
+            {d.cover.tags.map((tag, i) => <li style={`--i: ${i}`}>{tag}</li>)}
+          </ul>
+        </section>
+
+        {/* ── 2 ── */}
+        <section class="dslide" data-slide data-label={d.overview.label} aria-label={page(2, d.overview.label)}>
+          <p class="dslide__kicker" style="--i: 0">{d.overview.kicker}</p>
+          <h2 class="dslide__title" style="--i: 1">{d.overview.title}</h2>
+          <ul class={`dgrid dgrid--${d.overview.services.length}`} style="--i: 2">
+            {
+              d.overview.services.map((svc, i) => (
+                <li class="dcard" style={`--i: ${i}`}>
+                  <span class="dcard__num">{pad2(i)}</span>
+                  <h3 class="dcard__title">{svc.title}</h3>
+                  <p class="dcard__sub">{svc.sub}</p>
+                  <ul class="dcard__list">
+                    {svc.points.map((pt) => <li>{pt}</li>)}
+                  </ul>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+
+        {/* ── 每项服务一页 ── */}
+        {
+          d.services.map((svc, n) => (
+            <section class="dslide" data-slide data-label={svc.label} aria-label={page(3 + n, svc.label)}>
+              <span class="dslide__ghost" aria-hidden="true">
+                {pad2(n)}
+              </span>
+              <p class="dslide__kicker" style="--i: 0">{svc.kicker}</p>
+              <h2 class="dslide__title" style="--i: 1">{svc.title}</h2>
+              <p class="dslide__lead" style="--i: 2">{svc.lead}</p>
+              <ul class={`dgrid dgrid--${svc.cards.length}`} style="--i: 3">
+                {svc.cards.map((card, i) => (
+                  <li class={card.solid ? 'dcard dcard--solid' : 'dcard'} style={`--i: ${i}`}>
+                    <span class="dcard__num">{svc.numbering === 'roman' ? roman(i) : pad2(i)}</span>
+                    <h3 class="dcard__title">{card.title}</h3>
+                    <p class="dcard__sub">{card.sub}</p>
+                  </li>
+                ))}
+              </ul>
+              <p class="dslide__foot" style="--i: 4">{svc.foot}</p>
+            </section>
+          ))
+        }
+
+        {/* ── 合作方式 ── */}
+        <section class="dslide" data-slide data-label={d.process.label} aria-label={page(processAt, d.process.label)}>
+          <p class="dslide__kicker" style="--i: 0">{d.process.kicker}</p>
+          <h2 class="dslide__title" style="--i: 1">{d.process.title}</h2>
+          <ol class={`dgrid dgrid--${d.process.steps.length} dgrid--flow`} style="--i: 2">
+            {
+              d.process.steps.map((step, i) => (
+                <li class="dcard" style={`--i: ${i}`}>
+                  <span class="dcard__num">{pad2(i)}</span>
+                  <h3 class="dcard__title">{step.title}</h3>
+                  <p class="dcard__sub">{step.sub}</p>
+                </li>
+              ))
+            }
+          </ol>
+          <p class="dslide__foot" style="--i: 3">
+            {d.process.foot}
+          </p>
+        </section>
+
+        {/* ── 收尾 ── */}
+        <section class="dslide dslide--cover" data-slide data-label={d.closing.label} aria-label={page(processAt + 1, d.closing.label)}>
+          <h2 class="dslide__title dslide__title--xl" style="--i: 0">{d.closing.title}</h2>
+          <p class="dslide__lead dslide__lead--lg" style="--i: 1">{d.closing.lead}</p>
+          <p class="dslide__cta" style="--i: 2"><a class="dbtn" href="/#wecom">{d.closing.button}</a></p>
+        </section>
+      </div>
+
+      {/* 控件整条在 JS 未加载时隐藏：没有脚本它们什么也控制不了。 */}
+      <div class="deck__bar" data-deck-bar hidden>
+        <button class="deck__btn" type="button" data-deck-toggle aria-pressed="false">
+          <span data-deck-toggle-label>暂停</span>
+        </button>
+        <div class="deck__dots" data-deck-dots></div>
+        <button class="deck__btn" type="button" data-deck-motion aria-pressed="false">
+          <span data-deck-motion-label>动效</span>
+        </button>
+        <button class="deck__btn" type="button" data-deck-full>全屏</button>
+      </div>
+    </main>
+  </body>
+</html>

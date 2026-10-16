@@ -4,7 +4,17 @@
   "semi": true,
   "trailingComma": "all",
   "overrides": [
-    { "files": ["*.html"], "options": { "printWidth": 120 } },
-    { "files": ["*.md"], "options": { "proseWrap": "preserve" } }
+    {
+      "files": ["*.html"],
+      "options": {
+        "printWidth": 120
+      }
+    },
+    {
+      "files": ["*.md"],
+      "options": {
+        "proseWrap": "preserve"
+      }
+    }
   ]
 }

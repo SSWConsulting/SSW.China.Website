@@ -1,0 +1,48 @@
+---
+/**
+ * 除 /deck/ 外所有页面共用的外壳。
+ *
+ * 每页不同的只有 <title>、description、路径与 body 类名，以 props 传入；
+ * canonical / og:url / og:title / og:description / twitter:* 由它们推导，
+ * 不会再出现复制粘贴时漏改某一处的情况（改版前的模板不能传参，只能每页手写）。
+ * 每页专属的 JSON-LD 放进 `slot="head"`。
+ */
+import { site } from '../config/site.ts';
+import Head from '../components/partials/Head.astro';
+import BodyStart from '../components/partials/BodyStart.astro';
+import BodyEnd from '../components/partials/BodyEnd.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  /** 站内路径，以 / 开头和结尾，例如 '/services/ai-apps/'。 */
+  path: string;
+  bodyClass?: string;
+}
+
+const { title, description, path, bodyClass } = Astro.props;
+const url = `${site.seo.origin}${path}`;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={url} />
+    <meta property="og:url" content={url} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <slot name="head" />
+    <Head />
+  </head>
+
+  <body class={bodyClass}>
+    <BodyStart />
+    <slot />
+    <BodyEnd />
+  </body>
+</html>

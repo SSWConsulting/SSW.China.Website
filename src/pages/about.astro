@@ -1,0 +1,184 @@
+---
+/** 关于我们。文案：content/pages/about.json（后台「页面：关于我们」）；资质列表在「站点设置」（带发布闸门）。 */
+import Base from '../layouts/Base.astro';
+import JsonLd from '../components/JsonLd.astro';
+import Advantage from '../components/sections/Advantage.astro';
+import Clients from '../components/sections/Clients.astro';
+import Cta from '../components/sections/Cta.astro';
+import { site } from '../config/site.ts';
+import { about as c } from '../lib/pages.ts';
+import { roman } from '../lib/service.ts';
+
+const path = '/about/';
+const origin = site.seo.origin;
+const recognition = site.about.recognition;
+---
+
+<Base title={c.seo.title} description={c.seo.description} path={path} bodyClass="about-page">
+  <JsonLd
+    slot="head"
+    data={{
+      '@context': 'https://schema.org',
+      '@type': 'AboutPage',
+      url: `${origin}${path}`,
+      inLanguage: 'zh-CN',
+      name: c.hero.title,
+      mainEntity: { '@id': `${origin}/#organization` },
+    }}
+  />
+  <JsonLd
+    slot="head"
+    data={{
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: '首页', item: `${origin}/` },
+        { '@type': 'ListItem', position: 2, name: c.name },
+      ],
+    }}
+  />
+
+    <main id="main" tabindex="-1">
+      <nav class="breadcrumb" aria-label="面包屑">
+        <div class="container">
+          <ol>
+            <li><a href="/">首页</a></li>
+            <li aria-current="page">{c.name}</li>
+          </ol>
+        </div>
+      </nav>
+
+      {/* 首屏：2026-09-22 用户提供了真实团队/品牌合照（四宫格），放在文字右侧。
+           文字这一侧不用 .page-head__inner（那条全局规则带 max-width: 880px，
+           会在双栏布局下把文字挤成很窄的一列），改用本页专属的 .about-hero__inner
+           两栏网格，文字左对齐、贴容器左边——用户原话「文字全部左对齐顶到边」。
+           页面标题与导语不挂 data-reveal —— 首屏文字必须立即可读（交接文档 §4）。 */}
+      <section class="section page-head about-hero" aria-labelledby="page-title">
+        <div class="container about-hero__inner">
+          <div class="page-head__copy about-hero__copy">
+            <h1 id="page-title">{c.hero.title}</h1>
+            {
+              c.hero.paragraphs.map((p) => (
+                <p class="page-head__body">
+                  {p}
+                </p>
+              ))
+            }
+          </div>
+          {/* 这张图同时是全站的 og:image（社交分享预览），也是图片搜索的入口，
+               所以给真实描述而不是空 alt —— 它确实承载了文字之外的信息。
+               描述只说画面里真实存在的东西，不替它宣称任何身份或成果。 */}
+          <div class="about-hero__media">
+            <img
+              src={c.hero.image.src}
+              alt={c.hero.image.alt}
+              width={c.hero.image.w}
+              height={c.hero.image.h}
+              fetchpriority="high"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ══ 中国区核心业务 ═══════════════════════════════════════════ */}
+      <section class="section about-focus" aria-labelledby="focus-title">
+        <div class="container">
+          <div class="section__head" data-reveal-group>
+            <span class="accent-rule" data-reveal aria-hidden="true"></span>
+            <h2 id="focus-title" data-reveal>{c.focus.title}</h2>
+          </div>
+
+          <ol class="about-focus__list" data-reveal-group>
+            {
+              c.focus.items.map((item, i) => (
+                <li class="about-focus__item" data-reveal>
+                  <span class="about-focus__num" aria-hidden="true">{roman(i)}</span>
+                  <div>
+                    <h3 class="about-focus__title">{item.title}</h3>
+                    <p class="about-focus__text">
+                      {item.text}
+                    </p>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+
+          <p class="about-focus__note" data-reveal>
+            {c.focus.note}
+          </p>
+        </div>
+      </section>
+
+      <Advantage />
+
+      {/* ══ 全球办公室 ═══════════════════════════════════════════════ */}
+      <section class="section about-offices" aria-labelledby="offices-title">
+        <div class="container">
+          <div class="section__head" data-reveal-group>
+            <span class="accent-rule" data-reveal aria-hidden="true"></span>
+            <h2 id="offices-title" data-reveal>{c.offices.title}</h2>
+            <p class="section__intro" data-reveal>
+              {c.offices.intro}
+            </p>
+          </div>
+          <a class="entry__link" href="/#offices">
+            {c.offices.linkLabel}
+            <svg class="entry__link-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false">
+              <path
+                fill-rule="evenodd"
+                d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
+              />
+            </svg>
+          </a>
+        </div>
+      </section>
+
+      {/* ══ 技术社区 ═══════════════════════════════════════════════════
+           FireUG 的介绍性文字，具体的产品卡片（含标识、平台入口按钮）
+           已经在首页 #ecosystem 区块，这里不重复整套卡片，只做简介 + 跳转。 */}
+      <section class="section about-community" aria-labelledby="community-title">
+        <div class="container">
+          <div class="section__head" data-reveal-group>
+            <span class="accent-rule" data-reveal aria-hidden="true"></span>
+            <h2 id="community-title" data-reveal>{c.community.title}</h2>
+            <p class="section__intro" data-reveal>
+              {c.community.intro}
+            </p>
+          </div>
+          <a class="entry__link" href="/#ecosystem">
+            {c.community.linkLabel}
+            <svg class="entry__link-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false">
+              <path
+                fill-rule="evenodd"
+                d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
+              />
+            </svg>
+          </a>
+        </div>
+      </section>
+
+      {/* ══ 资质与合作认证 ═══════════════════════════════════════════
+           发布阻塞项：这些是 SSW 全球（含澳洲总部）的公开资质，中国子公司
+           能否同样主张需业务与法务确认，详见「站点设置 → 关于我们页」与 docs/DECISIONS.md §94。 */}
+      {
+        recognition && (
+          <section class="section about-recognition" aria-labelledby="recognition-title">
+            <div class="container">
+              <div class="section__head" data-reveal-group>
+                <span class="accent-rule" data-reveal aria-hidden="true"></span>
+                <h2 id="recognition-title" data-reveal>{c.recognition.title}</h2>
+              </div>
+              <ul class="about-recognition__list" data-reveal-group>
+                {recognition.items.map((item) => <li data-reveal>{item}</li>)}
+              </ul>
+            </div>
+          </section>
+        )
+      }
+
+      <Clients />
+
+      <Cta />
+    </main>
+</Base>

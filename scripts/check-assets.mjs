@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { siteConfig, publishBlockers } from '../src/config/site.config.ts';
+import { siteConfig, publishBlockers } from '../src/config/site.ts';
 
 const rows = [
   ['首屏背景照片', siteConfig.hero.backgroundImage, '首屏卡片只呈现红黑渐变底，不放占位图'],
@@ -17,7 +17,7 @@ const rows = [
 const pad = (s, n) =>
   s + ' '.repeat(Math.max(0, n - [...s].reduce((w, c) => w + (c.charCodeAt(0) > 255 ? 2 : 1), 0)));
 
-console.log('\n素材配置状态（src/config/site.config.ts）\n');
+console.log('\n素材配置状态（content/settings/site.json）\n');
 console.log(`  ${pad('素材', 24)}${pad('状态', 10)}未提供时的页面行为`);
 console.log(`  ${'─'.repeat(78)}`);
 for (const [name, value, fallback] of rows) {

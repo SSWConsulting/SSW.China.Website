@@ -1,0 +1,176 @@
+---
+import { shared } from '../../lib/shared.ts';
+const { nav } = shared;
+---
+
+<header class="nav" id="top" data-nav>
+  <div class="nav__inner">
+    <a class="nav__brand" href="/" aria-label="SSW 首页">
+      {/* 两版都是真实 SSW 素材：深色底用白字版，浅色底用深字版。
+           方形标记是浅底素材，在 #181818 上几乎不可见，故不使用。 */}
+      <img
+        class="nav__logo nav__logo--dark"
+        src="/media/ssw-logo.svg"
+        alt=""
+        width="332"
+        height="98"
+        fetchpriority="high"
+      />
+      <img
+        class="nav__logo nav__logo--light"
+        src="/media/ssw-logo-light.svg"
+        alt=""
+        width="332"
+        height="98"
+        fetchpriority="high"
+      />
+    </a>
+
+    <nav class="nav__links" id="nav-menu" aria-label="主导航" data-menu-panel>
+      <div class="nav__panel-head">
+        <button class="nav__close" type="button" aria-label="关闭菜单" data-menu-close hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              d="M6 6l12 12M18 6L6 18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+      </div>
+      {/* 「FDE 服务」的锚点仍是 #delivery（区块 id 未改）。整页链接（/chinafy/ 等）
+           不是锚点：scrollspy 只收 isSamePage() 为真的项，会自动跳过它们。 */}
+      <ul>
+        {nav.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+      </ul>
+
+      {/* 窄屏专用：导航条那一行已经排满（标识 + 两个圆钮 + 咨询按钮 + 菜单键），
+           再塞第五个控件会挤，所以 <1024px 时地区入口放在抽屉里。
+           ≥1024px 由右上角的圆钮下拉承担，这一块隐藏。 */}
+      <div class="nav__drawer-regions">
+        <p class="nav__drawer-label">{nav.otherRegionsLabel}</p>
+        <ul>
+          {nav.otherRegions.map((r) => <li><a href={r.href}>SSW {r.name}</a></li>)}
+        </ul>
+      </div>
+    </nav>
+
+    <div class="nav__actions">
+      {/* ── 地区切换：照搬 ssw.com.au 头部的 “Select region” 圆钮 + 下拉 ──────
+           纯 JS 增强：按钮与菜单默认 hidden，未加载脚本时两者都不出现，
+           不会留下点了没反应的死控件。三个地区的链接在页脚常驻，
+           因此无 JS 时依然可达（页脚「其他地区」栏）。
+           用的是 disclosure 模式（按钮 + aria-expanded + 一组普通链接），
+           不加 role="menu" —— 那会带来方向键漫游焦点的义务，这里不需要。 */}
+      <div class="nav__region">
+        <button
+          class="nav__theme nav__region-toggle"
+          type="button"
+          id="region-toggle"
+          aria-expanded="false"
+          aria-controls="region-menu"
+          aria-label="选择地区"
+          data-region-toggle
+          hidden
+        >
+          <svg class="nav__theme-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.7" />
+            <path
+              d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+
+        <ul class="nav__region-menu" id="region-menu" data-region-menu hidden>
+          <li>
+            <span class="nav__region-item" aria-current="true">
+              {nav.currentRegion}
+              <span class="nav__region-current">当前</span>
+            </span>
+          </li>
+          {
+            nav.otherRegions.map((r) => (
+              <li>
+                <a class="nav__region-item" href={r.href}>{r.name}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <button class="nav__theme" type="button" data-theme-toggle hidden>
+        <svg class="nav__theme-icon nav__theme-icon--sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.7" />
+          <path
+            d="M12 2.6v2.6M12 18.8v2.6M4.2 12H1.6M22.4 12h-2.6M6.5 6.5 4.6 4.6M19.4 19.4l-1.9-1.9M17.5 6.5l1.9-1.9M4.6 19.4l1.9-1.9"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+        </svg>
+        <svg class="nav__theme-icon nav__theme-icon--moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path
+            d="M20.5 14.3A8.6 8.6 0 0 1 9.7 3.5a8.6 8.6 0 1 0 10.8 10.8Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+
+      <span class="nav__divider" aria-hidden="true"></span>
+
+      <a class="nav-cta" href="#wecom" data-wecom>
+        <span class="nav-cta__label">{nav.contactLabel}</span>
+        <span class="nav-cta__circle" aria-hidden="true">
+          <svg viewBox="0 0 16 16" focusable="false">
+            <path
+              d="M4.6 11.4 11.4 4.6M6.1 4.6h5.3v5.3"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+      </a>
+
+      <button
+        class="nav__burger"
+        type="button"
+        id="menu-toggle"
+        aria-expanded="false"
+        aria-controls="nav-menu"
+        aria-label="打开菜单"
+        data-menu-toggle
+        hidden
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path
+            d="M3.5 6.5h17M3.5 12h17M3.5 17.5h17"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="scroll-progress" aria-hidden="true"></div>
+</header>
+
+<div class="nav-scrim" aria-hidden="true" data-menu-scrim hidden></div>
+{/* 吸顶哨兵：导航滚动后加深底色，由 IntersectionObserver 驱动，零滚动监听 */}
+<div class="nav-sentinel" aria-hidden="true" data-nav-sentinel></div>

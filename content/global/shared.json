@@ -1,0 +1,152 @@
+{
+  "nav": {
+    "links": [
+      {
+        "label": "AI 服务",
+        "href": "/#ai-services"
+      },
+      {
+        "label": "FDE 服务",
+        "href": "/#delivery"
+      },
+      {
+        "label": "落地中国",
+        "href": "/chinafy/"
+      },
+      {
+        "label": "关于我们",
+        "href": "/about/"
+      }
+    ],
+    "currentRegion": "中国",
+    "otherRegionsLabel": "其他地区",
+    "otherRegions": [
+      {
+        "name": "澳大利亚",
+        "href": "https://www.ssw.com.au"
+      },
+      {
+        "name": "法国",
+        "href": "https://ssw.fr"
+      }
+    ],
+    "contactLabel": "联系我们"
+  },
+  "serviceCards": {
+    "platform": {
+      "title": "AI 底座中台",
+      "text": "帮团队选好工具，配好账号、网络和权限，统一管理使用资源，共享好用的配置和方法，让同事容易上手，经验也能留在团队里。"
+    },
+    "workflow": {
+      "title": "AI 业务工作流",
+      "text": "一起梳理日常工作，通过 Agent、自动化流程和 AI 辅助开发，减少资料整理、重复录入等手工操作，让 AI 承担具体任务。"
+    },
+    "apps": {
+      "title": "AI 应用定制",
+      "text": "现成工具和工作流满足不了的需求，我们帮你开发。可以定制 AI 应用，也可以改造现有软件，把 AI 接进 ERP、CRM 和内部系统。"
+    }
+  },
+  "cta": {
+    "title": "你的业务，哪一步最值得用 AI 改进？",
+    "lead": "联系我们，聊聊你的业务场景与落地需求。",
+    "button": "联系我们"
+  },
+  "wecom": {
+    "title": "联系我们",
+    "description": "聊聊你的业务场景与 AI 落地需求。",
+    "qrAlt": "SSW 企业微信联系人二维码",
+    "mobileHint": "长按二维码保存到相册，再打开微信扫一扫，从相册选择二维码。"
+  },
+  "footer": {
+    "address": "浙江省杭州市拱墅区新天地街 406 号星城发展大厦 2 幢 305 室，邮政编码 310004",
+    "email": "info@ssw.com.au",
+    "phone": "+86 571 8517 8910",
+    "phoneHref": "tel:+8657185178910"
+  },
+  "offices": [
+    {
+      "slug": "hangzhou",
+      "name": "中国·杭州",
+      "lat": 30.27,
+      "lng": 120.15,
+      "email": "info@ssw.com.au",
+      "phone": "+86 571 8517 8910",
+      "phoneHref": "tel:+8657185178910",
+      "address": "浙江省杭州市拱墅区\n新天地街 406 号 星城发展大厦 2 幢 305 室\n邮政编码 310004",
+      "siteUrl": "https://ssw.cn",
+      "siteLabel": "SSW 中国办公室"
+    },
+    {
+      "slug": "sydney",
+      "name": "澳大利亚·悉尼",
+      "lat": -33.84,
+      "lng": 151.21,
+      "email": "info@ssw.com.au",
+      "phone": "+61 2 9953 3000",
+      "phoneHref": "tel:+61299533000",
+      "address": "Level 1, 81-91 Military Rd\nNeutral Bay, Sydney, NSW 2089\nAustralia",
+      "siteUrl": "https://www.ssw.com.au/offices/sydney",
+      "siteLabel": "SSW 悉尼办公室"
+    },
+    {
+      "slug": "brisbane",
+      "name": "澳大利亚·布里斯班",
+      "lat": -27.47,
+      "lng": 153.02,
+      "email": "info@ssw.com.au",
+      "phone": "+61 7 3077 7081",
+      "phoneHref": "tel:+61730777081",
+      "address": "Level 1, 471 Adelaide St\nBrisbane, QLD 4000\nAustralia",
+      "siteUrl": "https://www.ssw.com.au/offices/brisbane",
+      "siteLabel": "SSW 布里斯班办公室"
+    },
+    {
+      "slug": "melbourne",
+      "name": "澳大利亚·墨尔本",
+      "lat": -37.81,
+      "lng": 144.96,
+      "email": "info@ssw.com.au",
+      "phone": "+61 3 9005 2034",
+      "phoneHref": "tel:+61390052034",
+      "address": "Level 1, 370 Little Bourke St\nMelbourne, VIC 3000\nAustralia",
+      "siteUrl": "https://www.ssw.com.au/offices/melbourne",
+      "siteLabel": "SSW 墨尔本办公室"
+    },
+    {
+      "slug": "newcastle",
+      "name": "澳大利亚·纽卡斯尔",
+      "lat": -32.93,
+      "lng": 151.78,
+      "email": "info@ssw.com.au",
+      "phone": "+61 2 9953 3000",
+      "phoneHref": "tel:+61299533000",
+      "address": "432 Hunter St\nNewcastle, NSW 2300\nAustralia",
+      "siteUrl": "https://www.ssw.com.au/offices/newcastle",
+      "siteLabel": "SSW 纽卡斯尔办公室"
+    },
+    {
+      "slug": "strasbourg",
+      "name": "法国·斯特拉斯堡",
+      "lat": 48.57,
+      "lng": 7.75,
+      "email": "info@ssw.com.au",
+      "phone": "+33 3 67 39 05 39",
+      "phoneHref": "tel:+33367390539",
+      "address": "Level 4–19 Rue du Fossé des Treize, Strasbourg 67000\nFrance",
+      "siteUrl": "https://ssw.fr",
+      "siteLabel": "SSW 欧洲办公室"
+    },
+    {
+      "slug": "delaware",
+      "name": "美国·特拉华",
+      "lat": 39.16,
+      "lng": -75.52,
+      "email": "hello@ssw.com",
+      "phone": "+1 302 520 3805",
+      "phoneHref": "tel:+13025203805",
+      "address": "North America, DE 2111, USA",
+      "siteUrl": "https://www.ssw.com",
+      "siteLabel": "SSW 北美办公室"
+    }
+  ]
+}

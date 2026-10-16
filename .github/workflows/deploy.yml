@@ -29,6 +29,10 @@ jobs:
 
     env:
       DEPLOY_TARGET: C:\SSW\Nginx\html\sswchina
+      # TinaCMS 编辑后台（/admin/）连接 TinaCloud 所需的凭据，配置见 docs/TINACMS.md。
+      # 未配置时 scripts/build-admin.mjs 会跳过后台，网站照常构建发布。
+      PUBLIC_TINA_CLIENT_ID: ${{ secrets.PUBLIC_TINA_CLIENT_ID }}
+      TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
 
     steps:
       - name: 拉取代码
@@ -47,8 +51,10 @@ jobs:
       - name: 对比度检查
         run: npm run contrast
 
-      # npm run build = typecheck && vite build，沿用项目自己的定义，
-      # 以后 build 脚本改了这里会自动跟上。
+      # npm run build = 类型检查（astro check）→ 编辑后台（tinacms build）→ astro build，
+      # 沿用项目自己的定义，以后 build 脚本改了这里会自动跟上。
+      # 页面文案来自 content/ 下的 JSON（TinaCloud 把后台的编辑提交到 main，触发本流程）；
+      # 文案缺必填项时 astro build 会失败，线上保持上一个版本。
       - name: 构建
         run: npm run build
 

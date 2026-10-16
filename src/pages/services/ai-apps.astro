@@ -1,0 +1,275 @@
+---
+/**
+ * AI 应用定制。文案：content/pages/ai-apps.json（后台「页面：AI 应用定制」）；
+ * 首屏与四张切入点卡片的配图在「站点设置 → AI 应用定制页素材」（带占位闸门）。
+ */
+import Base from '../../layouts/Base.astro';
+import JsonLd from '../../components/JsonLd.astro';
+import Advantage from '../../components/sections/Advantage.astro';
+import Cta from '../../components/sections/Cta.astro';
+import { site } from '../../config/site.ts';
+import { br } from '../../lib/content.ts';
+import { faqText, loadApps, pad2, roman } from '../../lib/service.ts';
+
+const c = loadApps();
+const path = '/services/ai-apps/';
+const origin = site.seo.origin;
+const heroImage = site.aiApps.heroImage;
+const images = site.aiApps.useCaseImages;
+---
+
+<Base title={c.seo.title} description={c.seo.description} path={path} bodyClass="aiapps-page">
+  <JsonLd
+    slot="head"
+    data={{
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: c.name,
+      description: c.seo.description,
+      serviceType: c.name,
+      provider: { '@id': `${origin}/#organization` },
+      areaServed: { '@type': 'Country', name: '中国' },
+      url: `${origin}${path}`,
+    }}
+  />
+  <JsonLd
+    slot="head"
+    data={{
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: '首页', item: `${origin}/` },
+        { '@type': 'ListItem', position: 2, name: 'AI 服务', item: `${origin}/#ai-services` },
+        { '@type': 'ListItem', position: 3, name: c.name },
+      ],
+    }}
+  />
+  <JsonLd
+    slot="head"
+    data={{
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: c.faq.items.map((f) => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: { '@type': 'Answer', text: faqText(f) },
+      })),
+    }}
+  />
+
+  <main id="main" tabindex="-1">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <div class="container">
+        <ol>
+          <li><a href="/">首页</a></li>
+          <li><a href="/#ai-services">AI 服务</a></li>
+          <li aria-current="page">{c.name}</li>
+        </ol>
+      </div>
+    </nav>
+
+    {/* 首屏：2026-09-18 按用户要求改成与另外两个服务页一样的结构
+         （.page-head + .service-hero-media，图在右侧、深色渐变、白字）。
+         原因与取舍见 src/styles/ai-apps.css 里这块规则前的注释，以及 docs/DECISIONS.md §84。
+         页面标题与导语不挂 data-reveal —— 首屏文字必须立即可读（交接文档 §4）。 */}
+    <section class="page-head" aria-labelledby="page-title">
+      {
+        heroImage && (
+          <div class="service-hero-media" data-placeholder={String(heroImage.isPlaceholder)} aria-hidden="true">
+            <img src={heroImage.src} alt="" width={heroImage.w} height={heroImage.h} fetchpriority="high" />
+          </div>
+        )
+      }
+      <div class="container page-head__inner">
+        <div class="page-head__copy">
+          <h1 id="page-title">{c.hero.title}</h1>
+          <p class="lead page-head__lede">{c.hero.lede}</p>
+          <p class="page-head__body">{c.hero.body}</p>
+          <div class="btn-row page-head__actions">
+            <a class="btn btn--primary" href="#wecom" data-wecom data-ripple>{c.hero.primaryButton}</a>
+            <a class="btn" href="#usecases">{c.hero.secondaryButton}</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* ══ 主张：罗马数字清单（模板 Pillars 的做法） ═══════════════ */}
+    <section class="section-lg pillars" aria-labelledby="pillars-title">
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.pillars.eyebrow}</p>
+          <h2 id="pillars-title" class="display" data-reveal data-words>{c.pillars.title}</h2>
+        </div>
+
+        <div class="pillars__body">
+          <p class="pillars__intro" data-reveal>
+            {c.pillars.intro}
+          </p>
+
+          <ol class="pillars__list" data-reveal-group>
+            {
+              c.pillars.items.map((item, i) => (
+                <li class="pillar" data-reveal>
+                  <span class="pillar__num" aria-hidden="true">{roman(i)}</span>
+                  <div>
+                    <h3 class="pillar__title">{item.title}</h3>
+                    <p class="pillar__text">{item.text}</p>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    {/* ══ 切入点：图片在上、文字在下的卡片（模板 Services 的做法）。
+         配图按顺序对应「站点设置 → 四张切入点卡片配图」；某一项没有图 ⇒ 该卡片降级为纯排版。 ══ */}
+    <section class="section-lg usecases" id="usecases" aria-labelledby="usecases-title">
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.usecases.eyebrow}</p>
+          <h2 id="usecases-title" class="display" data-reveal data-words>{c.usecases.title}</h2>
+          {c.usecases.intro && <p class="head__intro" data-reveal>{c.usecases.intro}</p>}
+        </div>
+
+        <ul class="usecases__grid" data-reveal-group>
+          {
+            c.usecases.items.map((item, i) => {
+              const img = images[i];
+              return (
+                <li class="ucard" data-reveal>
+                  {img && (
+                    <div class="ucard__media" data-placeholder={String(img.isPlaceholder)} aria-hidden="true">
+                      <img src={img.src} alt="" width={img.w} height={img.h} loading="lazy" />
+                    </div>
+                  )}
+                  <span class="ucard__index" aria-hidden="true">
+                    {pad2(i)}
+                  </span>
+                  <h3 class="ucard__title">{item.title}</h3>
+                  <p class="ucard__text">{item.text}</p>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="section-lg scope" id="scope" aria-labelledby="scope-title">
+      <div class="container scope__layout">
+        <div class="scope__intro" data-reveal>
+          <p class="eyebrow">{c.scope.eyebrow}</p>
+          <h2 id="scope-title" class="display"><Fragment set:html={br(c.scope.title)} /></h2>
+          <p class="head__intro">{c.scope.intro}</p>
+          <div class="scope__fit">
+            <span class="scope__fit-label">{c.scope.fitLabel}</span>
+            <p>{c.scope.fit}</p>
+          </div>
+          <a class="builtby__link" href="#wecom" data-wecom>{c.scope.contactLink} <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="scope__deliverables" data-reveal-group>
+          {
+            c.scope.deliverables.map((d, i) => (
+              <details class="deliverable" open data-reveal>
+                {/* span 之间刻意没有空白：它们是行内元素，空白会变成可见间距。 */}
+                <summary><span class="deliverable__number" aria-hidden="true">{pad2(i)}</span><span class="deliverable__heading"><span class="deliverable__title">{d.title}</span><span class="deliverable__subtitle">{d.subtitle}</span></span><span class="deliverable__toggle" aria-hidden="true"></span></summary>
+                <div class="deliverable__body">
+                  <p>{d.body}</p>
+                  <ul class="deliverable__outputs" aria-label={`${d.title}内容`}>
+                    {d.outputs.map((o) => <li>{o}</li>)}
+                  </ul>
+                </div>
+              </details>
+            ))
+          }
+          <p class="scope__note">{c.scope.note}</p>
+        </div>
+      </div>
+    </section>
+
+    {/* 全站共用的数据统计（真实全球口径，见「站点设置 → 数据统计」） */}
+    <Advantage />
+
+    {/* ══ 合作流程：编号大字 + 竖排（模板 Approach 的做法） ═══════════ */}
+    <section class="section-lg process" id="process" aria-labelledby="process-title">
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.process.eyebrow}</p>
+          <h2 id="process-title" class="display" data-reveal data-words>{c.process.title}</h2>
+        </div>
+
+        <ol class="process__list" data-reveal-group>
+          {
+            c.process.steps.map((step, i) => (
+              <li class="pstep" data-reveal>
+                <span class="pstep__num" aria-hidden="true">{pad2(i)}</span>
+                <div class="pstep__body">
+                  <h3 class="pstep__title">{step.title}</h3>
+                  <p class="pstep__text">{step.text}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    {/* ══ 模型之外 ═══════════════════════════════════════════════════ */}
+    <section class="section-lg beyond" aria-labelledby="beyond-title">
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.beyond.eyebrow}</p>
+          <h2 id="beyond-title" class="display" data-reveal data-words>{c.beyond.title}</h2>
+          {c.beyond.intro && <p class="head__intro" data-reveal>{c.beyond.intro}</p>}
+        </div>
+
+        <ul class="beyond__grid" data-reveal-group>
+          {
+            c.beyond.items.map((item) => (
+              <li class="beyond__item" data-reveal>
+                <h3 class="beyond__title">{item.title}</h3>
+                <p class="beyond__text">{item.text}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    {/* ══ 常见问题。原生 details，无 JS 也能展开。 ═════════════════════ */}
+    <section class="section-lg faq" aria-labelledby="faq-title">
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal>{c.faq.eyebrow}</p>
+          <h2 id="faq-title" class="display" data-reveal data-words>{c.faq.title}</h2>
+        </div>
+
+        <div class="faq__list" data-reveal-group>
+          {
+            c.faq.items.map((f) => (
+              <details class="faq__item" data-reveal>
+                <summary class="faq__q">{f.question}</summary>
+                <div class="faq__a">
+                  <p>{f.answer}</p>
+                  {f.points && f.points.length > 0 && (
+                    <ul class="faq__points">
+                      {f.points.map((p) => (
+                        <li>
+                          <b>{p.term}</b>：{p.text}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <Cta />
+  </main>
+</Base>

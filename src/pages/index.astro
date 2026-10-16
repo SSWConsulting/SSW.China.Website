@@ -1,0 +1,51 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../config/site.ts';
+import JsonLd from '../components/JsonLd.astro';
+import Hero from '../components/sections/Hero.astro';
+import AiServices from '../components/sections/AiServices.astro';
+import Advantage from '../components/sections/Advantage.astro';
+import AiSolutions from '../components/sections/AiSolutions.astro';
+import Fde from '../components/sections/Fde.astro';
+import Cases from '../components/sections/Cases.astro';
+import Clients from '../components/sections/Clients.astro';
+import WhyUs from '../components/sections/WhyUs.astro';
+import Ecosystem from '../components/sections/Ecosystem.astro';
+import Globe from '../components/sections/Globe.astro';
+import { home } from '../lib/pages.ts';
+---
+
+<Base title={home.seo.title} description={home.seo.description} path="/">
+<JsonLd
+  slot="head"
+  data={{
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${site.seo.origin}/#website`,
+    name: site.seo.siteName,
+    url: `${site.seo.origin}/`,
+    inLanguage: 'zh-CN',
+    publisher: { '@id': `${site.seo.origin}/#organization` },
+  }}
+/>
+
+
+    <main id="main" tabindex="-1">
+      <Hero />
+      <AiServices />
+      <Advantage />
+      <AiSolutions />
+      <Fde />
+      {/* 案例：「站点设置 → 案例」为空时整段不渲染（当前为空，按用户要求先隐藏）。 */}
+      <Cases />
+      <Clients />
+      <WhyUs />
+      <Ecosystem />
+      <Globe />
+      {/*
+        收尾 CTA（「你的业务，哪一步最值得用 AI 改进？」）已按用户要求从首页去掉。
+        Cta 组件本身保留 —— 服务详情页、/chinafy/ 与 /about/ 仍在用它。
+        要在首页恢复：在这里加回 <Cta /> 即可。
+      */}
+    </main>
+</Base>

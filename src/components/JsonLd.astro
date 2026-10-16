@@ -1,0 +1,10 @@
+---
+/** 结构化数据。`<` 转义，防止值里出现 `</script>` 提前闭合标签。 */
+interface Props {
+  data: Record<string, unknown>;
+  slot?: string;
+}
+const json = JSON.stringify(Astro.props.data).replace(/</g, '\\u003c');
+---
+
+<script is:inline type="application/ld+json" set:html={json} />

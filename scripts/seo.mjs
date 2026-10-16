@@ -5,8 +5,11 @@
  *   node scripts/seo.mjs          生成 public/sitemap.xml 与 public/llms.txt
  *   node scripts/seo.mjs --check  只校验，不写文件（verify 里跑的就是这个）
  *
+ * 校验读的是**构建产物** dist/ —— 页面由 Astro 渲染，源文件里已经没有完整的
+ * <head>。因此 --check 必须在 astro build 之后跑（npm run verify 里已经按此排序）。
+ *
  * 为什么要脚本而不是手写这两个文件：它们里面全是绝对 URL，域名来自
- * src/config/site.config.ts 的 seo.origin。手写会在换域名、加页面时悄悄过期，
+ * content/settings/site.json 的 seo.origin（后台「站点设置 → SEO / 域名」）。手写会在换域名、加页面时悄悄过期，
  * 而过期的 sitemap / canonical 比没有更糟 —— 会把搜索引擎指到不存在的地址。
  *
  * --check 模式检查四件事：
@@ -19,7 +22,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { siteConfig } from '../src/config/site.config.ts';
+import { siteConfig } from '../src/config/site.ts';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const origin = siteConfig.seo.origin.replace(/\/$/, '');
@@ -42,13 +45,15 @@ const PAGES = [
 ];
 
 const read = (rel) => readFileSync(resolve(root, rel), 'utf8');
+/** 页面的构建产物路径。 */
+const built = (p) => `dist/${p.src}`;
 const pick = (html, re) => {
   const m = html.match(re);
   return m ? m[1].replace(/\s+/g, ' ').trim() : null;
 };
 
-const meta = (src) => {
-  const html = read(src);
+const meta = (p) => {
+  const html = read(built(p));
   return {
     title: pick(html, /<title>([^<]*)<\/title>/),
     description: pick(html, /<meta\s+name="description"\s+content="([^"]*)"/s),
@@ -78,7 +83,7 @@ const llms = () => {
     '',
   ];
   for (const p of PAGES) {
-    const m = meta(p.src);
+    const m = meta(p);
     lines.push(`- [${m.title}](${origin}${p.route}): ${m.description}`);
   }
   lines.push(
@@ -102,11 +107,11 @@ const isCheck = process.argv.includes('--check');
 const problems = [];
 
 for (const p of PAGES) {
-  if (!existsSync(resolve(root, p.src))) {
-    problems.push(`${p.src} —— PAGES 里登记了这个页面，但文件不存在`);
+  if (!existsSync(resolve(root, built(p)))) {
+    problems.push(`${built(p)} —— PAGES 里登记了这个页面，但构建产物里没有（先跑 astro build）`);
     continue;
   }
-  const m = meta(p.src);
+  const m = meta(p);
   for (const [k, label] of [
     ['title', '<title>'],
     ['description', '<meta name="description">'],
@@ -115,7 +120,7 @@ for (const p of PAGES) {
   ]) {
     if (!m[k]) problems.push(`${p.src} —— 缺 ${label}`);
   }
-  // canonical / og:url 在源文件里是 {{ seo.origin }}/路径 的形式，只比对路径部分
+  // 只比对路径部分：域名由 seo.origin 统一推导
   for (const [k, label] of [
     ['canonical', 'canonical'],
     ['ogUrl', 'og:url'],
@@ -134,7 +139,7 @@ for (const p of PAGES) {
   // FAQPage 结构化数据必须与页面上真正显示的问题一一对应 —— Google 明确要求
   // schema 内容与可见内容一致，不一致属于违规标记。改 FAQ 文案却忘了同步
   // JSON-LD 是最容易发生的漂移，这里直接拦住。
-  const html = read(p.src);
+  const html = read(built(p));
   const visible = [...html.matchAll(/<summary class="faq__q">([\s\S]*?)<\/summary>/g)].map((x) =>
     x[1]
       .replace(/<[^>]+>/g, '')

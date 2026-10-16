@@ -1,98 +1,99 @@
-# SSW.cn（2026 改版）
+# SSW.cn (2026 redesign)
 
-深炭黑 + SSW 红 `#CC4141` 的中文官网：首页 + 三个 AI 服务详情页。技术栈：Vite + 原生 TypeScript + 原生 CSS。
+The Chinese-language SSW website in deep charcoal and SSW red `#CC4141`: a home page, three AI service pages and a few supporting pages. Stack: [Astro](https://astro.build) (fully static output) with plain TypeScript and plain CSS. Copy and assets are edited in a [TinaCMS](https://tina.io) admin (see [`docs/TINACMS.md`](docs/TINACMS.md)).
 
-导航条与首屏按 [ssw.com.au](https://www.ssw.com.au) 的版式实现，并新增了「SSW 遍布全球」区块与明暗主题切换。
-运行时依赖只有一个 [`cobe`](https://www.npmjs.com/package/cobe)（13KB，WebGL 点阵地球），
-且只在 ≥1024px 时按需加载 —— 窄屏完全不下载。
+The navigation bar and hero follow the layout of [ssw.com.au](https://www.ssw.com.au). This site adds a "SSW around the world" section and a light/dark theme switch.
+The only runtime dependency is [`cobe`](https://www.npmjs.com/package/cobe) (13 KB, a WebGL dotted globe). It loads on demand at ≥1024px only, so narrow screens never download it.
 
-**文案与设计的唯一事实来源**：[`docs/spec/SSW-cn-首页文案与视觉设计说明.md`](docs/spec/SSW-cn-首页文案与视觉设计说明.md)（2026-09-07 交付并已核实）。页面上的中文逐句照抄自该文档，请勿在实现中改写文案。
+**Single source of truth for copy and design:** [`docs/spec/SSW-cn-首页文案与视觉设计说明.md`](docs/spec/SSW-cn-首页文案与视觉设计说明.md) (delivered and verified 2026-09-07). The Chinese copy on the pages is taken from that document sentence by sentence. Do not rewrite it as part of code changes.
 
-## 页面
+## Pages
 
-| 路径                     | 内容                                                                                                                                        |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`                      | 首页：首屏、三张核心 AI 服务卡片、交付方式、产品与社区、关于 SSW、遍布全球、收尾 CTA                                                        |
-| `/services/ai-platform/` | AI 中台建设                                                                                                                                 |
-| `/services/ai-workflow/` | AI 业务工作流                                                                                                                               |
-| `/services/ai-apps/`     | AI 应用定制                                                                                                                                 |
-| `/chinafy/`              | 落地中国：帮助海外应用进入中国市场（内容取自 ssw.cn 现有同名页面）                                                                          |
-| `/deck/`                 | 演示轮播：三大核心 AI 服务的全屏自动播放页，供展会／交流会现场大屏循环播放（`?motion=on` 可盖过系统的「减少动态效果」，见 DECISIONS §58.2） |
+| Path                     | Content                                                                                                                                                                                                           |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                      | Home: hero, three core AI service cards, stats, video banner, FDE service, client logos, why SSW, products and community, SSW around the world                                                                    |
+| `/services/ai-platform/` | AI platform (AI 底座中台)                                                                                                                                                                                         |
+| `/services/ai-workflow/` | AI business workflows (AI 业务工作流)                                                                                                                                                                             |
+| `/services/ai-apps/`     | Custom AI applications (AI 应用定制)                                                                                                                                                                              |
+| `/chinafy/`              | Chinafy: helping overseas apps enter the Chinese market (content taken from the existing page of the same name on ssw.cn)                                                                                         |
+| `/about/`                | About SSW China                                                                                                                                                                                                   |
+| `/deck/`                 | Presentation carousel: a full-screen, auto-playing deck of the three core AI services for big screens at trade shows and events (`?motion=on` overrides the system's reduced-motion setting, see DECISIONS §58.2) |
 
-首页的三张卡片链接到对应的详情页；详情页底部互相链接。前五个页面共用同一份导航、
-页脚、咨询面板与打包产物（一份 CSS、一份 JS）。
+The three cards on the home page link to the matching service pages, and each service page links to the others at the bottom. All pages except `/deck/` share the same navigation, footer, contact panel and bundles (one CSS file, one JS file).
 
-`/deck/` 是例外：它没有导航与页脚，自带一份精简的 `deck.css` / `deck.ts`
-（不加载 `index.css` 与 `main.ts`），只复用令牌、base 与动效总开关。
-它不挂进导航、带 `noindex`，是一个单独发给现场大屏的地址。
+`/deck/` is the exception. It has no navigation or footer and ships its own slim `deck.css` / `deck.ts` (it does not load `index.css` or `main.ts`), reusing only the tokens, base styles and the global motion switch. It is not linked from the navigation, carries `noindex`, and is a standalone URL for event screens.
 
-新增页面的做法：在 `services/<slug>/index.html` 建文件（照抄现有那三个的骨架），
-再把入口加进 `vite.config.ts` 的 `build.rollupOptions.input`。
+To add a page: create an `.astro` file under `src/pages/` (the file path is the URL, so `services/foo.astro` ⇒ `/services/foo/`). Put its copy in `content/pages/<slug>.json`, write its schema in `src/lib/pages.ts`, add a matching admin collection under `tina/collections/`, and finally register the page in `PAGES` in `scripts/seo.mjs`.
 
-## 运行
+## Running locally
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173
+npm run dev        # http://localhost:5173 , admin at http://localhost:5173/admin/index.html
 ```
 
-| 命令                   | 作用                                                               |
-| ---------------------- | ------------------------------------------------------------------ |
-| `npm run dev`          | 本地开发预览                                                       |
-| `npm run build`        | 类型检查 + 生产构建到 `dist/`                                      |
-| `npm run preview`      | 预览生产构建（http://localhost:4173）                              |
-| `npm run typecheck`    | `tsc --noEmit`                                                     |
-| `npm run contrast`     | 从 `tokens.css` 读取真实令牌校验对比度，并阻止品牌红被用作文字颜色 |
-| `npm run check:assets` | 打印待补素材表；存在发布阻塞项时退出码非零                         |
-| `npm run fonts:sync`   | 从 `node_modules` 同步 Inter 拉丁子集到 `public/fonts/`            |
-| `npm run verify`       | typecheck + 格式检查 + 对比度 + 构建（日常应当全绿）               |
-| `npm run preflight`    | `verify` + 素材检查 —— **发布前的闸门**，素材未补齐时会失败        |
+| Command                | What it does                                                                                   |
+| ---------------------- | ---------------------------------------------------------------------------------------------- |
+| `npm run dev`          | Local dev server plus the Tina admin in local mode (saving writes straight to local files)     |
+| `npm run dev:site`     | Site only, without the admin                                                                   |
+| `npm run build`        | Type check + admin (only when TinaCloud credentials are set) + production build into `dist/`   |
+| `npm run preview`      | Preview the production build (http://localhost:4173)                                           |
+| `npm run typecheck`    | `astro check` (covers `.astro` templates and TS)                                               |
+| `npm run contrast`     | Checks contrast using the real tokens from `tokens.css`, and blocks brand red as a text colour |
+| `npm run check:assets` | Prints the missing-assets table; exits non-zero when there are publish blockers                |
+| `npm run fonts:sync`   | Copies the Inter Latin subset from `node_modules` into `public/fonts/`                         |
+| `npm run verify`       | Type check + format check + contrast + build + SEO check (should be green day to day)          |
+| `npm run preflight`    | `verify` + asset check — **the pre-release gate**; fails while assets are still missing        |
 
-## 补充素材：只需要改一个文件
+There is no test suite; `verify` is the regression guard.
 
-把文件放进 `public/media/`，然后在 [`src/config/site.config.ts`](src/config/site.config.ts) 填入路径与原始像素尺寸。
+## Editing copy and adding assets: use the admin
 
-所有 `null` 都有明确的诚实降级行为（构建期条件渲染，因此 JS 关闭时同样成立），逐项说明见 [`docs/PENDING-ASSETS.md`](docs/PENDING-ASSETS.md)。
+Page copy is edited in the admin's page collections. Images, the QR code, the ICP filing, case studies, client logos and the publish gates live under 站点设置 (Site settings), backed by [`content/settings/site.json`](content/settings/site.json). Images can be uploaded to `public/media/` directly from the admin; always enter the image's **original pixel dimensions** along with it. Setup and usage are covered in [`docs/TINACMS.md`](docs/TINACMS.md).
 
-## 发布前必须完成
+Every field left empty has a defined, honest fallback (rendered conditionally at build time, so it holds with JavaScript off too). See [`docs/PENDING-ASSETS.md`](docs/PENDING-ASSETS.md) for each one.
 
-`npm run check:assets` 会列出阻塞项。当前两项：
+## Before going live
 
-1. **真实企业微信二维码** —— 配置 `wecom.qrImage` 后，必须**在另一台设备实扫验证**，并在手机上验证长按保存与「打开二维码图片」。在此之前咨询面板显示的是诚实的未配置空状态，不会出现任何可扫描的假码。
-2. **中国站 ICP 备案信息** —— 配置 `footer.icp`。**不得填写占位或推测的备案号**，也不得把澳洲站的法律信息直接搬过来。
+`npm run check:assets` lists the blockers. There are currently five:
 
-其余素材（可搜索企业微信号、产品标识、团队照片、法定名称、隐私政策链接）缺失不阻塞发布，页面会自动省略对应内容而不是留空框。
+1. **WeCom QR code not yet scan-verified.** The real QR code is in place, but someone must **scan it on another device** and confirm it adds the contact, then check long-press-to-save on a phone. Only then tick the "scan verified" switch.
+2. **Placeholder photos on the AI apps page.** The hero image and the four use-case cards use CC0 placeholder photos (shown in greyscale). Replace them with real photos, or clear them so the cards fall back to plain layout.
+3. **Client logo marquee.** These are third-party trademarks taken from ssw.com.au. Business and legal need to confirm the China entity may claim these client relationships.
+4. **"Why SSW" recognition badges** (Microsoft Solutions Partner, MAPA award) need the same confirmation.
+5. **About page recognition list** (Microsoft partner, MVPs, Regional Director, etc.) needs the same confirmation.
 
-## 明暗主题
+Never toggle a gate just to make the check pass. Other missing assets (searchable WeCom ID, legal entity name, privacy policy link) do not block release; the page simply omits them instead of leaving empty boxes.
 
-深色是基准（交接文档 §3 的设计值）；浅色以 `:root[data-theme='light']` 覆盖同一组语义令牌，
-组件 CSS 一律只读令牌，没有任何 `dark:` / `light:` 分支。
+## Light and dark themes
 
-初始主题：已存选择 → 系统 `prefers-color-scheme` → 深色。选择记在 `localStorage['ssw-cn-theme']`。
-主题在 `<head>` 的预渲染脚本里、样式表之前确定，因此不会闪烁。
-无 JS 时属性不存在、深色令牌生效，主题按钮保持隐藏。
+Dark is the baseline (the design values from §3 of the handover doc). Light mode overrides the same set of semantic tokens under `:root[data-theme='light']`. Component CSS only reads tokens and never branches on `dark:` / `light:`.
 
-两套调色板都已过对比度校验，详见 `npm run contrast`。
+Initial theme: saved choice → system `prefers-color-scheme` → dark. The choice is stored in `localStorage['ssw-cn-theme']`. The theme is resolved by an inline script in `<head>` before the stylesheet loads, so there is no flash. Without JavaScript the attribute is absent, the dark tokens apply, and the theme button stays hidden.
 
-## 本次实现刻意不做的事
+Both palettes pass the contrast checks; see `npm run contrast`.
 
-- **案例目前是占位内容**：`src/sections/cases.html` 与 `cases` 配置项存在，但整段带发布闸门（`npm run check:assets` 会点名）。将来拿到获准公开的真实案例，按文档 §案例 的字段清单替换。采集字段见 `docs/PENDING-ASSETS.md`。
-- 不虚构客户、成果数字、资质、团队规模、照片、二维码、备案号、法定名称。
-- 图示一律标注为示意，不出现「运行中／成功率／客户名称」等模拟状态，不绘制未经验证的产品界面。
+## Deliberately out of scope
 
-## 结构
+- **Case studies are hidden for now.** 站点设置 → 案例 (Case studies) is empty, so the whole section does not render. The placeholder cases are kept in `src/config/placeholder-cases.json`; if they are shown, the section carries a publish gate (`npm run check:assets` flags it). When real, approved case studies are available, enter them in the admin following the field list in the spec's case-study section. The fields to collect are in `docs/PENDING-ASSETS.md`.
+- No invented clients, results figures, credentials, team sizes, photos, QR codes, ICP numbers or legal names.
+- Diagrams are always labelled as illustrative. No simulated states such as "running", "success rate" or client names, and no product UI that has not been verified.
+
+## Structure
 
 ```
-index.html            首页骨架
-services/*/index.html AI 服务详情页骨架（每个目录一个页面 ⇒ 干净 URL）
-src/partials/*.html   跨页面共用的碎片：head、body 首尾、三张服务卡片
-src/sections/*.html   一区块一文件，中文文案就住在这里
-src/config/           唯一的素材配置面（types.ts 是契约，site.config.ts 是取值）
-src/styles/           tokens.css 是闭合令牌集；motion.css 含全部 @keyframes 与唯一的动效开关
-src/scripts/          nav / wecom-modal / reveal / motion，全部是渐进增强
-build/html-include.ts ~90 行本地 Vite 插件：@include / @if / @else / {{ }}
-docs/DECISIONS.md     所有「文档未规定、由实现推断」的取值与理由
-docs/VERIFY.md        验收清单与已执行的验证结果
+src/pages/             One file per page (the file path is the URL)
+src/layouts/Base.astro Page shell: <head>, SEO tags, navigation, footer, contact panel
+src/components/        Sections (sections/), shared partials (partials/), service page template (service/)
+src/lib/               content.ts loads and validates content/; pages.ts, shared.ts, service.ts hold the schemas
+src/config/            site.ts normalises Site settings and reports publish blockers; types.ts is the asset contract
+src/styles/            tokens.css is the closed token set; motion.css holds every @keyframes and the only motion switch
+src/scripts/           nav / wecom-modal / reveal / motion, all progressive enhancement
+content/               Copy and asset settings (JSON), read and written by the TinaCMS admin
+tina/                  TinaCMS config and admin collection definitions
+docs/DECISIONS.md      Every value inferred during implementation (not specified in the docs), with reasoning
+docs/VERIFY.md         Acceptance checklist and the verification results
+docs/TINACMS.md        Admin setup, editing rules and known limitations
 ```
 
-两条评审规则：**所有 `@keyframes` 只出现在 `motion.css`**；**`tokens.css` 之外不出现时长／位移字面量**。
+Two review rules: **every `@keyframes` lives in `motion.css` only**, and **no duration or offset literals outside `tokens.css`**.
