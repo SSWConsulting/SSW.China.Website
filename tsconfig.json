@@ -1,11 +1,10 @@
 {
+  "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "types": ["vite/client", "node"],
-    "strict": true,
+    "types": ["node"],
+    "resolveJsonModule": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitOverride": true,
@@ -13,8 +12,10 @@
     "exactOptionalPropertyTypes": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src/**/*.ts", "build/**/*.ts", "vite.config.ts"]
+  "include": [".astro/types.d.ts", "src/**/*", "tina/**/*.ts"],
+  "exclude": ["dist", "public/admin", "tina/__generated__"]
 }

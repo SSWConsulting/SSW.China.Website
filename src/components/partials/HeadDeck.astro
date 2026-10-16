@@ -1,0 +1,48 @@
+---
+import '../../styles/deck.css';
+---
+
+<meta name="theme-color" content="#181818" />
+{/* 演示轮播页（/deck/）自带一份精简 head：
+     它**不加载** index.css 与 main.ts —— 页面上没有导航、地球、案例与弹层，
+     整站脚本在这里只会空跑一遍查询。需要的只有令牌、base 与动效总开关，
+     由 deck.css 逐个引入。图标与字体预载、主题引导脚本与 partials/head.html
+     保持一致（那份注释解释了为什么没有 SVG 图标与 webmanifest）。 */}
+<link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+<link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#cc4141" />
+<link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+
+<script is:inline>
+  (function () {
+    var d = document.documentElement;
+    d.classList.add('js');
+    try {
+      var stored = localStorage.getItem('ssw-cn-theme');
+      d.dataset.theme =
+        stored === 'light' || stored === 'dark'
+          ? stored
+          : matchMedia('(prefers-color-scheme: light)').matches
+            ? 'light'
+            : 'dark';
+    } catch (e) {
+      d.dataset.theme = 'dark';
+    }
+    // 动效：?motion=on|off 优先，其次是现场按钮记下的选择，都没有就跟随系统。
+    // 必须在样式表之前落地，否则第一页会先按系统偏好渲染一帧再跳变。
+    try {
+      var param = new URLSearchParams(location.search).get('motion');
+      var saved = localStorage.getItem('ssw-cn-deck-motion');
+      var choice = param === 'on' || param === 'off' ? param : saved;
+      if (choice === 'on' || choice === 'off') d.dataset.motion = choice;
+    } catch (e) {
+      /* URL 或 localStorage 不可用时跟随系统偏好 */
+    }
+  })();
+</script>
+
+
+<script>
+  import '../../scripts/deck.ts';
+</script>

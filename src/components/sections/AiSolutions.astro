@@ -1,0 +1,37 @@
+{/* ══════════════════════════════════════════════════════════════════════
+     视频通栏 —— 照搬 ssw.com.au 首页 "AI solutions that deliver, the first time."
+     线上取值（18px 根字号）：min-height 36rem / md 80vh、底色纯黑、
+     视频 object-fit: cover 铺满、上覆 60% 黑遮罩、
+     标题 lg:text-7xl = 81px/81px、按钮 13.5px 27px / 圆角 6.75px / 18px 600。
+
+     与线上的一点差异，理由见 docs/DECISIONS.md §32：
+     · 按钮换成本站真实可用的「联系我们」（我们没有预约通话系统，不造死链）
+
+     视频用**原生 autoplay + loop + muted + playsinline**，不经任何脚本 ——
+     用户明确要求「直接重复自动播放」。之前由 bg-video.ts 驱动，
+     其中的 motionOff() 判断会让开启「减少动态效果」的机器上完全不播（见 §33）。
+     ══════════════════════════════════════════════════════════════════════ */}
+<section class="filmstrip" aria-labelledby="filmstrip-title">
+  <video
+    class="filmstrip__video"
+    poster="/media/ai-solutions-poster.jpg"
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="auto"
+    aria-hidden="true"
+    tabindex="-1"
+  >
+    <source src="/media/ai-solutions-bg.mp4" type="video/mp4" />
+  </video>
+
+  <span class="filmstrip__scrim" aria-hidden="true"></span>
+
+  <div class="filmstrip__inner">
+    <h2 id="filmstrip-title" class="filmstrip__title">让 AI 在日常工作中发挥作用</h2>
+    <div class="filmstrip__actions">
+      <a class="filmstrip__cta" href="#wecom" data-wecom data-ripple>联系我们</a>
+    </div>
+  </div>
+</section>

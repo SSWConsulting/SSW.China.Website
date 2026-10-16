@@ -35,3 +35,8 @@ desktop.ini
 
 # 本地覆盖
 *.local
+
+# Astro / TinaCMS 生成物
+.astro/
+public/admin/
+tina/__generated__/

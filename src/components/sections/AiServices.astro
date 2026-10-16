@@ -1,0 +1,36 @@
+---
+import CardPlatform from '../partials/CardPlatform.astro';
+import CardWorkflow from '../partials/CardWorkflow.astro';
+import CardApps from '../partials/CardApps.astro';
+---
+
+<section class="section services" id="ai-services" aria-labelledby="services-title">
+  <div class="container">
+    <div class="section__head" data-reveal-group>
+      <span class="accent-rule" data-reveal aria-hidden="true"></span>
+      <h2 id="services-title" data-reveal>想让整个团队用好 AI，不知道从哪入手？</h2>
+      <p class="section__intro" data-reveal>
+        有人还没用上，有人用得不错，但大家还在各自摸索。我们帮你搭好团队共用的 AI 中台底座，把 AI
+        用进日常工作；遇到现成工具解决不了的需求，也能为你定制开发。三类服务，可以从你需要的一项开始。
+      </p>
+    </div>
+
+    {/* ══════════════════════════════════════════════════════════════════
+         核心 AI 服务卡片：照搬 ssw.com.au 首页
+         “Australia's Leading AI, .NET and Azure Consultants” 区块的卡片版式
+         （16:9 品牌红图区、1rem 圆角、发丝边、右下角 45° 箭头、桌面三栏 /
+         窄屏吸附轮播 + 圆点）。三张卡片各自链接到对应的服务详情页。
+         ══════════════════════════════════════════════════════════════════ */}
+    <div class="core-cards" data-core-cards>
+      <ul class="core-cards__track" data-core-track data-reveal-group>
+        <CardPlatform />
+        <CardWorkflow />
+        <CardApps />
+      </ul>
+
+      {/* 圆点由 JS 按卡片数量生成，且仅在轨道真的可横向滚动时才出现；
+           无 JS 时轮播仍可滑动，只是没有圆点 —— 不会出现无法操作的死控件。 */}
+      <div class="core-cards__dots" data-core-dots hidden></div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,212 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../config/site.ts';
+import { need, ld } from '../lib/template.ts';
+import Advantage from '../components/sections/Advantage.astro';
+import Clients from '../components/sections/Clients.astro';
+import Cta from '../components/sections/Cta.astro';
+---
+
+<Base
+  title="关于我们｜SSW"
+  description="SSW 中国是澳大利亚软件咨询公司 SSW 在中国的分公司。SSW 成立于 1990 年，30 多年来在全球多个国家为企业提供软件开发、技术咨询与数字化转型服务。"
+  path="/about/"
+  bodyClass="about-page"
+>
+<script slot="head" is:inline type="application/ld+json" set:html={ld(`{
+        "@context": "https://schema.org",
+        "@type": "AboutPage",
+        "url": "${need(site.seo?.origin, 'seo.origin')}/about/",
+        "inLanguage": "zh-CN",
+        "name": "关于 SSW 中国",
+        "mainEntity": {
+          "@id": "${need(site.seo?.origin, 'seo.origin')}/#organization"
+        }
+      }`)} />
+<script slot="head" is:inline type="application/ld+json" set:html={ld(`{
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "首页",
+            "item": "${need(site.seo?.origin, 'seo.origin')}/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "关于我们"
+          }
+        ]
+      }`)} />
+
+
+    <main id="main" tabindex="-1">
+      <nav class="breadcrumb" aria-label="面包屑">
+        <div class="container">
+          <ol>
+            <li><a href="/">首页</a></li>
+            <li aria-current="page">关于我们</li>
+          </ol>
+        </div>
+      </nav>
+
+      {/* 首屏：2026-09-22 用户提供了真实团队/品牌合照（四宫格），放在文字右侧。
+           文字这一侧不用 .page-head__inner（那条全局规则带 max-width: 880px，
+           会在双栏布局下把文字挤成很窄的一列），改用本页专属的 .about-hero__inner
+           两栏网格，文字左对齐、贴容器左边——用户原话「文字全部左对齐顶到边」。
+           页面标题与导语不挂 data-reveal —— 首屏文字必须立即可读（交接文档 §4）。 */}
+      <section class="section page-head about-hero" aria-labelledby="page-title">
+        <div class="container about-hero__inner">
+          <div class="page-head__copy about-hero__copy">
+            <h1 id="page-title">关于 SSW 中国</h1>
+            <p class="page-head__body">
+              智鹏瑞尔软件（杭州）有限公司是 SSW 在中国的分公司。SSW 1990 年成立于澳大利亚，30 多年来我们在全球 15
+              个国家为超过 1000 家企业和组织提供软件开发、技术咨询、数字化转型及创新解决方案。
+            </p>
+            <p class="page-head__body">
+              目前，SSW 在全球有 7 个办公室，拥有 80 余名资深开发及咨询顾问，团队成员包括多位微软 MVP
+              和微软区域总监，在人工智能、云计算、.NET 及企业级软件开发领域拥有深厚的技术积累和丰富的项目经验。
+            </p>
+          </div>
+          {/* 这张图同时是全站的 og:image（社交分享预览），也是图片搜索的入口，
+               所以给真实描述而不是空 alt —— 它确实承载了文字之外的信息。
+               描述只说画面里真实存在的东西，不替它宣称任何身份或成果。 */}
+          <div class="about-hero__media">
+            <img
+              src="/media/about-team.webp"
+              alt="SSW 团队成员身着印有 SSW 标识的工作服在办公室协作，以及 SSW 标识"
+              width="2000"
+              height="2000"
+              fetchpriority="high"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ══ 中国区核心业务 ═══════════════════════════════════════════ */}
+      <section class="section about-focus" aria-labelledby="focus-title">
+        <div class="container">
+          <div class="section__head" data-reveal-group>
+            <span class="accent-rule" data-reveal aria-hidden="true"></span>
+            <h2 id="focus-title" data-reveal>我们的核心业务</h2>
+          </div>
+
+          <ol class="about-focus__list" data-reveal-group>
+            <li class="about-focus__item" data-reveal>
+              <span class="about-focus__num" aria-hidden="true">I</span>
+              <div>
+                <h3 class="about-focus__title">AI 解决方案</h3>
+                <p class="about-focus__text">
+                  从企业 AI 中台建设到具体业务场景的落地，帮助团队把 AI 真正用进日常工作。
+                </p>
+              </div>
+            </li>
+            <li class="about-focus__item" data-reveal>
+              <span class="about-focus__num" aria-hidden="true">II</span>
+              <div>
+                <h3 class="about-focus__title">微信生态解决方案</h3>
+                <p class="about-focus__text">围绕微信生态的产品与集成开发，帮助企业连接中国用户常用的入口。</p>
+              </div>
+            </li>
+            <li class="about-focus__item" data-reveal>
+              <span class="about-focus__num" aria-hidden="true">III</span>
+              <div>
+                <h3 class="about-focus__title">企业软件开发与数字化转型</h3>
+                <p class="about-focus__text">
+                  面向企业的定制软件开发、系统集成与数字化转型咨询，覆盖从方案设计到长期维护的全过程。
+                </p>
+              </div>
+            </li>
+          </ol>
+
+          <p class="about-focus__note" data-reveal>
+            我们相信优秀的软件不仅要解决当下的问题，更要为未来的发展打好基础，因此始终把短周期交付与长期价值放在同等重要的位置，帮助企业提升运营效率、建立竞争优势。
+          </p>
+        </div>
+      </section>
+
+      <Advantage />
+
+      {/* ══ 全球办公室 ═══════════════════════════════════════════════ */}
+      <section class="section about-offices" aria-labelledby="offices-title">
+        <div class="container">
+          <div class="section__head" data-reveal-group>
+            <span class="accent-rule" data-reveal aria-hidden="true"></span>
+            <h2 id="offices-title" data-reveal>全球七个办公室</h2>
+            <p class="section__intro" data-reveal>
+              中国·杭州、澳大利亚·悉尼、澳大利亚·墨尔本、澳大利亚·布里斯班、澳大利亚·纽卡斯尔、法国·斯特拉斯堡、美国·特拉华。
+            </p>
+          </div>
+          <a class="entry__link" href="/#offices">
+            查看办公室详情
+            <svg class="entry__link-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false">
+              <path
+                fill-rule="evenodd"
+                d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
+              />
+            </svg>
+          </a>
+        </div>
+      </section>
+
+      {/* ══ 技术社区 ═══════════════════════════════════════════════════
+           FireUG 的介绍性文字，具体的产品卡片（含标识、平台入口按钮）
+           已经在首页 #ecosystem 区块，这里不重复整套卡片，只做简介 + 跳转。 */}
+      <section class="section about-community" aria-labelledby="community-title">
+        <div class="container">
+          <div class="section__head" data-reveal-group>
+            <span class="accent-rule" data-reveal aria-hidden="true"></span>
+            <h2 id="community-title" data-reveal>技术社区</h2>
+            <p class="section__intro" data-reveal>
+              SSW 长期投入技术社区建设，在全球范围内运营着多个技术社区。由 SSW 中国主办的 FireUG 成立于 2017
+              年，面向技术开发爱好者提供学习、分享与交流的平台，也是 SSW
+              参与和承办微软相关活动的重要窗口。我们欢迎认同这个方向的伙伴加入，也欢迎其他技术社区就活动与内容展开合作。
+            </p>
+          </div>
+          <a class="entry__link" href="/#ecosystem">
+            了解 FireUG
+            <svg class="entry__link-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false">
+              <path
+                fill-rule="evenodd"
+                d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
+              />
+            </svg>
+          </a>
+        </div>
+      </section>
+
+      {site.about?.recognition ? (<>
+      {/* ══ 资质与合作认证 ═══════════════════════════════════════════
+           发布阻塞项：这些是 SSW 全球（含澳洲总部）的公开资质，中国子公司
+           能否同样主张需业务与法务确认，详见 site.config.ts 与 docs/DECISIONS.md §94。 */}
+      <section class="section about-recognition" aria-labelledby="recognition-title">
+        <div class="container">
+          <div class="section__head" data-reveal-group>
+            <span class="accent-rule" data-reveal aria-hidden="true"></span>
+            <h2 id="recognition-title" data-reveal>资质与合作认证</h2>
+          </div>
+          <ul class="about-recognition__list" data-reveal-group>
+            {site.about?.recognition?.items?.[0] ? (<>
+            <li data-reveal>{need(site.about?.recognition?.items?.[0], 'about.recognition.items.0')}</li>
+            </>) : null}
+            {site.about?.recognition?.items?.[1] ? (<>
+            <li data-reveal>{need(site.about?.recognition?.items?.[1], 'about.recognition.items.1')}</li>
+            </>) : null}
+            {site.about?.recognition?.items?.[2] ? (<>
+            <li data-reveal>{need(site.about?.recognition?.items?.[2], 'about.recognition.items.2')}</li>
+            </>) : null}
+            {site.about?.recognition?.items?.[3] ? (<>
+            <li data-reveal>{need(site.about?.recognition?.items?.[3], 'about.recognition.items.3')}</li>
+            </>) : null}
+          </ul>
+        </div>
+      </section>
+      </>) : null}
+
+      <Clients />
+
+      <Cta />
+    </main>
+</Base>

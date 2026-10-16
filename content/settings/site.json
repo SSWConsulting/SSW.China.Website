@@ -1,0 +1,172 @@
+{
+  "seo": {
+    "origin": "https://ssw.cn",
+    "siteName": "SSW",
+    "ogImage": {
+      "src": "/media/about-team.webp",
+      "w": 2000,
+      "h": 2000
+    }
+  },
+  "hero": {
+    "backgroundImage": {
+      "src": "/media/services/home-hero-ai-team-v22.png",
+      "w": 1862,
+      "h": 845,
+      "alt": "团队在现代办公空间中协作处理企业 AI 项目"
+    }
+  },
+  "wecom": {
+    "qrImage": {
+      "src": "/media/wecom-qr.jpg",
+      "w": 1086,
+      "h": 1375
+    },
+    "qrScanVerified": false,
+    "searchableId": null,
+    "pendingNotice": "二维码尚未配置。配置完成后，此处显示可扫描的企业微信二维码。"
+  },
+  "advantage": {
+    "stats": [
+      {
+        "figure": "7,000",
+        "suffix": "+",
+        "label": "交付方案",
+        "note": "企业级软件"
+      },
+      {
+        "figure": "1,800",
+        "suffix": "+",
+        "label": "服务客户",
+        "note": "覆盖各行业"
+      },
+      {
+        "figure": "30",
+        "suffix": "+",
+        "label": "年经验",
+        "note": "遍布 15 个国家"
+      }
+    ]
+  },
+  "about": {
+    "recognition": {
+      "items": [
+        "Microsoft 金牌合作伙伴",
+        "Microsoft MVP（多位团队成员）",
+        "Microsoft 区域总监（Regional Director）",
+        "Scrum 认证 CSM / CSPO"
+      ],
+      "pendingClearance": true
+    }
+  },
+  "whyUs": {
+    "image": {
+      "src": "/media/why-ssw-poster.jpeg",
+      "w": 1920,
+      "h": 1080
+    },
+    "videoUrl": "https://www.bilibili.com/video/BV1MN411m7mn/",
+    "caption": null,
+    "recognition": {
+      "pendingClearance": true
+    }
+  },
+  "clients": {
+    "pendingClearance": true
+  },
+  "cases": [],
+  "aiApps": {
+    "heroImage": {
+      "src": "/media/placeholder/placeholder-consulting.jpg",
+      "w": 600,
+      "h": 400,
+      "credit": "Startup Stock Photos / StockSnap，CC0 1.0",
+      "isPlaceholder": true
+    },
+    "useCaseImages": [
+      {
+        "src": "/media/placeholder/placeholder-case-a.jpg",
+        "w": 600,
+        "h": 400,
+        "credit": "Christina Morillo，CC0",
+        "isPlaceholder": true
+      },
+      {
+        "src": "/media/placeholder/placeholder-case-b.jpg",
+        "w": 600,
+        "h": 400,
+        "credit": "Christina Morillo，CC0",
+        "isPlaceholder": true
+      },
+      {
+        "src": "/media/placeholder/placeholder-case-c.jpg",
+        "w": 600,
+        "h": 400,
+        "credit": "Direct Media，CC0",
+        "isPlaceholder": true
+      },
+      {
+        "src": "/media/placeholder/placeholder-case-d.jpg",
+        "w": 600,
+        "h": 400,
+        "credit": "Kristin Hardwick，CC0",
+        "isPlaceholder": true
+      }
+    ]
+  },
+  "ecosystem": {
+    "tina": {
+      "name": "Tina",
+      "logo": {
+        "src": "/media/tina-logo.svg",
+        "w": 1020,
+        "h": 254
+      },
+      "logoAlt": "Tina",
+      "art": {
+        "src": "/media/tina-mark.svg",
+        "w": 448,
+        "h": 621
+      }
+    },
+    "yakshaver": {
+      "name": "YakShaver",
+      "logo": {
+        "src": "/media/yakshaver-logo-dark.svg",
+        "w": 212,
+        "h": 41
+      },
+      "logoAlt": "YakShaver",
+      "art": {
+        "src": "/media/yakshaver-gradient.webp",
+        "w": 500,
+        "h": 320
+      }
+    },
+    "fireug": {
+      "name": "FireUG",
+      "logo": {
+        "src": "/media/fireug-logo-dark.png",
+        "w": 512,
+        "h": 135
+      },
+      "logoLight": {
+        "src": "/media/fireug-logo-light.png",
+        "w": 512,
+        "h": 135
+      },
+      "logoAlt": "FireUG"
+    }
+  },
+  "footer": {
+    "legalName": null,
+    "copyrightHolder": "SSW",
+    "copyrightYear": 2026,
+    "privacyUrl": null,
+    "icp": {
+      "number": "浙ICP备20009588号",
+      "url": "https://beian.miit.gov.cn/"
+    },
+    "publicSecurity": null
+  }
+}

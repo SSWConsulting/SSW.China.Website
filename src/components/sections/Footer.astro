@@ -1,0 +1,77 @@
+---
+import { site } from '../../config/site.ts';
+import { need } from '../../lib/template.ts';
+---
+
+{/* ══════════════════════════════════════════════════════════════════════
+     页脚：参考 ssw.com.au 的版式 —— #212121 深色带、标识在左、下方链接分栏、
+     底部一行法律信息左右分置。**不放社交图标行**（理由见 docs/DECISIONS.md §23）。
+     栏目里全部是本站真实存在的页面或已核实的外链，没有占位链接。
+
+     2026-09-18 按用户要求删掉了全部页脚导航栏（原来是「AI 服务」「了解 SSW」
+     「产品与社区」「其他地区」「联系我们」五栏），改成地址与联系方式——
+     用户原话「不然太空了」。地址、邮箱、电话都是杭州办公室已经在
+     #offices 区块用过的真实信息（同一份 ssw.cn 官网原文，非新增素材），
+     这里只是复用展示位置，不是新核实的联系渠道。
+
+     见 docs/DECISIONS.md §72／§73，其中记了一处需要注意的连带影响：
+     「其他地区」栏原本是 ≥1024px 视口在关闭 JS 时，三个地区链接唯一还能点到的地方
+     （桌面的地区切换按钮默认 hidden，靠 JS 显示）；删掉这一栏后，
+     那种「宽屏 + 无 JS」组合下地区链接会变得不可达。
+     ══════════════════════════════════════════════════════════════════════ */}
+<footer class="footer" id="site-footer">
+  <div class="container footer__inner">
+    <div class="footer__top">
+      {/* 页脚固定深色，两套主题都用白字版标识 —— 不走 nav__logo--dark/light 切换。 */}
+      <a class="footer__brand" href="/" aria-label="SSW 首页">
+        <img class="footer__logo" src="/media/ssw-logo.svg" alt="SSW" width="332" height="98" loading="lazy" />
+      </a>
+
+      {/* 地址、邮箱、电话与 #offices 区块的杭州办公室是同一份真实信息，
+           非新增素材，只是复用到页脚这个位置。地址取自 ssw.cn 官网原文
+           （详见 globe.html 里同一段文字旁的注释与 docs/DECISIONS.md §34）。 */}
+      <address class="footer__contact">
+        <p class="footer__contact-line">浙江省杭州市拱墅区新天地街 406 号星城发展大厦 2 幢 305 室，邮政编码 310004</p>
+        <p class="footer__contact-line">
+          <a href="mailto:info@ssw.com.au">info@ssw.com.au</a>
+          <span aria-hidden="true"> · </span>
+          <a href="tel:+8657185178910">+86 571 8517 8910</a>
+        </p>
+      </address>
+    </div>
+
+    <div class="footer__legal">
+      <div class="footer__legal-main">
+        {site.footer?.copyrightHolder ? (<>
+        <p class="footer__line">© {need(site.footer?.copyrightYear, 'footer.copyrightYear')} {need(site.footer?.copyrightHolder, 'footer.copyrightHolder')}</p>
+        </>) : null}
+
+        {site.footer?.legalName ? (<>
+        <p class="footer__line">{need(site.footer?.legalName, 'footer.legalName')}</p>
+        </>) : null}
+      </div>
+
+      <div class="footer__legal-links">
+        {site.footer?.privacyUrl ? (<>
+        <p class="footer__line">
+          <a href={need(site.footer?.privacyUrl, 'footer.privacyUrl')}>隐私政策</a>
+        </p>
+        </>) : null}
+
+        {site.footer?.icp ? (<>
+        <p class="footer__line">
+          <a href={need(site.footer?.icp?.url, 'footer.icp.url')} target="_blank" rel="noopener noreferrer">{need(site.footer?.icp?.number, 'footer.icp.number')}</a>
+        </p>
+        </>) : null}
+
+        {site.footer?.publicSecurity ? (<>
+        <p class="footer__line">
+          <a href={need(site.footer?.publicSecurity?.url, 'footer.publicSecurity.url')} target="_blank" rel="noopener noreferrer"
+            >{need(site.footer?.publicSecurity?.number, 'footer.publicSecurity.number')}</a
+          >
+        </p>
+        </>) : null}
+      </div>
+    </div>
+  </div>
+</footer>

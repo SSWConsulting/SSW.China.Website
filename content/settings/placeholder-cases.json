@@ -1,0 +1,54 @@
+[
+  {
+    "title": "示例案例一：把重复的政策问答交给 AI 处理",
+    "summary": "这是一段占位简介，仅用于查看卡片版式与排版效果，不描述任何真实项目。真实案例获准公开后替换本条。",
+    "clientName": "示例客户",
+    "clientLogo": null,
+    "backgroundImage": {
+      "src": "/media/placeholder/placeholder-case-hero.jpg",
+      "w": 1600,
+      "h": 900
+    },
+    "url": null,
+    "isPlaceholder": true
+  },
+  {
+    "title": "示例案例二：内部知识检索助手",
+    "summary": "这是一段占位简介，用于查看副卡的两行标题与三行正文如何排布，不描述任何真实项目。",
+    "clientName": "示例客户",
+    "clientLogo": null,
+    "backgroundImage": {
+      "src": "/media/placeholder/placeholder-case-1.jpg",
+      "w": 800,
+      "h": 450
+    },
+    "url": null,
+    "isPlaceholder": true
+  },
+  {
+    "title": "示例案例三：合同信息自动提取",
+    "summary": "这是一段较短的占位简介，用于查看卡片在正文长度不同时是否仍然等高。",
+    "clientName": "示例客户",
+    "clientLogo": null,
+    "backgroundImage": {
+      "src": "/media/placeholder/placeholder-case-2.jpg",
+      "w": 800,
+      "h": 450
+    },
+    "url": null,
+    "isPlaceholder": true
+  },
+  {
+    "title": "示例案例四：售后工单智能分派与人工复核",
+    "summary": "这是一段较长的占位简介，用于查看标题换行到两行、正文换行到四行时，卡片底部的图片区是否仍然对齐。不描述任何真实项目。",
+    "clientName": "示例客户",
+    "clientLogo": null,
+    "backgroundImage": {
+      "src": "/media/placeholder/placeholder-case-3.jpg",
+      "w": 800,
+      "h": 450
+    },
+    "url": null,
+    "isPlaceholder": true
+  }
+]

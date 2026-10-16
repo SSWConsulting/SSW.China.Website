@@ -1,0 +1,12 @@
+---
+import Footer from '../sections/Footer.astro';
+import WecomPanel from '../sections/WecomPanel.astro';
+---
+
+<Footer />
+
+{/*
+  咨询面板的静态归宿。JS 开启时 wecom-modal.ts 会把它整体搬进 <dialog>；
+  JS 未加载时它留在这里，作为页面末尾一个真实可达的咨询区块。
+*/}
+<WecomPanel />

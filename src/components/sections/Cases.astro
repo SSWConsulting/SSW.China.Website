@@ -1,0 +1,216 @@
+---
+import { site } from '../../config/site.ts';
+import { need } from '../../lib/template.ts';
+---
+
+{site.cases?.[0] ? (<>
+{/* ══════════════════════════════════════════════════════════════════════
+     案例 —— 照搬 ssw.com.au 首页 Case Studies 的主推卡片：
+     360/380px 高、50.625px 大圆角、整幅背景图 + 60% 黑色遮罩、
+     客户标志 64px + 标题并排、右侧 64px 圆形箭头（悬停旋转 45° 放大 1.25）。
+
+     honesty：backgroundImage 为 null 时用品牌渐变兜底，绝不放虚构实景照片；
+     clientLogo 为 null 时以客户名纯文字呈现，不留空图框；
+     url 为 null 时整张卡片不是链接、也不显示箭头，不产生死控件；
+     isPlaceholder 为真时不再显示可见角标（用户 2026-09-08 要求去掉），
+     但仍然阻塞发布：check:assets 对占位案例返回非零。
+     占位身份靠文案本身表明 —— 标题以「示例案例…」开头、客户名为「示例客户」。
+     并由 publishBlockers() 阻塞发布。
+     ══════════════════════════════════════════════════════════════════════ */}
+<section class="section cases" id="cases" aria-labelledby="cases-title">
+  <div class="container">
+    <div class="section__head" data-reveal-group>
+      <span class="accent-rule" data-reveal aria-hidden="true"></span>
+      <h2 id="cases-title" data-reveal>案例</h2>
+    </div>
+
+    <div class="case-card" data-reveal>
+      {site.cases?.[0]?.backgroundImage ? (<>
+      <img
+        class="case-card__bg"
+        src={need(site.cases?.[0]?.backgroundImage?.src, 'cases.0.backgroundImage.src')}
+        alt=""
+        aria-hidden="true"
+        width={need(site.cases?.[0]?.backgroundImage?.w, 'cases.0.backgroundImage.w')}
+        height={need(site.cases?.[0]?.backgroundImage?.h, 'cases.0.backgroundImage.h')}
+        loading="lazy"
+      />
+      </>) : null}
+      <span class="case-card__scrim" aria-hidden="true"></span>
+
+      <div class="case-card__inner">
+        <div class="case-card__copy">
+          <div class="case-card__id">
+            {site.cases?.[0]?.clientLogo ? (<>
+            <img
+              class="case-card__logo"
+              src={need(site.cases?.[0]?.clientLogo?.src, 'cases.0.clientLogo.src')}
+              alt=""
+              aria-hidden="true"
+              width={need(site.cases?.[0]?.clientLogo?.w, 'cases.0.clientLogo.w')}
+              height={need(site.cases?.[0]?.clientLogo?.h, 'cases.0.clientLogo.h')}
+              loading="lazy"
+            />
+            </>) : (<>
+            <p class="case-card__client">{need(site.cases?.[0]?.clientName, 'cases.0.clientName')}</p>
+            </>)}
+            <h3 class="case-card__title">{need(site.cases?.[0]?.title, 'cases.0.title')}</h3>
+          </div>
+          <p class="case-card__summary">{need(site.cases?.[0]?.summary, 'cases.0.summary')}</p>
+        </div>
+
+        {site.cases?.[0]?.url ? (<>
+        <a class="case-card__link" href={need(site.cases?.[0]?.url, 'cases.0.url')}>
+          <span class="sr-only">查看案例：{need(site.cases?.[0]?.title, 'cases.0.title')}</span>
+          <span class="case-card__arrow" aria-hidden="true">
+            <svg viewBox="0 0 16 16" fill="currentColor" focusable="false">
+              <path
+                fill-rule="evenodd"
+                d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
+              />
+            </svg>
+          </span>
+        </a>
+        </>) : null}
+      </div>
+    </div>
+
+    {/* ── 三张副卡：正文在上、16:9 图区在下（与线上一致，注意顺序是反的）。
+         窄屏复用核心服务卡那套吸附轮播 + JS 生成的圆点。 ────────────────── */}
+    {site.cases?.[1] ? (<>
+    <div class="core-cards case-minis" data-core-cards>
+      <ul class="core-cards__track" data-core-track data-reveal-group>
+        <li class="core-cards__slide" data-reveal>
+          <article class="case-mini">
+            <div class="case-mini__body">
+              <div class="case-mini__copy">
+                <h3 class="case-mini__title" data-card-title>{need(site.cases?.[1]?.title, 'cases.1.title')}</h3>
+                <p class="case-mini__summary">{need(site.cases?.[1]?.summary, 'cases.1.summary')}</p>
+              </div>
+
+              {site.cases?.[1]?.url ? (<>
+              <a class="case-mini__link" href={need(site.cases?.[1]?.url, 'cases.1.url')}>
+                <span class="sr-only">查看案例：{need(site.cases?.[1]?.title, 'cases.1.title')}</span>
+                <span class="case-mini__arrow" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="currentColor" focusable="false">
+                    <path
+                      fill-rule="evenodd"
+                      d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
+                    />
+                  </svg>
+                </span>
+              </a>
+              </>) : null}
+            </div>
+
+            {/* 图区固定 16:9。没有真实照片时用品牌渐变兜底，绝不放虚构实景照片。 */}
+            <div class="case-mini__media">
+              {site.cases?.[1]?.backgroundImage ? (<>
+              <img
+                class="case-mini__img"
+                src={need(site.cases?.[1]?.backgroundImage?.src, 'cases.1.backgroundImage.src')}
+                alt=""
+                aria-hidden="true"
+                width={need(site.cases?.[1]?.backgroundImage?.w, 'cases.1.backgroundImage.w')}
+                height={need(site.cases?.[1]?.backgroundImage?.h, 'cases.1.backgroundImage.h')}
+                loading="lazy"
+              />
+              <span class="case-mini__scrim" aria-hidden="true"></span>
+              </>) : null}
+            </div>
+          </article>
+        </li>
+
+        {site.cases?.[2] ? (<>
+        <li class="core-cards__slide" data-reveal>
+          <article class="case-mini">
+            <div class="case-mini__body">
+              <div class="case-mini__copy">
+                <h3 class="case-mini__title" data-card-title>{need(site.cases?.[2]?.title, 'cases.2.title')}</h3>
+                <p class="case-mini__summary">{need(site.cases?.[2]?.summary, 'cases.2.summary')}</p>
+              </div>
+
+              {site.cases?.[2]?.url ? (<>
+              <a class="case-mini__link" href={need(site.cases?.[2]?.url, 'cases.2.url')}>
+                <span class="sr-only">查看案例：{need(site.cases?.[2]?.title, 'cases.2.title')}</span>
+                <span class="case-mini__arrow" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="currentColor" focusable="false">
+                    <path
+                      fill-rule="evenodd"
+                      d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
+                    />
+                  </svg>
+                </span>
+              </a>
+              </>) : null}
+            </div>
+
+            {/* 图区固定 16:9。没有真实照片时用品牌渐变兜底，绝不放虚构实景照片。 */}
+            <div class="case-mini__media">
+              {site.cases?.[2]?.backgroundImage ? (<>
+              <img
+                class="case-mini__img"
+                src={need(site.cases?.[2]?.backgroundImage?.src, 'cases.2.backgroundImage.src')}
+                alt=""
+                aria-hidden="true"
+                width={need(site.cases?.[2]?.backgroundImage?.w, 'cases.2.backgroundImage.w')}
+                height={need(site.cases?.[2]?.backgroundImage?.h, 'cases.2.backgroundImage.h')}
+                loading="lazy"
+              />
+              <span class="case-mini__scrim" aria-hidden="true"></span>
+              </>) : null}
+            </div>
+          </article>
+        </li>
+        </>) : null}
+
+        {site.cases?.[3] ? (<>
+        <li class="core-cards__slide" data-reveal>
+          <article class="case-mini">
+            <div class="case-mini__body">
+              <div class="case-mini__copy">
+                <h3 class="case-mini__title" data-card-title>{need(site.cases?.[3]?.title, 'cases.3.title')}</h3>
+                <p class="case-mini__summary">{need(site.cases?.[3]?.summary, 'cases.3.summary')}</p>
+              </div>
+
+              {site.cases?.[3]?.url ? (<>
+              <a class="case-mini__link" href={need(site.cases?.[3]?.url, 'cases.3.url')}>
+                <span class="sr-only">查看案例：{need(site.cases?.[3]?.title, 'cases.3.title')}</span>
+                <span class="case-mini__arrow" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="currentColor" focusable="false">
+                    <path
+                      fill-rule="evenodd"
+                      d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"
+                    />
+                  </svg>
+                </span>
+              </a>
+              </>) : null}
+            </div>
+
+            {/* 图区固定 16:9。没有真实照片时用品牌渐变兜底，绝不放虚构实景照片。 */}
+            <div class="case-mini__media">
+              {site.cases?.[3]?.backgroundImage ? (<>
+              <img
+                class="case-mini__img"
+                src={need(site.cases?.[3]?.backgroundImage?.src, 'cases.3.backgroundImage.src')}
+                alt=""
+                aria-hidden="true"
+                width={need(site.cases?.[3]?.backgroundImage?.w, 'cases.3.backgroundImage.w')}
+                height={need(site.cases?.[3]?.backgroundImage?.h, 'cases.3.backgroundImage.h')}
+                loading="lazy"
+              />
+              <span class="case-mini__scrim" aria-hidden="true"></span>
+              </>) : null}
+            </div>
+          </article>
+        </li>
+        </>) : null}
+      </ul>
+
+      <div class="core-cards__dots" data-core-dots hidden></div>
+    </div>
+    </>) : null}
+  </div>
+</section>
+</>) : null}
