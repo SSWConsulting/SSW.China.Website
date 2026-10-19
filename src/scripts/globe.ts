@@ -134,8 +134,10 @@ export function initGlobe(): void {
         (fn) => (onSelect = fn),
       );
     })
-    .catch(() => {
-      /* 地球是补充性图形，加载失败不影响任何信息 */
+    .catch((error: unknown) => {
+      // 地球是补充性图形，加载失败不影响任何信息；但开发时静默失败不利于排查。
+      // 常见原因：dev 服务器重新预构建依赖后，旧标签页按需加载的 cobe 地址已失效（刷新即可）。
+      if (import.meta.env.DEV) console.warn('[ssw] cobe 加载失败（地球不显示）：', error);
     });
 }
 

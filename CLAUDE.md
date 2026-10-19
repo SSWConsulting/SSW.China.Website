@@ -26,6 +26,8 @@ Tina 本地开发的几个坑（均实测）：
   会报「Datalayer server is busy on port 9000」，先停掉 dev。
 - 本地后台有自己的索引：在后台之外改了 `content/`（如 `git checkout`），后台仍显示旧值，
   此时在后台保存会把旧值写回去。重启 `npm run dev` 再编辑。
+- dev 下地球不显示时，先看控制台的 `[ssw]` 警告。曾因 cobe（动态 `import()`）的预构建地址失效返回 504，
+  现已在 `astro.config.mjs` 用 `optimizeDeps.include: ['cobe']` 固定；改动依赖后若再出现，重启 dev 即可。
 - `npm run build` 没有 `PUBLIC_TINA_CLIENT_ID` / `TINA_TOKEN` 时会**跳过** `/admin/`（`scripts/build-admin.mjs`），
   这是有意的：本地模式的后台连的是 localhost，发布出去也打不开。接入步骤见 `docs/TINACMS.md`。
 
