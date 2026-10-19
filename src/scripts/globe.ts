@@ -57,6 +57,8 @@ const TAG_OFFSET: Record<string, { x: number | string; y: number | string }> = {
   melbourne: { x: '-100%', y: 13.5 },
 };
 const TAG_OFFSET_DEFAULT = { x: 13.5, y: '-50%' } as const;
+/** 标签离屏幕边缘至少留这么多（px），否则翻到标记点另一侧。 */
+const TAG_EDGE = 8;
 
 function locationToAngles(lat: number, lng: number): [number, number] {
   return [Math.PI - ((lng * Math.PI) / 180 - Math.PI / 2), (lat * Math.PI) / 180];
@@ -105,8 +107,6 @@ export function initGlobe(): void {
   let selected = 0;
 
   const canvas = qs<HTMLCanvasElement>('[data-globe-canvas]');
-  // 地球只在 ≥1024px 挂载 —— 与 ssw.com.au 一致，窄屏由手风琴承载全部信息
-  const wide = window.matchMedia('(min-width: 1024px)');
 
   let onSelect: (index: number) => void = () => {};
 
@@ -120,9 +120,10 @@ export function initGlobe(): void {
     });
   });
 
-  if (!canvas || !wide.matches) return;
+  if (!canvas) return;
 
-  // cobe 只在真正需要时按需加载，窄屏与不支持的环境完全不下载
+  // 地球在所有宽度下都挂载（用户 2026-10-19 要求，不再沿用 ssw.com.au 的「<1024px 不挂载」，
+  // 见 docs/DECISIONS.md §107）。cobe 仍按需动态加载，不进主包。
   void import('cobe')
     .then(({ default: createGlobe }) => {
       mountGlobe(
@@ -182,12 +183,24 @@ function mountGlobe(
     return el;
   });
 
+  /* 标签宽度只在尺寸变化时重新量一次，避免每帧读布局。 */
+  let tagWidths: number[] = [];
+  let tagWidthsFor = -1;
+
   function positionTags(selected: number): void {
     const px = size();
     const radius = px * SPHERE_RADIUS_RATIO;
     const centre = px / 2;
     const cosTheta = Math.cos(theta);
     const sinTheta = Math.sin(theta);
+
+    if (tagWidthsFor !== px) {
+      tagWidths = tags.map((tag) => tag.offsetWidth);
+      tagWidthsFor = px;
+    }
+    /* 窄屏上地球几乎占满屏宽，靠边的标签会伸出屏幕。超出时翻到标记点另一侧。 */
+    const wrapLeft = wrap.getBoundingClientRect().left;
+    const viewport = document.documentElement.clientWidth;
 
     offices.forEach((office, i) => {
       const lat = (office.lat * Math.PI) / 180;
@@ -205,11 +218,19 @@ function mountGlobe(
       // vz > 0 表示在朝向镜头的半球；靠近边缘时淡出并虚化
       const facing = Math.max(0, Math.min(1, (vz - 0.02) / 0.22));
       const offset = TAG_OFFSET[office.slug] ?? TAG_OFFSET_DEFAULT;
-      const ox = typeof offset.x === 'number' ? `${offset.x}px` : offset.x;
+      const x = centre + radius * vx;
+      const width = tagWidths[i] ?? 0;
+      let ox = typeof offset.x === 'number' ? `${offset.x}px` : offset.x;
+      if (typeof offset.x === 'number') {
+        if (wrapLeft + x + offset.x + width > viewport - TAG_EDGE)
+          ox = `calc(-100% - ${offset.x}px)`;
+      } else if (wrapLeft + x - width < TAG_EDGE) {
+        ox = `${TAG_OFFSET_DEFAULT.x}px`;
+      }
       const oy = typeof offset.y === 'number' ? `${offset.y}px` : offset.y;
 
       tag.style.transform =
-        `translate3d(${(centre + radius * vx).toFixed(1)}px, ` +
+        `translate3d(${x.toFixed(1)}px, ` +
         `${(centre - radius * vy).toFixed(1)}px, 0) translate(${ox}, ${oy})`;
       tag.style.opacity = String(facing);
       tag.style.filter = facing > 0.99 ? 'none' : `blur(${((1 - facing) * 8).toFixed(1)}px)`;

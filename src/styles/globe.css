@@ -1,7 +1,8 @@
 @layer components {
   /* ══════════════════════════════════════════════════════════════════════
      SSW 遍布全球：照搬 ssw.com.au 的 v3Globe 版式 ——
-     左侧办公室手风琴，右侧 WebGL 点阵地球；<1024px 只保留手风琴。
+     左侧办公室手风琴，右侧 WebGL 点阵地球。
+     <1024px 单栏：地球在上、手风琴在下（ssw.com.au 窄屏不显示地球，本站按用户要求显示，见 DECISIONS §107）。
      像素值同样是线上（18px 根字号）解析后的结果。
      ══════════════════════════════════════════════════════════════════════ */
 
@@ -161,16 +162,21 @@
 
   /* ── 地球 ─────────────────────────────────────────────────────────────── */
   .globe__stage {
-    display: none;
+    display: flex;
+    justify-content: center;
+    /* 单栏时排在手风琴前面：七个办公室展开后很长，放在后面要滚很久才看得到 */
+    order: -1;
   }
 
   .globe__canvas-wrap {
     position: relative;
     width: 100%;
-    max-width: 864px;
+    max-width: 520px;
     aspect-ratio: 1;
     margin-inline: auto;
-    touch-action: none;
+    /* 只接管横向拖动（转地球），纵向交给浏览器滚动页面 ——
+       窄屏上地球几乎占满屏宽，none 会让手指放在地球上时整页滚不动。 */
+    touch-action: pan-y;
     user-select: none;
     cursor: grab;
   }
@@ -238,13 +244,15 @@
       grid-column: span 5;
     }
 
-    /* ssw.com.au 在 <1024px 完全不挂载地球 —— 手风琴已承载全部信息 */
     .globe__stage {
-      display: flex;
+      order: 0;
       grid-column: span 7;
       align-items: center;
-      justify-content: center;
       min-height: 612px;
+    }
+
+    .globe__canvas-wrap {
+      max-width: 864px;
     }
   }
 

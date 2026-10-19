@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SSW.cn 2026 改版：Astro（纯静态输出）+ 原生 TypeScript + 原生 CSS 的多页站，
 文案与素材在 `content/` 下的 JSON 里，由 TinaCMS（TinaCloud）后台编辑。
-运行时依赖只有 `cobe`（WebGL 点阵地球，≥1024px 才按需加载）；Tina 只参与 `/admin/`，不进页面。
+运行时依赖只有 `cobe`（WebGL 点阵地球，动态 import 按需加载，所有宽度都显示）；Tina 只参与 `/admin/`，不进页面。
 
 `README.md` 已覆盖命令表、页面清单、目录结构与补充素材的流程 —— **本文件只记那些
 需要读多个文件才能发现的约定**，不重复 README。
