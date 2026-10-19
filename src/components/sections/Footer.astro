@@ -72,6 +72,16 @@ const { footer } = shared;
           >
         </p>
         </>) : null}
+
+        {/* 「Built with TinaCMS」标记：照搬 ssw.com 页脚右下角（文字 · 羊驼 · 加粗名称，间距 8px）。
+             配色改用页脚令牌：线上「Built with」是 40% 白，在 #212121 上只有约 3.4:1，过不了对比度守卫。
+             见 docs/DECISIONS.md §105。 */}
+        <a class="footer__built" href="https://tina.io/" target="_blank" rel="noopener noreferrer">
+          <span>{footer.builtWith}</span>
+          <img src="/media/tina-mark.svg" alt="" aria-hidden="true" width="448" height="621" loading="lazy" />
+          <strong>{footer.builtWithName}</strong>
+          <span class="sr-only">（在新标签页打开 tina.io）</span>
+        </a>
       </div>
     </div>
   </div>

@@ -19,7 +19,14 @@ export const shared = load(
     serviceCards: z.object({ platform: card, workflow: card, apps: card }),
     cta: ctaSchema,
     wecom: z.object({ title: req, description: req, qrAlt: req, mobileHint: req }),
-    footer: z.object({ address: req, email: req, phone: req, phoneHref: req }),
+    footer: z.object({
+      address: req,
+      email: req,
+      phone: req,
+      phoneHref: req,
+      builtWith: req,
+      builtWithName: req,
+    }),
     offices: list(
       z.object({
         slug: z.string().regex(/^[a-z0-9-]+$/, '只能用小写字母、数字和连字符（用作页面锚点 id）'),

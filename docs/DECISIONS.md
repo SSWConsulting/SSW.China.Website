@@ -3529,6 +3529,21 @@ cover 比例与 `object-position` 画进 canvas，对标题/正文矩形内每�
 - `Organization` 结构化数据（法定名称、地址、sameAs 等）仍写在 `Head.astro` 里，没有放进后台。
   这些是已核实的主体信息，改动前需要核实，不应在后台随手修改。
 
+## §105 页脚右下角「Built with TinaCMS」标记
+
+用户 2026-10-19 要求做一个与 https://www.ssw.com 页脚右下角相同的标记。线上实测（`.footer-bottom .built`）：
+文字「Built with」、Tina 羊驼图标（高 22px）、加粗的「TinaCMS」，间距 8px，链接到 tina.io，新标签页打开，没有悬停态。
+
+- **放在页脚底部那一行的右侧**（`footer__legal-links` 的最后一项），与 ssw.com 位置一致。
+- **图标复用 `public/media/tina-mark.svg`**。ssw.com 用的是一张 32×44 的 PNG，逐像素取色是 Tina 官方橙
+  `#EC4815`，与这份官方矢量素材的图形和颜色相同；矢量图在高分屏上更清晰。图标对读屏隐藏，名称由文字承担。
+- **颜色有意不同**：ssw.com 的「Built with」是 40% 不透明度的白色，在本站页脚底色 `#212121` 上约 3.4:1，
+  低于对比度守卫对页脚文字的 4.5:1。改用现有令牌：「Built with」用 `--c-footer-text-2`（6.61:1），
+  「TinaCMS」用 `--c-footer-text`（10.02:1），视觉上分别接近 ssw.com 的 40% 白与 78% 白。
+- 字号用本行的 15.75px（ssw.com 是 16px），与同一行的版权、备案号对齐。
+- 文字放在「全站通用 → 页脚联系方式」，可在后台修改。「Built with TinaCMS」沿用 ssw.com 的英文原文，
+  属于规格文档之外的新增文案，**需文案负责人确认**。
+
 ## §106 Tina 后台集合不设 `ui.router`
 
 后台打开任何页面都只显示「TinaCMS form fields will appear here」，无法编辑。原因是各页面集合设置了
