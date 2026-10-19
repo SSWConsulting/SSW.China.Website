@@ -1,0 +1,49 @@
+---
+/**
+ * 可视化编辑的「岛」包裹元素 —— **只在本地 dev 下生效**。
+ *
+ * - `astro build`（线上）：只输出 `<Tag {...attrs}>`，和不包裹时的标记逐字相同，不带任何 Tina 代码。
+ * - `astro dev`：额外带上 `data-tina-island`，并在第一个岛前输出一段启动脚本，
+ *   让后台 iframe 里的 bridge 找到这些区域、注册表单，每次按键把草稿 POST 到
+ *   `/tina-island/<name>`（dev/visual-editing/ 注入的端点），用返回的 HTML 替换本元素。
+ *
+ * 等价于 `@tinacms/astro` 的 `<TinaIsland>`，自己写是因为它的包裹元素只能带 class，
+ * 而这里需要保留 data-reveal-group 等原有属性，且线上构建必须完全不输出 Tina 的东西。
+ *
+ * 注意：bridge 替换时会换成只带 class 的新元素（见 dev/visual-editing/islands.ts 的 wrapper），
+ * 所以包裹元素上不要放 id、aria-* 这类有语义的属性 —— 它们在预览里会在第一次编辑后消失。
+ */
+interface Props {
+  /** 岛名，对应 dev/visual-editing/islands.ts 里的注册项。 */
+  island: string;
+  /** 包裹元素的标签，默认 div。 */
+  as?: string;
+  class: string;
+  /** 页面上最多一个：后台打开时默认展开它所在的表单。 */
+  primary?: boolean;
+  [attr: string]: unknown;
+}
+
+const { island, as = 'div', primary = false, ...attrs } = Astro.props;
+const Tag = as;
+const dev = import.meta.env.DEV;
+---
+
+{
+  dev && (
+    <script is:inline type="module">
+      if (window.self !== window.top && !window.__tinaBootstrap) {
+        window.__tinaBootstrap = 1;
+        // 预览里关掉滚动入场：bridge 替换进来的新区块不会再被观察，带着 data-reveal 会一直隐藏。
+        // main.ts 监听 data-motion 的变化，变成 off 时撤掉 data-reveal 并显示全部内容。
+        document.documentElement.dataset.motion = 'off';
+        const { init, refreshForms } = await import('/admin/bridge.js');
+        init();
+        document.addEventListener('astro:page-load', refreshForms);
+      }
+    </script>
+  )
+}<Tag
+  {...attrs}
+  data-tina-island={dev ? `/tina-island/${island}` : undefined}
+  data-tina-island-primary={dev && primary ? '' : undefined}><slot /></Tag>

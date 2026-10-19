@@ -3568,3 +3568,39 @@ cover 比例与 `object-position` 画进 canvas，对标题/正文矩形内每�
 - **城市标签翻边**：窄屏上靠边的标签会伸出屏幕（实测「法国·斯特拉斯堡」被截断）。
   `positionTags` 在标签会越过视口边缘 8px 时，把它翻到标记点另一侧。标签宽度只在画布尺寸变化时重量，
   不每帧读布局。375px 宽连续 6 秒、155 次可见标签采样，最右缘 365px，无一越界。
+
+## §108 本地可视化编辑（首页）
+
+用户 2026-10-19 要求后台能「左边模块列表、右边实时预览」，并明确**只在本地做，线上什么都不动**。
+可视化编辑需要一个按需渲染的 `/tina-island/*` 端点（见 §100 与可视化编辑实测分支的结论），
+线上是 nginx 纯静态，没有；本地 `astro dev` 本身就能按需渲染，所以只在本地接入。先做首页。
+
+**线上零影响（逐项实测）**：
+
+- 端点由 `dev/visual-editing/integration.mjs` 在 `command === 'dev'` 时才注入；`astro build` 不注入，
+  也就不需要 Node 适配器（实测分支加了适配器，那会改变线上构建，这里不加）。
+- 页面上的可编辑区域用自己的 `src/components/Editable.astro` 包裹：dev 下输出 `data-tina-island`
+  和启动脚本，构建时只输出原元素。点选标记 `data-tina-field` 在构建期值为空，不输出。
+  与接入前的构建产物结构对比 0 处差异，CSS/JS 打包文件连哈希都相同，首页不含任何 Tina 编辑标记。
+- 后台的预览模式（`ui.router`）只在 `TINA_PUBLIC_VISUAL_EDITING=1` 时开启，这个变量只由
+  `npm run dev`（`scripts/dev.mjs`）设置。**不能用 `NODE_ENV` 判断**：实测 `tinacms build`
+  打包后台时它不是 `production`，第一版那样写，线上后台会带上 router（会只剩「form fields will appear here」）。
+  现在不带变量构建的后台里，开关读到的是空对象，没有 router。
+
+**做法**：
+
+- 首页 7 个区域可编辑：首屏、AI 服务、视频通栏、FDE、为什么选择 SSW、产品与社区、SSW 遍布全球（标题）。
+  每个区域的内容拆成只依赖 props 的「正文组件」（`src/components/sections/home/`），
+  页面与端点共用同一个组件，预览与线上渲染不会分叉。包裹元素选的是区块里只带 class 的内层元素
+  （`.container`、`.hero__copy` 等）：bridge 替换时会换成只带 class 的新元素，
+  外层的 id、aria-labelledby 因此不受影响。
+- 注册表 `dev/visual-editing/islands.ts` 用 Tina 生成的客户端取首页文档（编辑中的草稿自动覆盖进来），
+  再按构建期内容的形状把清空的字段补成空值，避免预览因 null 报错卡住。真正保存时仍由构建期 zod 校验把关。
+  `dev/` 不在 tsconfig 的 include 里：它依赖只有跑过 `tinacms dev` 才存在的 `tina/__generated__/`。
+- 预览 iframe 里把 `data-motion` 设为 off：被替换进来的区块不会再被滚动入场观察，否则会一直隐藏。
+  Tina 打开预览时会去掉 URL 查询参数，所以没法用 `?motion=off`，改在 `Editable` 的 dev 启动脚本里设置。
+- 依赖 `@tinacms/astro` 的实验性 API（`experimental_createIslandRoute`，基于 Astro 的实验性容器 API），
+  升级 Astro 或 Tina 时要先在本地验证一遍。
+
+**未做**：其他页面仍是表单编辑（打开不会卡住，已验证）。要扩展到其他页面，照首页的做法：拆正文组件、
+用 `Editable` 包裹、在 `islands.ts` 注册，并给对应集合加同样带开关的 router。

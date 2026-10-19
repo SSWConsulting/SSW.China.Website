@@ -5,7 +5,7 @@
   "type": "module",
   "description": "SSW.cn 首页 — 让 AI 真正落地企业业务",
   "scripts": {
-    "dev": "tinacms dev --noTelemetry -c \"astro dev\"",
+    "dev": "node scripts/dev.mjs",
     "dev:site": "astro dev",
     "build": "npm run typecheck && node scripts/build-admin.mjs && astro build",
     "preview": "astro preview --port 4173",
@@ -23,6 +23,7 @@
   "devDependencies": {
     "@astrojs/check": "0.9.10",
     "@fontsource-variable/inter": "^5.2.5",
+    "@tinacms/astro": "0.7.1",
     "@tinacms/cli": "4.0.2",
     "@types/node": "^26.6.1",
     "prettier": "^3.4.2",

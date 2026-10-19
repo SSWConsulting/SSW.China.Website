@@ -1,0 +1,84 @@
+---
+/** WhyUs.astro 里 `.container` 的内容：页面与本地可视化编辑端点（dev/visual-editing/）共用，只依赖 props。 */
+import type { home } from '../../../lib/pages.ts';
+import type { SiteConfig } from '../../../config/types.ts';
+
+interface Props {
+  copy: (typeof home)['whyUs'];
+  /** 素材与开关（站点设置）。外层只在它存在时才渲染本组件。 */
+  why: NonNullable<SiteConfig['whyUs']>;
+}
+
+const { copy, why } = Astro.props;
+import { tf } from '../../../lib/tina-field.ts';
+---
+    <div class="whyus__top">
+      {why.image && (<>
+      <div class="whyus__media">
+        <img
+          class="whyus__img"
+          src={why.image.src}
+          alt=""
+          aria-hidden="true"
+          width={why.image.w}
+          height={why.image.h}
+          loading="lazy"
+        />
+        {why.videoUrl && (<>
+        <a class="whyus__play" href={why.videoUrl} target="_blank" rel="noopener noreferrer">
+          <span class="sr-only">播放视频（在新标签页打开）</span>
+          {/* 三角本身是填充的；再描一圈同色圆角连接的边，尖角就被磨圆了。 */}
+          <svg
+            class="whyus__play-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+            fill="currentColor"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linejoin="round"
+          >
+            <path d="M8.5 6.2v11.6l10-5.8z" />
+          </svg>
+        </a>
+        </>)}
+      </div>
+      </>)}
+
+      <div class="whyus__card">
+        <h2 id="whyus-title" class="whyus__title" data-tina-field={tf(copy, 'title')}>{copy.title}</h2>
+        {/* 第二段是新增文案，需文案负责人确认：它把 ssw.com.au 原有的两条要点
+             （Hands-on expertise / Results that matter）压缩成一句，不是新造的主张。 */}
+        {copy.paragraphs.map((p, i) => <p class="whyus__intro" data-tina-field={tf(copy, 'paragraphs', i)}>{p}</p>)}
+        {/* 资质徽章现在住在右侧说明卡里（原本在下方独立一栏）。 */}
+        {why.recognition && (<>
+        <div class="whyus__recognition">
+          <p class="whyus__recognition-label" data-tina-field={tf(copy, 'recognitionLabel')}>{copy.recognitionLabel}</p>
+          <ul class="whyus__badges">
+            {why.recognition.badges.map((b) => (
+              <li class="whyus__badge">
+                {b.icon && (
+                  <img
+                    class="whyus__badge-icon"
+                    src={b.icon.src}
+                    alt=""
+                    aria-hidden="true"
+                    width={b.icon.w}
+                    height={b.icon.h}
+                    loading="lazy"
+                  />
+                )}
+                {b.label}
+              </li>
+            ))}
+          </ul>
+        </div>
+        </>)}
+      </div>
+    </div>
+
+    {why.caption && (<>
+    <div class="whyus__caption-row">
+      <p class="whyus__caption">{why.caption}</p>
+    </div>
+    </>)}

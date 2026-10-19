@@ -1,0 +1,217 @@
+---
+/** Ecosystem.astro 里 `.container` 的内容：页面与本地可视化编辑端点（dev/visual-editing/）共用，只依赖 props。 */
+import type { home } from '../../../lib/pages.ts';
+import { site } from '../../../config/site.ts';
+
+interface Props {
+  eco: (typeof home)['ecosystem'];
+}
+
+const { eco } = Astro.props;
+const products = [
+  { key: 'tina', entry: site.ecosystem.tina, copy: eco.tina, href: 'https://tina.io/', host: 'tina.io' },
+  {
+    key: 'yak',
+    entry: site.ecosystem.yakshaver,
+    copy: eco.yakshaver,
+    href: 'https://yakshaver.ai/',
+    host: 'yakshaver.ai',
+  },
+];
+const fire = eco.fireug;
+import { tf } from '../../../lib/tina-field.ts';
+---
+    <div class="section__head" data-reveal-group>
+      <span class="accent-rule" data-reveal aria-hidden="true"></span>
+      <h2 id="ecosystem-title" data-reveal data-tina-field={tf(eco, 'title')}>{eco.title}</h2>
+    </div>
+
+    {/* ══════════════════════════════════════════════════════════════════
+         产品卡片：照搬 ssw.com.au/products 上 TinaCMS 与 YakShaver 两张卡片
+         （18px 圆角、0.5px 发丝边、悬停转品牌红、右侧装饰图、标签行、
+         右下「了解」按钮悬停放大 1.05）。
+         2026-09-22 应用户要求，恢复了此前隐藏的外链（按钮与整卡链接），
+         详见 docs/DECISIONS.md §93。
+         线上该页整段强制深色，因此这两张卡片在本站也固定用深色配色，
+         不随明暗主题翻转 —— 理由见 docs/DECISIONS.md §22。
+         卡片正文仍是交接文档的中文，未改写。
+         ══════════════════════════════════════════════════════════════════ */}
+    <div class="ecosystem__products" data-reveal-group>
+      {
+        products.map(({ key, entry, copy, href, host }) => (
+          <a
+            class={`product-card product-card--${key}`}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-reveal
+          >
+            {entry.art && (
+              <img
+                class="product-card__art"
+                src={entry.art.src}
+                alt=""
+                aria-hidden="true"
+                width={entry.art.w}
+                height={entry.art.h}
+                loading="lazy"
+              />
+            )}
+
+            <div class="product-card__body">
+              {entry.logo ? (
+                <Fragment>
+                  <img
+                    class="product-card__logo"
+                    src={entry.logo.src}
+                    alt=""
+                    aria-hidden="true"
+                    width={entry.logo.w}
+                    height={entry.logo.h}
+                  />
+                  {/* 标识是图，名称由这里承担 —— 与 ssw.com.au 一致。 */}
+                  <h3 class="sr-only">{entry.name}</h3>
+                </Fragment>
+              ) : (
+                /* 没有真实标识时不留空图框，直接以真实名称纯文字呈现。 */
+                <h3 class="product-card__name">{entry.name}</h3>
+              )}
+
+              <p class="product-card__desc" data-tina-field={tf(copy, 'description')}>{copy.description}</p>
+
+              <ul class="product-card__tags" data-tina-field={tf(copy, 'tags')}>
+                {copy.tags.map((tag) => <li>{tag}</li>)}
+              </ul>
+            </div>
+
+            {/* 可见文字统一成「了解更多」。两张卡的可访问名称仍然可区分 ——
+                 整个 <a> 的名称里含产品名（标识的 alt）与下面这句目标说明。 */}
+            <span class="product-card__cta" data-tina-field={tf(eco, 'productCta')}>
+              {eco.productCta}
+              <span class="sr-only">（{entry.name}，在新标签页打开 {host}）</span>
+            </span>
+          </a>
+        ))
+      }
+    </div>
+
+    {/* ══════════════════════════════════════════════════════════════
+         FireUG 社区卡片。设计方向参考 fireusergroup.com（深底、品牌红斜切、
+         平台入口按钮、三格数据），但**用本站自己的元素与令牌实现**，
+         未取用对方的图形素材。文案与数字取自 FireUG 官网原文。
+         ══════════════════════════════════════════════════════════════ */}
+    <article class="community" data-reveal>
+      <span class="community__glow" aria-hidden="true"></span>
+
+      <div class="community__head">
+        <p class="entry__kind" data-tina-field={tf(fire, 'kind')}>{fire.kind}</p>
+        {site.ecosystem?.fireug?.logo ? (<>
+        {/* 深底／浅底两版都是真实素材（见「站点设置 → 产品与技术社区」），
+             不是同一张图套滤镜；由 CSS 按主题切换显示，与导航区 SSW 标识同一机制。 */}
+        <img
+          class="community__logo community__logo--dark"
+          src={site.ecosystem.fireug.logo.src}
+          alt={site.ecosystem.fireug.logoAlt}
+          width={site.ecosystem.fireug.logo.w}
+          height={site.ecosystem.fireug.logo.h}
+        />
+        {site.ecosystem?.fireug?.logoLight ? (<>
+        <img
+          class="community__logo community__logo--light"
+          src={site.ecosystem.fireug.logoLight.src}
+          alt={site.ecosystem.fireug.logoAlt}
+          width={site.ecosystem.fireug.logoLight.w}
+          height={site.ecosystem.fireug.logoLight.h}
+        />
+        </>) : (<>
+        {/* 没有浅底版时的降级：浅色主题下仍显示深底版，
+             好过完全没有标识（卡片背景在浅色主题下是白的，深底版可能不够清晰，
+             但比空白更诚实地反映「素材暂缺浅底版」）。 */}
+        <img
+          class="community__logo community__logo--light"
+          src={site.ecosystem.fireug.logo.src}
+          alt={site.ecosystem.fireug.logoAlt}
+          width={site.ecosystem.fireug.logo.w}
+          height={site.ecosystem.fireug.logo.h}
+        />
+        </>)}
+        </>) : (<>
+        <h3 class="community__name">{site.ecosystem.fireug.name}</h3>
+        </>)}
+        <p class="community__tagline" data-tina-field={tf(fire, 'tagline')}>{fire.tagline}</p>
+        <p class="community__desc" data-tina-field={tf(fire, 'description')}>{fire.description}</p>
+
+        <div class="community__actions">
+          <a
+            class="community__channel"
+            href="https://space.bilibili.com/545713776"
+            data-tina-field={tf(fire, 'bilibiliLabel')}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg class="community__channel-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <rect
+                x="3"
+                y="6.5"
+                width="18"
+                height="14"
+                rx="3.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              />
+              <path
+                d="M7.5 3.2 10.5 6.5M16.5 3.2 13.5 6.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+              <path
+                d="M8.5 11.5v2.5M15.5 11.5v2.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+            </svg>
+            {fire.bilibiliLabel}
+          </a>
+          <a
+            class="community__channel"
+            href="https://www.youtube.com/@fireusergroup"
+            data-tina-field={tf(fire, 'youtubeLabel')}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg class="community__channel-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <rect
+                x="2.5"
+                y="5.5"
+                width="19"
+                height="13"
+                rx="4"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              />
+              <path d="M10.2 9.3v5.4l4.6-2.7z" fill="currentColor" />
+            </svg>
+            {fire.youtubeLabel}
+            <span class="sr-only">（YouTube，中国大陆可能无法访问）</span>
+          </a>
+        </div>
+      </div>
+
+      {/* 数字取自 FireUG 官网原文（fireusergroup.com），不做滚动计数。 */}
+      <dl class="community__stats">
+        {
+          fire.stats.map((stat) => (
+            <div class="community__stat" data-tina-field={tf(stat)}>
+              <dt>{stat.label}</dt>
+              <dd>{stat.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </article>

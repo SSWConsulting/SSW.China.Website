@@ -1,0 +1,36 @@
+---
+/** Fde.astro 里 `.container` 的内容：页面与本地可视化编辑端点（dev/visual-editing/）共用，只依赖 props。 */
+import type { home } from '../../../lib/pages.ts';
+
+interface Props {
+  fde: (typeof home)['fde'];
+}
+
+const { fde } = Astro.props;
+import { tf } from '../../../lib/tina-field.ts';
+---
+    <div class="section__head" data-reveal-group>
+      <span class="accent-rule" data-reveal aria-hidden="true"></span>
+      <h2 id="fde-title" data-reveal data-tina-field={tf(fde, 'title')}>{fde.title}</h2>
+      <p class="section__intro" data-reveal data-tina-field={tf(fde, 'intro')}>
+        {fde.intro}
+      </p>
+    </div>
+
+    <ol class="timeline" data-reveal-group>
+      {
+        fde.stages.map((stage, i) => (
+          <li class="stage" data-reveal style={`--i: ${i}`}>
+            <span class="stage__marker" aria-hidden="true"></span>
+            <h3 class="stage__name" data-tina-field={tf(stage, 'name')}>{stage.name}</h3>
+            <p class="stage__desc" data-tina-field={tf(stage, 'description')}>{stage.description}</p>
+            <p class="stage__focus" data-tina-field={tf(stage, 'focus')}><span class="stage__focus-label">{fde.focusLabel}</span>{stage.focus}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="fde__modes" data-reveal data-tina-field={tf(fde, 'modes')}>{fde.modes}</p>
+    <p class="caption fde__note" data-reveal data-tina-field={tf(fde, 'note')}>
+      {fde.note}
+    </p>

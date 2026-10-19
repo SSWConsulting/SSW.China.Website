@@ -1,34 +1,9 @@
 ---
 import { home } from '../../lib/pages.ts';
-const { fde } = home;
+import Editable from '../Editable.astro';
+import FdeBody from './home/FdeBody.astro';
 ---
 
 <section class="section fde" id="delivery" aria-labelledby="fde-title">
-  <div class="container">
-    <div class="section__head" data-reveal-group>
-      <span class="accent-rule" data-reveal aria-hidden="true"></span>
-      <h2 id="fde-title" data-reveal>{fde.title}</h2>
-      <p class="section__intro" data-reveal>
-        {fde.intro}
-      </p>
-    </div>
-
-    <ol class="timeline" data-reveal-group>
-      {
-        fde.stages.map((stage, i) => (
-          <li class="stage" data-reveal style={`--i: ${i}`}>
-            <span class="stage__marker" aria-hidden="true"></span>
-            <h3 class="stage__name">{stage.name}</h3>
-            <p class="stage__desc">{stage.description}</p>
-            <p class="stage__focus"><span class="stage__focus-label">{fde.focusLabel}</span>{stage.focus}</p>
-          </li>
-        ))
-      }
-    </ol>
-
-    <p class="fde__modes" data-reveal>{fde.modes}</p>
-    <p class="caption fde__note" data-reveal>
-      {fde.note}
-    </p>
-  </div>
+  <Editable island="fde" class="container"><FdeBody fde={home.fde} /></Editable>
 </section>

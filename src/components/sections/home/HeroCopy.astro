@@ -1,0 +1,24 @@
+---
+/** Hero.astro 里 `.hero__copy` 的内容：页面与本地可视化编辑端点（dev/visual-editing/）共用，只依赖 props。 */
+import type { home } from '../../../lib/pages.ts';
+
+interface Props {
+  hero: (typeof home)['hero'];
+}
+
+const { hero } = Astro.props;
+import { tf } from '../../../lib/tina-field.ts';
+---
+        <h1 id="hero-title" class="hero__title" data-tina-field={tf(hero, 'titleLines')}>
+          {hero.titleLines.map((line) => <span class="hero__line">{line}</span>)}
+        </h1>
+        <p class="hero__lead" data-tina-field={tf(hero, 'lead')}>
+          {hero.lead}
+        </p>
+        {/* 首屏只留「了解 AI 服务」一个按钮（用户 2026-09-22 要求去掉这里的
+             「联系我们」）。咨询入口在导航条右上角常驻，并未因此丢失。
+             副作用是窄屏下这一行不再折成两行，首屏卡片矮了 ~70px，
+             这正是下面 .hero__box 基础 min-height 能从 504px 降到 430px 的前提。 */}
+        <div class="hero__actions">
+          <a class="hero__btn hero__btn--primary" href="#ai-services" data-ripple data-tina-field={tf(hero, 'button')}>{hero.button}</a>
+        </div>
