@@ -1,0 +1,236 @@
+---
+/**
+ * 服务详情页（AI 底座中台 / AI 业务工作流）<main> 里的全部内容。
+ * 页面与本地可视化编辑端点（dev/visual-editing/）共用，只依赖 props。
+ */
+import Cta from '../sections/Cta.astro';
+import ServiceCard from '../partials/ServiceCard.astro';
+import { br } from '../../lib/content.ts';
+import { tf } from '../../lib/tina-field.ts';
+import { pad2, roman, type ServiceContent, type ServiceMeta } from '../../lib/service.ts';
+
+interface Props {
+  c: ServiceContent;
+  meta: ServiceMeta;
+}
+
+const { c, meta } = Astro.props;
+const { prefix, others, pillarNumHidden } = meta;
+const id = (s: string) => `${prefix}-${s}-title`;
+---
+    <nav class="breadcrumb" aria-label="面包屑">
+      <div class="container">
+        <ol>
+          <li><a href="/">首页</a></li>
+          <li><a href="/#ai-services">AI 服务</a></li>
+          <li aria-current="page" data-tina-field={tf(c, 'name')}>{c.name}</li>
+        </ol>
+      </div>
+    </nav>
+
+    {/* 页面标题与导语不挂 data-reveal —— 首屏文字必须立即可读（交接文档 §4）。 */}
+    <section class="section page-head" aria-labelledby="page-title">
+      <div class="service-hero-media" aria-hidden="true">
+        <img src={c.hero.image.src} width={c.hero.image.w} height={c.hero.image.h} alt="" fetchpriority="high" />
+      </div>
+      <div class="container page-head__inner">
+        <div class="page-head__copy">
+          <h1 id="page-title" data-tina-field={tf(c, 'name')}>{c.name}</h1>
+          <p class="lead page-head__lede" data-tina-field={tf(c.hero, 'lede')}>{c.hero.lede}</p>
+          <p class="page-head__body" data-tina-field={tf(c.hero, 'body')}>
+            {c.hero.body}
+          </p>
+          <div class="btn-row page-head__actions">
+            <a class="btn btn--primary" href="#wecom" data-wecom data-tina-field={tf(c.hero, 'primaryButton')}>{c.hero.primaryButton}</a>
+            <a class="btn" href="#usecases" data-tina-field={tf(c.hero, 'secondaryButton')}>{c.hero.secondaryButton}</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-lg pillars" aria-labelledby={id('value')}>
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal data-tina-field={tf(c.pillars, 'eyebrow')}>{c.pillars.eyebrow}</p>
+          <h2 id={id('value')} class="display" data-reveal data-words data-tina-field={tf(c.pillars, 'title')}>{c.pillars.title}</h2>
+        </div>
+        <div class="pillars__body">
+          <p class="pillars__intro" data-reveal data-tina-field={tf(c.pillars, 'intro')}>
+            {c.pillars.intro}
+          </p>
+          <ol class="pillars__list" data-reveal-group>
+            {
+              c.pillars.items.map((item, i) => (
+                <li class="pillar" data-reveal>
+                  <span class="pillar__num" aria-hidden={pillarNumHidden ? 'true' : undefined}>{roman(i)}</span>
+                  <div>
+                    <h3 class="pillar__title" data-tina-field={tf(item, 'title')}>{item.title}</h3>
+                    <p class="pillar__text" data-tina-field={tf(item, 'text')}>{item.text}</p>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-lg service-usecases" id="usecases" aria-labelledby={id('usecases')}>
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal data-tina-field={tf(c.usecases, 'eyebrow')}>{c.usecases.eyebrow}</p>
+          <h2 id={id('usecases')} class="display" data-reveal data-words data-tina-field={tf(c.usecases, 'title')}>{c.usecases.title}</h2>
+          {c.usecases.intro && <p class="head__intro" data-reveal data-tina-field={tf(c.usecases, 'intro')}>{c.usecases.intro}</p>}
+        </div>
+        <ul class="service-usecases__grid" data-reveal-group>
+          {
+            c.usecases.items.map((item, i) => (
+              <li data-reveal>
+                <span>{pad2(i)}</span>
+                <h3 data-tina-field={tf(item, 'title')}>{item.title}</h3>
+                <p data-tina-field={tf(item, 'text')}>{item.text}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    {/* 详细说明承接上方标题区，不另设可达名称，避免与 page-title 重复标注。 */}
+    <section class="section services page-detail" aria-labelledby={id('capabilities')}>
+      <div class="container">
+        <div class="head page-detail__head" data-reveal-group>
+          <p class="eyebrow" data-reveal data-tina-field={tf(c.capabilities, 'eyebrow')}>{c.capabilities.eyebrow}</p>
+          <h2 id={id('capabilities')} class="display display--sm" data-reveal data-tina-field={tf(c.capabilities, 'title')}>{c.capabilities.title}</h2>
+        </div>
+        <div class="service">
+          <div class="service__copy" data-reveal-group>
+            <dl class="capabilities">
+              {
+                c.capabilities.items.map((item) => (
+                  <div class="capability" data-reveal>
+                    <dt data-tina-field={tf(item, 'term')}>{item.term}</dt>
+                    <dd data-tina-field={tf(item, 'detail')}>{item.detail}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+            <p class="service__fit" data-reveal>
+              <span class="service__fit-label" data-tina-field={tf(c.capabilities, 'fitLabel')}>{c.capabilities.fitLabel}</span>
+              {c.capabilities.fit}
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-lg scope" id="scope" aria-labelledby={id('scope')}>
+      <div class="container scope__layout">
+        <div class="scope__intro" data-reveal>
+          <p class="eyebrow" data-tina-field={tf(c.scope, 'eyebrow')}>{c.scope.eyebrow}</p>
+          <h2 id={id('scope')} class="display" data-tina-field={tf(c.scope, 'title')}><Fragment set:html={br(c.scope.title)} /></h2>
+          <p class="head__intro" data-tina-field={tf(c.scope, 'intro')}>{c.scope.intro}</p>
+          <div class="scope__fit">
+            <span class="scope__fit-label" data-tina-field={tf(c.scope, 'fitLabel')}>{c.scope.fitLabel}</span>
+            <p data-tina-field={tf(c.scope, 'fit')}>{c.scope.fit}</p>
+          </div>
+        </div>
+        <div class="scope__deliverables" data-reveal-group>
+          {
+            c.scope.deliverables.map((d, i) => (
+              <details class="deliverable" open data-reveal>
+                {/* 四个 span 之间刻意没有空白：它们是行内元素，空白会变成可见间距。 */}
+                <summary><span class="deliverable__number">{pad2(i)}</span><span class="deliverable__heading"><span class="deliverable__title" data-tina-field={tf(d, 'title')}>{d.title}</span><span class="deliverable__subtitle" data-tina-field={tf(d, 'subtitle')}>{d.subtitle}</span></span><span class="deliverable__toggle"></span></summary>
+                <div class="deliverable__body">
+                  <p data-tina-field={tf(d, 'body')}>{d.body}</p>
+                  <ul class="deliverable__outputs">
+                    {d.outputs.map((o) => <li>{o}</li>)}
+                  </ul>
+                </div>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="section-lg process" id="process" aria-labelledby={id('process')}>
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal data-tina-field={tf(c.process, 'eyebrow')}>{c.process.eyebrow}</p>
+          <h2 id={id('process')} class="display" data-reveal data-words data-tina-field={tf(c.process, 'title')}>{c.process.title}</h2>
+        </div>
+        <ol class="process__list" data-reveal-group>
+          {
+            c.process.steps.map((step, i) => (
+              <li class="pstep" data-reveal>
+                <span class="pstep__num">{pad2(i)}</span>
+                <div>
+                  <h3 class="pstep__title" data-tina-field={tf(step, 'title')}>{step.title}</h3>
+                  <p class="pstep__text" data-tina-field={tf(step, 'text')}>{step.text}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="section-lg service-beyond" aria-labelledby={id('beyond')}>
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal data-tina-field={tf(c.beyond, 'eyebrow')}>{c.beyond.eyebrow}</p>
+          <h2 id={id('beyond')} class="display" data-reveal data-words data-tina-field={tf(c.beyond, 'title')}>{c.beyond.title}</h2>
+          {c.beyond.intro && <p class="head__intro" data-reveal data-tina-field={tf(c.beyond, 'intro')}>{c.beyond.intro}</p>}
+        </div>
+        <ul class="beyond__grid" data-reveal-group>
+          {
+            c.beyond.items.map((item) => (
+              <li class="beyond__item" data-reveal>
+                <h3 class="beyond__title" data-tina-field={tf(item, 'title')}>{item.title}</h3>
+                <p class="beyond__text" data-tina-field={tf(item, 'text')}>{item.text}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="section-lg faq" aria-labelledby={id('faq')}>
+      <div class="container">
+        <div class="head" data-reveal-group>
+          <p class="eyebrow" data-reveal data-tina-field={tf(c.faq, 'eyebrow')}>{c.faq.eyebrow}</p>
+          <h2 id={id('faq')} class="display" data-reveal data-words data-tina-field={tf(c.faq, 'title')}>{c.faq.title}</h2>
+        </div>
+        <div class="faq__list" data-reveal-group>
+          {
+            c.faq.items.map((f) => (
+              <details class="faq__item" data-reveal>
+                <summary class="faq__q" data-tina-field={tf(f, 'question')}>{f.question}</summary>
+                <div class="faq__a">
+                  <p data-tina-field={tf(f, 'answer')}>{f.answer}</p>
+                </div>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="section services page-more" aria-labelledby="more-title">
+      <div class="container">
+        <div class="section__head" data-reveal-group>
+          <span class="accent-rule" data-reveal aria-hidden="true"></span>
+          <h2 id="more-title" data-reveal data-tina-field={tf(c.more, 'title')}>{c.more.title}</h2>
+        </div>
+
+        <div class="core-cards" data-core-cards>
+          <ul class="core-cards__track" data-core-track data-reveal-group>
+            {others.map((s) => <ServiceCard service={s} />)}
+          </ul>
+          <div class="core-cards__dots" data-core-dots hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <Cta copy={c.cta} />

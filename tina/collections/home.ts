@@ -1,6 +1,6 @@
 import type { Collection } from 'tinacms';
 import { group, items, longText, strings, text } from '../fields';
-import { seo } from './common';
+import { localPreview, seo } from './common';
 
 /** 首页文案。区块顺序与版式在代码里；素材（图片、案例、数字）在「站点设置」。 */
 export const HomeCollection: Collection = {
@@ -11,14 +11,8 @@ export const HomeCollection: Collection = {
   match: { include: 'home' },
   ui: {
     allowedActions: { create: false, delete: false },
-    /*
-     * 只在本地后台设 router：打开首页即进入「左边表单、右边实时预览」。
-     * 开关是 TINA_PUBLIC_VISUAL_EDITING=1，由 `npm run dev`（scripts/dev.mjs）设置；
-     * Tina 打包后台时把 TINA_PUBLIC_* 替换成常量。线上构建不设 ⇒ 没有 router ⇒ 表单编辑。
-     * 线上没有预览端点，设了反而只剩「form fields will appear here」（见 DECISIONS §106、§108）。
-     * 不能用 NODE_ENV 判断：实测 `tinacms build` 打包时它不是 'production'。
-     */
-    ...(process.env.TINA_PUBLIC_VISUAL_EDITING === '1' ? { router: () => '/' } : {}),
+    // 本地可视化编辑：只在 npm run dev 下打开预览（见 common.ts 的 localPreview）。
+    ...localPreview(() => '/'),
   },
   fields: [
     seo,

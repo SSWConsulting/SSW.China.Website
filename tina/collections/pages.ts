@@ -1,13 +1,10 @@
 import type { Collection, TinaField } from 'tinacms';
 import { flag, group, image, items, lines, longText, strings, text } from '../fields';
-import { ctaOverride, seo } from './common';
+import { ctaOverride, localPreview, seo } from './common';
 
 /**
  * 每个文档固定一份，不允许在后台新建或删除。
- *
- * 刻意**不设 `ui.router`**：设了之后 Tina 会用可视化编辑模式打开文档（右侧嵌入网站预览，
- * 左侧等页面注册表单），而本站没有接入可视化编辑（纯静态部署下不可行），
- * 左侧只会一直显示「TinaCMS form fields will appear here」，无法编辑。
+ * 预览入口（router）只在本地开启，见 common.ts 的 localPreview。
  */
 const fixed = { allowedActions: { create: false, delete: false } } as const;
 
@@ -72,7 +69,7 @@ export const ServiceCollection: Collection = {
   path: 'content/pages',
   format: 'json',
   match: { include: '{ai-platform,ai-workflow}' },
-  ui: fixed,
+  ui: { ...fixed, ...localPreview(({ document }) => `/services/${document._sys.filename}/`) },
   fields: [
     seo,
     text('name', '服务名称', {
@@ -146,7 +143,7 @@ export const AppsCollection: Collection = {
   path: 'content/pages',
   format: 'json',
   match: { include: 'ai-apps' },
-  ui: fixed,
+  ui: { ...fixed, ...localPreview(() => '/services/ai-apps/') },
   fields: [
     seo,
     text('name', '服务名称', { required: true, description: '面包屑与结构化数据使用。' }),
@@ -208,7 +205,7 @@ export const ChinafyCollection: Collection = {
   path: 'content/pages',
   format: 'json',
   match: { include: 'chinafy' },
-  ui: fixed,
+  ui: { ...fixed, ...localPreview(() => '/chinafy/') },
   fields: [
     seo,
     text('name', '页面名称', { required: true, description: '面包屑与结构化数据使用。' }),
@@ -266,7 +263,7 @@ export const AboutCollection: Collection = {
   path: 'content/pages',
   format: 'json',
   match: { include: 'about' },
-  ui: fixed,
+  ui: { ...fixed, ...localPreview(() => '/about/') },
   fields: [
     seo,
     text('name', '面包屑名称', { required: true }),
@@ -315,7 +312,7 @@ export const DeckCollection: Collection = {
   path: 'content/pages',
   format: 'json',
   match: { include: 'deck' },
-  ui: fixed,
+  ui: { ...fixed, ...localPreview(() => '/deck/') },
   fields: [
     seo,
     group('cover', '封面', [

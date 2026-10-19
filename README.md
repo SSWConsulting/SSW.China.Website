@@ -34,7 +34,7 @@ npm run dev        # http://localhost:5173 , admin at http://localhost:5173/admi
 
 | Command                | What it does                                                                                                                        |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`          | Local dev server plus the Tina admin in local mode (saving writes straight to local files); the home page opens with a live preview |
+| `npm run dev`          | Local dev server plus the Tina admin in local mode (saving writes straight to local files); page documents open with a live preview |
 | `npm run dev:site`     | Site only, without the admin                                                                                                        |
 | `npm run build`        | Type check + admin (only when TinaCloud credentials are set) + production build into `dist/`                                        |
 | `npm run preview`      | Preview the production build (http://localhost:4173)                                                                                |

@@ -1,0 +1,154 @@
+---
+/** 落地中国页 <main> 里的全部内容。页面与本地可视化编辑端点共用，只依赖 props。 */
+import Cta from '../sections/Cta.astro';
+import { tf } from '../../lib/tina-field.ts';
+import type { chinafy } from '../../lib/pages.ts';
+
+interface Props {
+  c: typeof chinafy;
+}
+
+const { c } = Astro.props;
+---
+    <nav class="breadcrumb" aria-label="面包屑">
+      <div class="container">
+        <ol>
+          <li><a href="/">首页</a></li>
+          <li aria-current="page" data-tina-field={tf(c, 'name')}>{c.name}</li>
+        </ol>
+      </div>
+    </nav>
+
+    {/* 页面标题与导语不挂 data-reveal —— 首屏文字必须立即可读（交接文档 §4）。 */}
+    <section class="section page-head" aria-labelledby="page-title">
+      <div class="container page-head__inner">
+        <div class="chinafy-hero__title">
+          <p class="eyebrow chinafy__eyebrow" data-tina-field={tf(c.hero, 'eyebrow')}>{c.hero.eyebrow}</p>
+          {/* 两个 span 之间刻意没有空白（各占一行，由 CSS 断行）。 */}
+          <h1 id="page-title">{c.hero.titleParts.map((part) => <span>{part}</span>)}</h1>
+        </div>
+        <div class="chinafy-hero__copy">
+          <p class="lead page-head__lede" data-tina-field={tf(c.hero, 'lede')}>
+            {c.hero.lede}
+          </p>
+          <p class="page-head__body" data-tina-field={tf(c.hero, 'body')}>{c.hero.body}</p>
+          <div class="btn-row page-head__actions">
+            <a class="btn btn--primary" href="#wecom" data-wecom data-ripple data-tina-field={tf(c.hero, 'button')}>{c.hero.button}</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section chinafy-why" aria-labelledby="why-title">
+      <div class="container">
+        <div class="section__head" data-reveal-group>
+          <span class="accent-rule" data-reveal aria-hidden="true"></span>
+          <h2 id="why-title" data-reveal data-tina-field={tf(c.why, 'title')}>{c.why.title}</h2>
+          <div class="chinafy-why__copy">
+            {
+              c.why.paragraphs.map((p) => (
+                <p class="section__intro" data-reveal>
+                  {p}
+                </p>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* 服务卡片：复用核心服务卡，但**不是链接** —— 这几项没有独立详情页，
+         做成链接就成了点了没去处的死控件（同 cases 副卡 url 为空时的处理）。
+         因此用 <article> 且不渲染右下角箭头。桌面 2×2，窄屏沿用吸附轮播。 */}
+    <section class="section chinafy-offer" aria-labelledby="offer-title">
+      <div class="container">
+        <div class="section__head" data-reveal-group>
+          <span class="accent-rule" data-reveal aria-hidden="true"></span>
+          <h2 id="offer-title" data-reveal data-tina-field={tf(c.offer, 'title')}>{c.offer.title}</h2>
+        </div>
+
+        <div class="core-cards core-cards--pair">
+          <ul class="core-cards__track" data-reveal-group>
+            {
+              c.offer.items.map((item) => (
+                <li class="core-cards__slide" data-reveal>
+                  <article class="core-card">
+                    <span class="core-card__media" aria-hidden="true">
+                      <svg
+                        viewBox="0 0 48 48"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        focusable="false"
+                      >
+                        {item.icon === 'localize' && (
+                          <Fragment>
+                            <rect x="5" y="5" width="24" height="38" rx="4" />
+                            <path d="M11 15h12M11 22h12M11 29h7" />
+                            <path d="M34 19h9M39 15l4 4-4 4" />
+                            <path d="M43 31h-9M38 27l-4 4 4 4" />
+                          </Fragment>
+                        )}
+                        {item.icon === 'social' && (
+                          <Fragment>
+                            <path d="M5 12a3 3 0 0 1 3-3h22a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H15l-7 6v-6a3 3 0 0 1-3-3z" />
+                            <rect x="28" y="28" width="15" height="15" rx="2" />
+                            <path d="M32 32h2.5M38.5 32H41M32 38.5h2.5M38.5 38.5H41" />
+                          </Fragment>
+                        )}
+                        {item.icon === 'integration' && (
+                          <Fragment>
+                            <path d="M15 27a7 7 0 0 1 .6-13.9 10 10 0 0 1 19 2.4A6.5 6.5 0 0 1 34 27z" />
+                            <path d="M24 27v9" />
+                            <path d="M14 36h20" />
+                            <path d="M16 42v-6M32 42v-6" />
+                          </Fragment>
+                        )}
+                        {item.icon === 'support' && (
+                          <Fragment>
+                            <circle cx="21" cy="24" r="13" />
+                            <path d="M21 17v7l5 4" />
+                            <path d="M37 12a18 18 0 0 1 0 24" />
+                            <path d="M43 7a24 24 0 0 1 0 34" />
+                          </Fragment>
+                        )}
+                      </svg>
+                    </span>
+                    <div class="core-card__body">
+                      <h3 class="core-card__title" data-tina-field={tf(item, 'title')}>{item.title}</h3>
+                      <span class="core-card__text" data-tina-field={tf(item, 'text')}>
+                        {item.text}
+                      </span>
+                    </div>
+                  </article>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section chinafy-scope" aria-labelledby="scope-title">
+      <div class="container">
+        <div class="section__head" data-reveal-group>
+          <span class="accent-rule" data-reveal aria-hidden="true"></span>
+          <h2 id="scope-title" data-reveal data-tina-field={tf(c.scope, 'title')}>{c.scope.title}</h2>
+        </div>
+
+        <dl class="capabilities capabilities--two" data-reveal-group>
+          {
+            c.scope.items.map((item) => (
+              <div class="capability" data-reveal>
+                <dt data-tina-field={tf(item, 'term')}>{item.term}</dt>
+                <dd data-tina-field={tf(item, 'detail')}>{item.detail}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </section>
+
+    <Cta />

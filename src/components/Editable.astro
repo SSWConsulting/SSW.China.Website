@@ -18,15 +18,23 @@ interface Props {
   island: string;
   /** 包裹元素的标签，默认 div。 */
   as?: string;
-  class: string;
+  class?: string;
+  /** 附加在端点地址上的参数，例如同一模板的多份文档用 `{ slug: 'ai-platform' }` 区分。 */
+  params?: Record<string, string>;
   /** 页面上最多一个：后台打开时默认展开它所在的表单。 */
   primary?: boolean;
+  /**
+   * 预览里按「无脚本」排版显示整页（去掉 html 上的 js 类）。
+   * 给依赖脚本状态显示内容的页面用（如 /deck/ 只显示当前一页），否则区块被替换后会全部隐藏。
+   */
+  staticPreview?: boolean;
   [attr: string]: unknown;
 }
 
-const { island, as = 'div', primary = false, ...attrs } = Astro.props;
+const { island, as = 'div', params, primary = false, staticPreview = false, ...attrs } = Astro.props;
 const Tag = as;
 const dev = import.meta.env.DEV;
+const marker = `/tina-island/${island}${params ? `?${new URLSearchParams(params)}` : ''}`;
 ---
 
 {
@@ -37,6 +45,7 @@ const dev = import.meta.env.DEV;
         // 预览里关掉滚动入场：bridge 替换进来的新区块不会再被观察，带着 data-reveal 会一直隐藏。
         // main.ts 监听 data-motion 的变化，变成 off 时撤掉 data-reveal 并显示全部内容。
         document.documentElement.dataset.motion = 'off';
+        if (document.querySelector('[data-tina-static-preview]')) document.documentElement.classList.remove('js');
         const { init, refreshForms } = await import('/admin/bridge.js');
         init();
         document.addEventListener('astro:page-load', refreshForms);
@@ -45,5 +54,6 @@ const dev = import.meta.env.DEV;
   )
 }<Tag
   {...attrs}
-  data-tina-island={dev ? `/tina-island/${island}` : undefined}
-  data-tina-island-primary={dev && primary ? '' : undefined}><slot /></Tag>
+  data-tina-island={dev ? marker : undefined}
+  data-tina-island-primary={dev && primary ? '' : undefined}
+  data-tina-static-preview={dev && staticPreview ? '' : undefined}><slot /></Tag>

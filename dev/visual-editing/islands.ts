@@ -11,8 +11,20 @@
 import { requestWithMetadata } from '@tinacms/astro';
 import type { IslandConfig, IslandRegistry } from '@tinacms/astro/experimental';
 import client from '../../tina/__generated__/client';
-import { home } from '../../src/lib/pages.ts';
+import { about, chinafy, deck, home } from '../../src/lib/pages.ts';
 import { site } from '../../src/config/site.ts';
+import {
+  loadApps,
+  loadService,
+  serviceMeta,
+  serviceSchema,
+  type ServiceSlug,
+} from '../../src/lib/service.ts';
+import ServiceMain from '../../src/components/pages/ServiceMain.astro';
+import AppsMain from '../../src/components/pages/AppsMain.astro';
+import ChinafyMain from '../../src/components/pages/ChinafyMain.astro';
+import AboutMain from '../../src/components/pages/AboutMain.astro';
+import DeckStage from '../../src/components/pages/DeckStage.astro';
 import HeroCopy from '../../src/components/sections/home/HeroCopy.astro';
 import ServicesBody from '../../src/components/sections/home/ServicesBody.astro';
 import FilmstripBody from '../../src/components/sections/home/FilmstripBody.astro';
@@ -73,6 +85,36 @@ function homeIsland(
   };
 }
 
+/** 首页以外的页面：整块 <main>（或轮播的 .deck__stage）是一个岛，取整份文档交给正文组件。 */
+function pageIsland(
+  fetch: (params: URLSearchParams) => Promise<unknown>,
+  docKey: string,
+  component: IslandConfig['component'],
+  wrapper: IslandConfig['wrapper'],
+  toProps: (doc: Record<string, unknown>, params: URLSearchParams) => Record<string, unknown>,
+): IslandConfig {
+  return {
+    fetch: (_request, params) => fetch(params),
+    component,
+    wrapper,
+    propsFromData: (result, params) => {
+      const doc =
+        (result as { data?: Record<string, Record<string, unknown>> }).data?.[docKey] ?? {};
+      return toProps(doc, params);
+    },
+  };
+}
+
+const doc = <T>(query: Promise<T>) => requestWithMetadata(query, { priority: 'primary' });
+const slugOf = (params: URLSearchParams): ServiceSlug =>
+  params.get('slug') === 'ai-workflow' ? 'ai-workflow' : 'ai-platform';
+
+/** 服务页的「本页专用 CTA」：沿用构建期规则 —— 三项都填才生效，否则用全站默认。 */
+function serviceCta(draft: unknown) {
+  const parsed = serviceSchema.shape.cta.safeParse(draft ?? undefined);
+  return parsed.success ? parsed.data : undefined;
+}
+
 export const islands: IslandRegistry = {
   hero: homeIsland('hero', HeroCopy, 'hero__copy', (hero) => ({ hero })),
   services: homeIsland('services', ServicesBody, 'container', (services) => ({ services })),
@@ -83,4 +125,44 @@ export const islands: IslandRegistry = {
   whyUs: homeIsland('whyUs', WhyUsBody, 'container', (copy) => ({ copy, why: site.whyUs })),
   ecosystem: homeIsland('ecosystem', EcosystemBody, 'container', (eco) => ({ eco })),
   globe: homeIsland('globe', GlobeHead, 'globe__head', (globe) => ({ globe })),
+
+  service: pageIsland(
+    (params) => doc(client.queries.service({ relativePath: `${slugOf(params)}.json` })),
+    'service',
+    ServiceMain,
+    { tag: 'main' },
+    (draft, params) => {
+      const slug = slugOf(params);
+      const c = withShape(draft, loadService(slug)) as Record<string, unknown>;
+      return { c: { ...c, cta: serviceCta(draft.cta) }, meta: serviceMeta[slug] };
+    },
+  ),
+  apps: pageIsland(
+    () => doc(client.queries.apps({ relativePath: 'ai-apps.json' })),
+    'apps',
+    AppsMain,
+    { tag: 'main' },
+    (draft) => ({ c: withShape(draft, loadApps()) }),
+  ),
+  chinafy: pageIsland(
+    () => doc(client.queries.chinafy({ relativePath: 'chinafy.json' })),
+    'chinafy',
+    ChinafyMain,
+    { tag: 'main' },
+    (draft) => ({ c: withShape(draft, chinafy) }),
+  ),
+  about: pageIsland(
+    () => doc(client.queries.about({ relativePath: 'about.json' })),
+    'about',
+    AboutMain,
+    { tag: 'main' },
+    (draft) => ({ c: withShape(draft, about) }),
+  ),
+  deck: pageIsland(
+    () => doc(client.queries.deck({ relativePath: 'deck.json' })),
+    'deck',
+    DeckStage,
+    { tag: 'div', className: 'deck__stage' },
+    (draft) => ({ d: withShape(draft, deck) }),
+  ),
 };

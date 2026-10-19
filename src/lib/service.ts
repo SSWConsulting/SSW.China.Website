@@ -70,8 +70,46 @@ export const serviceSchema = z.object({
 
 export type ServiceContent = z.infer<typeof serviceSchema>;
 
-export const loadService = (slug: 'ai-platform' | 'ai-workflow') =>
-  load(`pages/${slug}`, serviceSchema);
+export type ServiceSlug = 'ai-platform' | 'ai-workflow';
+
+export const loadService = (slug: ServiceSlug) => load(`pages/${slug}`, serviceSchema);
+
+/**
+ * 两张服务页在结构上的差异。页面与本地可视化编辑端点都按 slug 从这里取，保证两边一致。
+ */
+export const serviceMeta = {
+  'ai-platform': {
+    path: '/services/ai-platform/',
+    /** 区块 id 前缀：#platform-faq-title 等。 */
+    prefix: 'platform',
+    bodyClass: 'service-design-page service-design-page--ai-platform',
+    /** 底部「其他 AI 服务」里放哪两张卡片。 */
+    others: ['workflow', 'apps'],
+    /**
+     * 支柱编号（I / II / III）是否对读屏隐藏。改版前两页不一致，迁移时原样保留，
+     * 统一与否是可访问性取舍，单独决定（见 docs/DECISIONS.md §103）。
+     */
+    pillarNumHidden: true,
+  },
+  'ai-workflow': {
+    path: '/services/ai-workflow/',
+    prefix: 'workflow',
+    bodyClass: 'service-design-page service-design-page--ai-workflow',
+    others: ['platform', 'apps'],
+    pillarNumHidden: false,
+  },
+} as const satisfies Record<
+  ServiceSlug,
+  {
+    path: string;
+    prefix: string;
+    bodyClass: string;
+    others: readonly ('platform' | 'workflow' | 'apps')[];
+    pillarNumHidden: boolean;
+  }
+>;
+
+export type ServiceMeta = (typeof serviceMeta)[ServiceSlug];
 
 /** 两位数编号：01、02…… */
 export const pad2 = (i: number) => String(i + 1).padStart(2, '0');
@@ -110,6 +148,8 @@ export const appsSchema = z.object({
     ),
   }),
 });
+
+export type AppsContent = z.infer<typeof appsSchema>;
 
 export const loadApps = () => load('pages/ai-apps', appsSchema);
 

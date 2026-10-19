@@ -103,11 +103,12 @@ tina/collections/*.ts     对应的后台表单（字段说明就是给编辑看
   **不要往 `site.json` 里写 `null`。**
 - 改 schema 要两边一起改：`src/lib/*.ts`（zod，页面读取）与 `tina/collections/*.ts`（后台表单）。
 - 多行字段（标题断行、地址）用 `br()` 把换行变成 `<br />`：`<Fragment set:html={br(x)} />`。
-- **本地可视化编辑（只在 dev，目前只有首页）**：`npm run dev`（`scripts/dev.mjs`）设
-  `TINA_PUBLIC_VISUAL_EDITING=1`，首页集合因此带 `ui.router`，后台打开即「左表单、右预览」。
-  可编辑区域用 `src/components/Editable.astro` 包裹，内容在 `src/components/sections/home/` 的
-  只依赖 props 的正文组件里，端点与注册表在 `dev/visual-editing/`（只在 `astro dev` 注入）。
-  包裹元素只能是只带 class 的元素（bridge 替换后其他属性会丢）。线上产物不受影响，细节见 DECISIONS §108。
+- **本地可视化编辑（只在 dev，全部页面集合）**：`npm run dev`（`scripts/dev.mjs`）设
+  `TINA_PUBLIC_VISUAL_EDITING=1`，页面集合因此带 `ui.router`（`tina/collections/common.ts` 的 `localPreview`），
+  后台打开即「左表单、右预览」。可编辑区域用 `src/components/Editable.astro` 包裹：首页逐区块
+  （正文组件在 `sections/home/`），其他页面整块 `<main>`（`components/pages/`）。正文组件只依赖 props，
+  页面与端点共用；端点与注册表在 `dev/visual-editing/`（只在 `astro dev` 注入）。改页面结构时改正文组件即可。
+  包裹元素只能是只带 class 的元素（bridge 替换后其他属性会丢）。线上产物不受影响，细节见 DECISIONS §108、§109。
   **router 只能挂在这个开关后面**：没有预览端点的环境设了 router，后台只剩「form fields will appear here」。
 - 结构化数据由 `components/JsonLd.astro` 输出，从同一份文案生成 —— FAQPage 与可见问答天然一致。
 - `.astro` 里的说明性注释写成 `{/* */}`（不进产物）；不要写 `<!-- -->`，它会原样输出。

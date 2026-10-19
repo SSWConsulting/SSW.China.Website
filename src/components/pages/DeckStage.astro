@@ -1,0 +1,97 @@
+---
+/**
+ * /deck/ 轮播 `.deck__stage` 里的全部幻灯片。页面与本地可视化编辑端点共用，只依赖 props。
+ * 预览里按无脚本排版显示（七页纵向排开），见 Editable 的 staticPreview。
+ */
+import { br } from '../../lib/content.ts';
+import { tf } from '../../lib/tina-field.ts';
+import type { deck } from '../../lib/pages.ts';
+import { pad2, roman } from '../../lib/service.ts';
+
+interface Props {
+  d: typeof deck;
+}
+
+const { d } = Astro.props;
+const page = (n: number, label: string) => `第 ${n} 页：${label}`;
+const processAt = 3 + d.services.length;
+---
+        {/* ── 1 ── */}
+        <section class="dslide dslide--cover" data-slide data-label={d.cover.label} aria-label={page(1, d.cover.label)}>
+          <p class="dslide__kicker" style="--i: 0" data-tina-field={tf(d.cover, 'kicker')}>{d.cover.kicker}</p>
+          <h1 class="dslide__title dslide__title--xl" style="--i: 1" data-tina-field={tf(d.cover, 'title')}><Fragment set:html={br(d.cover.title)} /></h1>
+          <ul class="dslide__tags" style="--i: 2">
+            {d.cover.tags.map((tag, i) => <li style={`--i: ${i}`}>{tag}</li>)}
+          </ul>
+        </section>
+
+        {/* ── 2 ── */}
+        <section class="dslide" data-slide data-label={d.overview.label} aria-label={page(2, d.overview.label)}>
+          <p class="dslide__kicker" style="--i: 0" data-tina-field={tf(d.overview, 'kicker')}>{d.overview.kicker}</p>
+          <h2 class="dslide__title" style="--i: 1" data-tina-field={tf(d.overview, 'title')}>{d.overview.title}</h2>
+          <ul class={`dgrid dgrid--${d.overview.services.length}`} style="--i: 2">
+            {
+              d.overview.services.map((svc, i) => (
+                <li class="dcard" style={`--i: ${i}`}>
+                  <span class="dcard__num">{pad2(i)}</span>
+                  <h3 class="dcard__title" data-tina-field={tf(svc, 'title')}>{svc.title}</h3>
+                  <p class="dcard__sub" data-tina-field={tf(svc, 'sub')}>{svc.sub}</p>
+                  <ul class="dcard__list">
+                    {svc.points.map((pt) => <li>{pt}</li>)}
+                  </ul>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+
+        {/* ── 每项服务一页 ── */}
+        {
+          d.services.map((svc, n) => (
+            <section class="dslide" data-slide data-label={svc.label} aria-label={page(3 + n, svc.label)}>
+              <span class="dslide__ghost" aria-hidden="true">
+                {pad2(n)}
+              </span>
+              <p class="dslide__kicker" style="--i: 0" data-tina-field={tf(svc, 'kicker')}>{svc.kicker}</p>
+              <h2 class="dslide__title" style="--i: 1" data-tina-field={tf(svc, 'title')}>{svc.title}</h2>
+              <p class="dslide__lead" style="--i: 2" data-tina-field={tf(svc, 'lead')}>{svc.lead}</p>
+              <ul class={`dgrid dgrid--${svc.cards.length}`} style="--i: 3">
+                {svc.cards.map((card, i) => (
+                  <li class={card.solid ? 'dcard dcard--solid' : 'dcard'} style={`--i: ${i}`}>
+                    <span class="dcard__num">{svc.numbering === 'roman' ? roman(i) : pad2(i)}</span>
+                    <h3 class="dcard__title" data-tina-field={tf(card, 'title')}>{card.title}</h3>
+                    <p class="dcard__sub" data-tina-field={tf(card, 'sub')}>{card.sub}</p>
+                  </li>
+                ))}
+              </ul>
+              <p class="dslide__foot" style="--i: 4" data-tina-field={tf(svc, 'foot')}>{svc.foot}</p>
+            </section>
+          ))
+        }
+
+        {/* ── 合作方式 ── */}
+        <section class="dslide" data-slide data-label={d.process.label} aria-label={page(processAt, d.process.label)}>
+          <p class="dslide__kicker" style="--i: 0" data-tina-field={tf(d.process, 'kicker')}>{d.process.kicker}</p>
+          <h2 class="dslide__title" style="--i: 1" data-tina-field={tf(d.process, 'title')}>{d.process.title}</h2>
+          <ol class={`dgrid dgrid--${d.process.steps.length} dgrid--flow`} style="--i: 2">
+            {
+              d.process.steps.map((step, i) => (
+                <li class="dcard" style={`--i: ${i}`}>
+                  <span class="dcard__num">{pad2(i)}</span>
+                  <h3 class="dcard__title" data-tina-field={tf(step, 'title')}>{step.title}</h3>
+                  <p class="dcard__sub" data-tina-field={tf(step, 'sub')}>{step.sub}</p>
+                </li>
+              ))
+            }
+          </ol>
+          <p class="dslide__foot" style="--i: 3" data-tina-field={tf(d.process, 'foot')}>
+            {d.process.foot}
+          </p>
+        </section>
+
+        {/* ── 收尾 ── */}
+        <section class="dslide dslide--cover" data-slide data-label={d.closing.label} aria-label={page(processAt + 1, d.closing.label)}>
+          <h2 class="dslide__title dslide__title--xl" style="--i: 0" data-tina-field={tf(d.closing, 'title')}>{d.closing.title}</h2>
+          <p class="dslide__lead dslide__lead--lg" style="--i: 1" data-tina-field={tf(d.closing, 'lead')}>{d.closing.lead}</p>
+          <p class="dslide__cta" style="--i: 2"><a class="dbtn" href="/#wecom" data-tina-field={tf(d.closing, 'button')}>{d.closing.button}</a></p>
+        </section>
