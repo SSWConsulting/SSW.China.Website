@@ -65,6 +65,11 @@ export const SharedCollection: Collection = {
       text('email', '邮箱', { required: true }),
       text('phone', '电话（显示）', { required: true }),
       text('phoneHref', '电话链接', { required: true, description: '例如 tel:+8657185178910' }),
+      text('builtWith', '右下角「Built with」文字', {
+        required: true,
+        description: '页脚右下角 TinaCMS 标记的前半句，与 ssw.com 一致。',
+      }),
+      text('builtWithName', '右下角标记名称', { required: true }),
     ]),
     items(
       'offices',

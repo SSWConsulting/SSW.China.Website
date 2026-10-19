@@ -3,7 +3,7 @@
 The Chinese-language SSW website in deep charcoal and SSW red `#CC4141`: a home page, three AI service pages and a few supporting pages. Stack: [Astro](https://astro.build) (fully static output) with plain TypeScript and plain CSS. Copy and assets are edited in a [TinaCMS](https://tina.io) admin (see [`docs/TINACMS.md`](docs/TINACMS.md)).
 
 The navigation bar and hero follow the layout of [ssw.com.au](https://www.ssw.com.au). This site adds a "SSW around the world" section and a light/dark theme switch.
-The only runtime dependency is [`cobe`](https://www.npmjs.com/package/cobe) (13 KB, a WebGL dotted globe). It loads on demand at ≥1024px only, so narrow screens never download it.
+The only runtime dependency is [`cobe`](https://www.npmjs.com/package/cobe) (13 KB, a WebGL dotted globe). It is loaded on demand (a separate chunk, not part of the main bundle) and shown at every width: beside the office list on desktop, above it on narrow screens.
 
 **Single source of truth for copy and design:** [`docs/spec/SSW-cn-首页文案与视觉设计说明.md`](docs/spec/SSW-cn-首页文案与视觉设计说明.md) (delivered and verified 2026-09-07). The Chinese copy on the pages is taken from that document sentence by sentence. Do not rewrite it as part of code changes.
 

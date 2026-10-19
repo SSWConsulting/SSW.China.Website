@@ -146,6 +146,29 @@
     border-block-end-color: var(--c-brand);
   }
 
+  /* 「Built with TinaCMS」：取值照搬 ssw.com 的 .footer-bottom .built（gap 8px、图标高 22px、
+     名称 600 字重），颜色换成页脚令牌以满足对比度（见 Footer.astro 里的注释）。
+     与 ssw.com 一致，没有悬停态。 */
+  .footer__built {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-8);
+    font-size: 15.75px;
+    line-height: 1.6;
+    color: var(--c-footer-text-2);
+    text-decoration: none;
+  }
+
+  .footer__built img {
+    block-size: 22px;
+    inline-size: auto;
+  }
+
+  .footer__built strong {
+    font-weight: 600;
+    color: var(--c-footer-text);
+  }
+
   @media (min-width: 768px) {
     .footer__top {
       flex-direction: row;

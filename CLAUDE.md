@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SSW.cn 2026 改版：Astro（纯静态输出）+ 原生 TypeScript + 原生 CSS 的多页站，
 文案与素材在 `content/` 下的 JSON 里，由 TinaCMS（TinaCloud）后台编辑。
-运行时依赖只有 `cobe`（WebGL 点阵地球，≥1024px 才按需加载）；Tina 只参与 `/admin/`，不进页面。
+运行时依赖只有 `cobe`（WebGL 点阵地球，动态 import 按需加载，所有宽度都显示）；Tina 只参与 `/admin/`，不进页面。
 
 `README.md` 已覆盖命令表、页面清单、目录结构与补充素材的流程 —— **本文件只记那些
 需要读多个文件才能发现的约定**，不重复 README。
@@ -26,6 +26,8 @@ Tina 本地开发的几个坑（均实测）：
   会报「Datalayer server is busy on port 9000」，先停掉 dev。
 - 本地后台有自己的索引：在后台之外改了 `content/`（如 `git checkout`），后台仍显示旧值，
   此时在后台保存会把旧值写回去。重启 `npm run dev` 再编辑。
+- dev 下地球不显示时，先看控制台的 `[ssw]` 警告。曾因 cobe（动态 `import()`）的预构建地址失效返回 504，
+  现已在 `astro.config.mjs` 用 `optimizeDeps.include: ['cobe']` 固定；改动依赖后若再出现，重启 dev 即可。
 - `npm run build` 没有 `PUBLIC_TINA_CLIENT_ID` / `TINA_TOKEN` 时会**跳过** `/admin/`（`scripts/build-admin.mjs`），
   这是有意的：本地模式的后台连的是 localhost，发布出去也打不开。接入步骤见 `docs/TINACMS.md`。
 

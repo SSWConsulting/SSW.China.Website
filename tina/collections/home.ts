@@ -9,7 +9,7 @@ export const HomeCollection: Collection = {
   path: 'content/pages',
   format: 'json',
   match: { include: 'home' },
-  ui: { allowedActions: { create: false, delete: false }, router: () => '/' },
+  ui: { allowedActions: { create: false, delete: false } },
   fields: [
     seo,
     group('hero', '首屏', [

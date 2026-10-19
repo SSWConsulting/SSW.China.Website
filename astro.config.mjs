@@ -25,6 +25,10 @@ export default defineConfig({
   server: { port: 5173 },
   devToolbar: { enabled: false },
   vite: {
+    // cobe 只在 globe.ts 里动态 import()，dev 启动时扫描不到，要等首次请求才临时预构建。
+    // 之后若 Vite 因故重新预构建，新结果里没有 cobe，已编译的 globe.ts 仍指向旧地址 ⇒ 504，
+    // 地球在 dev 下不显示（2026-10-19 实测）。启动时就预构建它，地址从一开始就稳定。只影响 dev。
+    optimizeDeps: { include: ['cobe'] },
     build: {
       target: 'es2022',
       cssTarget: 'chrome111',
