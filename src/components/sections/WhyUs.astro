@@ -1,8 +1,10 @@
 ---
 import { site } from '../../config/site.ts';
 import { home } from '../../lib/pages.ts';
+import Editable from '../Editable.astro';
+import WhyUsBody from './home/WhyUsBody.astro';
+
 const why = site.whyUs;
-const copy = home.whyUs;
 ---
 
 {why && (<>
@@ -22,77 +24,6 @@ const copy = home.whyUs;
        仍有三处（导航、首屏、页尾 CTA），这一块不再重复
      ══════════════════════════════════════════════════════════════════════ */}
 <section class="whyus" id="why-us" aria-labelledby="whyus-title">
-  <div class="container">
-    <div class="whyus__top">
-      {why.image && (<>
-      <div class="whyus__media">
-        <img
-          class="whyus__img"
-          src={why.image.src}
-          alt=""
-          aria-hidden="true"
-          width={why.image.w}
-          height={why.image.h}
-          loading="lazy"
-        />
-        {why.videoUrl && (<>
-        <a class="whyus__play" href={why.videoUrl} target="_blank" rel="noopener noreferrer">
-          <span class="sr-only">播放视频（在新标签页打开）</span>
-          {/* 三角本身是填充的；再描一圈同色圆角连接的边，尖角就被磨圆了。 */}
-          <svg
-            class="whyus__play-icon"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-            focusable="false"
-            fill="currentColor"
-            stroke="currentColor"
-            stroke-width="3"
-            stroke-linejoin="round"
-          >
-            <path d="M8.5 6.2v11.6l10-5.8z" />
-          </svg>
-        </a>
-        </>)}
-      </div>
-      </>)}
-
-      <div class="whyus__card">
-        <h2 id="whyus-title" class="whyus__title">{copy.title}</h2>
-        {/* 第二段是新增文案，需文案负责人确认：它把 ssw.com.au 原有的两条要点
-             （Hands-on expertise / Results that matter）压缩成一句，不是新造的主张。 */}
-        {copy.paragraphs.map((p) => <p class="whyus__intro">{p}</p>)}
-        {/* 资质徽章现在住在右侧说明卡里（原本在下方独立一栏）。 */}
-        {why.recognition && (<>
-        <div class="whyus__recognition">
-          <p class="whyus__recognition-label">{copy.recognitionLabel}</p>
-          <ul class="whyus__badges">
-            {why.recognition.badges.map((b) => (
-              <li class="whyus__badge">
-                {b.icon && (
-                  <img
-                    class="whyus__badge-icon"
-                    src={b.icon.src}
-                    alt=""
-                    aria-hidden="true"
-                    width={b.icon.w}
-                    height={b.icon.h}
-                    loading="lazy"
-                  />
-                )}
-                {b.label}
-              </li>
-            ))}
-          </ul>
-        </div>
-        </>)}
-      </div>
-    </div>
-
-    {why.caption && (<>
-    <div class="whyus__caption-row">
-      <p class="whyus__caption">{why.caption}</p>
-    </div>
-    </>)}
-  </div>
+  <Editable island="whyUs" class="container"><WhyUsBody copy={home.whyUs} why={why} /></Editable>
 </section>
 </>)}

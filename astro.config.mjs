@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import visualEditing from './dev/visual-editing/integration.mjs';
 
 /**
  * 纯静态输出：`astro build` 产出 `dist/`，部署方式与改版前完全一致
@@ -11,6 +12,8 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   site: 'https://ssw.cn',
   output: 'static',
+  // 本地可视化编辑（只在 astro dev 下生效，线上构建不受影响），见 dev/visual-editing/。
+  integrations: [visualEditing()],
   // 不压缩 HTML：Astro 的压缩会删掉行内元素之间跨行的空白（「中国 当前」→「中国当前」、
   // 「适合场景 公司准备…」粘连），改变渲染结果。改版前的产物保留源码空白，这里保持一致。
   compressHTML: false,

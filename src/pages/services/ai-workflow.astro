@@ -1,13 +1,5 @@
 ---
 import ServicePage from '../../components/service/ServicePage.astro';
-import { loadService } from '../../lib/service.ts';
 ---
 
-<ServicePage
-  content={loadService('ai-workflow')}
-  path="/services/ai-workflow/"
-  prefix="workflow"
-  bodyClass="service-design-page service-design-page--ai-workflow"
-  others={['platform', 'apps']}
-  pillarNumHidden={false}
-/>
+<ServicePage slug="ai-workflow" />

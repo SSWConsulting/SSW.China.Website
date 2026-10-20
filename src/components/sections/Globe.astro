@@ -2,15 +2,13 @@
 import { shared } from '../../lib/shared.ts';
 import { br } from '../../lib/content.ts';
 import { home } from '../../lib/pages.ts';
+import Editable from '../Editable.astro';
+import GlobeHead from './home/GlobeHead.astro';
 ---
 
 <section class="section globe" id="offices" aria-labelledby="globe-title">
   <div class="globe__shell">
-    <div class="globe__head" data-reveal-group>
-      <span class="accent-rule" data-reveal aria-hidden="true"></span>
-      <h2 id="globe-title" class="globe__title" data-reveal>{home.globe.title}</h2>
-      <p class="globe__subtitle" data-reveal>{home.globe.subtitle}</p>
-    </div>
+    <Editable island="globe" class="globe__head" data-reveal-group=""><GlobeHead globe={home.globe} /></Editable>
 
     <div class="globe__grid">
       <div class="globe__offices" data-reveal>

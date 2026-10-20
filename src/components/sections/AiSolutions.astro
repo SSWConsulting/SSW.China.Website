@@ -1,6 +1,7 @@
 ---
 import { home } from '../../lib/pages.ts';
-const { filmstrip } = home;
+import Editable from '../Editable.astro';
+import FilmstripBody from './home/FilmstripBody.astro';
 ---
 
 {/* ══════════════════════════════════════════════════════════════════════
@@ -33,10 +34,5 @@ const { filmstrip } = home;
 
   <span class="filmstrip__scrim" aria-hidden="true"></span>
 
-  <div class="filmstrip__inner">
-    <h2 id="filmstrip-title" class="filmstrip__title">{filmstrip.title}</h2>
-    <div class="filmstrip__actions">
-      <a class="filmstrip__cta" href="#wecom" data-wecom data-ripple>{filmstrip.button}</a>
-    </div>
-  </div>
+  <Editable island="filmstrip" class="filmstrip__inner"><FilmstripBody filmstrip={home.filmstrip} /></Editable>
 </section>

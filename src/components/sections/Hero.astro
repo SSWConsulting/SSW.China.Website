@@ -1,8 +1,10 @@
 ---
 import { site } from '../../config/site.ts';
 import { home } from '../../lib/pages.ts';
+import Editable from '../Editable.astro';
+import HeroCopy from './home/HeroCopy.astro';
+
 const bg = site.hero.backgroundImage;
-const { hero } = home;
 ---
 
 <section class="hero" aria-labelledby="hero-title">
@@ -15,21 +17,7 @@ const { hero } = home;
       }
       <span class="hero__scrim" aria-hidden="true"></span>
 
-      <div class="hero__copy">
-        <h1 id="hero-title" class="hero__title">
-          {hero.titleLines.map((line) => <span class="hero__line">{line}</span>)}
-        </h1>
-        <p class="hero__lead">
-          {hero.lead}
-        </p>
-        {/* 首屏只留「了解 AI 服务」一个按钮（用户 2026-09-22 要求去掉这里的
-             「联系我们」）。咨询入口在导航条右上角常驻，并未因此丢失。
-             副作用是窄屏下这一行不再折成两行，首屏卡片矮了 ~70px，
-             这正是下面 .hero__box 基础 min-height 能从 504px 降到 430px 的前提。 */}
-        <div class="hero__actions">
-          <a class="hero__btn hero__btn--primary" href="#ai-services" data-ripple>{hero.button}</a>
-        </div>
-      </div>
+      <Editable island="hero" class="hero__copy" primary><HeroCopy hero={home.hero} /></Editable>
 
       {/* 底边凹口：填色与页面底色一致，读作从卡片上咬掉的一口 */}
       <div class="hero__scoop">

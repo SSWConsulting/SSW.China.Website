@@ -1,6 +1,6 @@
 import type { Collection } from 'tinacms';
 import { group, items, longText, strings, text } from '../fields';
-import { seo } from './common';
+import { localPreview, seo } from './common';
 
 /** 首页文案。区块顺序与版式在代码里；素材（图片、案例、数字）在「站点设置」。 */
 export const HomeCollection: Collection = {
@@ -9,7 +9,11 @@ export const HomeCollection: Collection = {
   path: 'content/pages',
   format: 'json',
   match: { include: 'home' },
-  ui: { allowedActions: { create: false, delete: false } },
+  ui: {
+    allowedActions: { create: false, delete: false },
+    // 本地可视化编辑：只在 npm run dev 下打开预览（见 common.ts 的 localPreview）。
+    ...localPreview(() => '/'),
+  },
   fields: [
     seo,
     group('hero', '首屏', [

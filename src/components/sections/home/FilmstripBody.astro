@@ -1,0 +1,15 @@
+---
+/** AiSolutions.astro 里 `.filmstrip__inner` 的内容：页面与本地可视化编辑端点（dev/visual-editing/）共用，只依赖 props。 */
+import type { home } from '../../../lib/pages.ts';
+
+interface Props {
+  filmstrip: (typeof home)['filmstrip'];
+}
+
+const { filmstrip } = Astro.props;
+import { tf } from '../../../lib/tina-field.ts';
+---
+    <h2 id="filmstrip-title" class="filmstrip__title" data-tina-field={tf(filmstrip, 'title')}>{filmstrip.title}</h2>
+    <div class="filmstrip__actions">
+      <a class="filmstrip__cta" href="#wecom" data-wecom data-ripple data-tina-field={tf(filmstrip, 'button')}>{filmstrip.button}</a>
+    </div>

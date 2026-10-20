@@ -1,0 +1,14 @@
+---
+/** Globe.astro 里 `.globe__head` 的内容：页面与本地可视化编辑端点（dev/visual-editing/）共用，只依赖 props。 */
+import type { home } from '../../../lib/pages.ts';
+
+interface Props {
+  globe: (typeof home)['globe'];
+}
+
+const { globe } = Astro.props;
+import { tf } from '../../../lib/tina-field.ts';
+---
+      <span class="accent-rule" data-reveal aria-hidden="true"></span>
+      <h2 id="globe-title" class="globe__title" data-reveal data-tina-field={tf(globe, 'title')}>{globe.title}</h2>
+      <p class="globe__subtitle" data-reveal data-tina-field={tf(globe, 'subtitle')}>{globe.subtitle}</p>

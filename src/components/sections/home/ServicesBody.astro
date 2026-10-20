@@ -1,0 +1,37 @@
+---
+/** AiServices.astro 里 `.container` 的内容：页面与本地可视化编辑端点（dev/visual-editing/）共用，只依赖 props。 */
+import type { home } from '../../../lib/pages.ts';
+import ServiceCard from '../../partials/ServiceCard.astro';
+
+interface Props {
+  services: (typeof home)['services'];
+}
+
+const { services } = Astro.props;
+import { tf } from '../../../lib/tina-field.ts';
+---
+    <div class="section__head" data-reveal-group>
+      <span class="accent-rule" data-reveal aria-hidden="true"></span>
+      <h2 id="services-title" data-reveal data-tina-field={tf(services, 'title')}>{services.title}</h2>
+      <p class="section__intro" data-reveal data-tina-field={tf(services, 'intro')}>
+        {services.intro}
+      </p>
+    </div>
+
+    {/* ══════════════════════════════════════════════════════════════════
+         核心 AI 服务卡片：照搬 ssw.com.au 首页
+         “Australia's Leading AI, .NET and Azure Consultants” 区块的卡片版式
+         （16:9 品牌红图区、1rem 圆角、发丝边、右下角 45° 箭头、桌面三栏 /
+         窄屏吸附轮播 + 圆点）。三张卡片各自链接到对应的服务详情页。
+         ══════════════════════════════════════════════════════════════════ */}
+    <div class="core-cards" data-core-cards>
+      <ul class="core-cards__track" data-core-track data-reveal-group>
+        <ServiceCard service="platform" />
+        <ServiceCard service="workflow" />
+        <ServiceCard service="apps" />
+      </ul>
+
+      {/* 圆点由 JS 按卡片数量生成，且仅在轨道真的可横向滚动时才出现；
+           无 JS 时轮播仍可滑动，只是没有圆点 —— 不会出现无法操作的死控件。 */}
+      <div class="core-cards__dots" data-core-dots hidden></div>
+    </div>
