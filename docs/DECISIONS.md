@@ -3626,3 +3626,23 @@ cover 比例与 `object-position` 画进 canvas，对标题/正文矩形内每�
 验证：线上构建与接入前逐页对比 0 处差异，打包文件与哈希相同，任何页面都没有编辑标记；不带开关构建的后台
 没有 router。本地六个页面（含两张服务页）都能打开预览，左侧是对应文档的表单；实际编辑了 AI 业务工作流、
 AI 底座中台（确认本页 CTA 与编号设置在预览里保持）和演示轮播，预览即时更新、点选定位正确，撤销后内容文件无改动。
+
+## §110 构建挪到 GitHub 托管的 runner，服务器只负责拷贝
+
+2026-10-22 配好 TinaCloud 的两个 secret 后，部署在 `tinacms build` 失败：`Indexing local files` 之后报
+`Connection to leader lost`（`ERR_INDEXING_FAILED`）。`tinacms build` 会在本机起一个 datalayer 服务
+（many-level，默认端口 9000），再经回环连接它读写索引；这条连接在服务器上每次都被切断。
+先以为是 9000 被占用，改用 9461（PR #4）后错误照旧，所以不是端口问题。确切原因（安全代理、
+Windows 保留端口段、`localhost` 解析等）需要逐项在服务器上排查。也不能用 `--skip-indexing` 绕开：
+构建时与 TinaCloud 比对 schema 的步骤（`getTinaSchema`）同样读这个 datalayer。
+
+**取舍**：不在服务器上排查，改为 `build` job 跑在 `ubuntu-latest`，`publish` job 跑在服务器的
+self-hosted runner 上，只下载 artifact、沿用原来的 `robocopy /MIR`。
+
+- 发布方式与目标目录不变；服务器上不再需要 Node、npm 和依赖，也省掉了国内 `npm ci` 的约 7 分钟。
+- Linux 检出没有 CRLF 问题，`format:check` 与 `seo:check` 恢复为发布门禁（以前在 Windows 上只能跳过）。
+- 代价：服务器要能从 GitHub 下载 artifact（约 36 MB）。下载失败时，build 的产物保留 7 天，
+  对该次运行 Re-run failed jobs 即可，不用重新构建。
+- 产物下载到 `RUNNER_TEMP\site` 并先清空，不用工作目录：工作目录里可能残留以前服务器构建的 `dist/`，
+  混进去会被 `/MIR` 一起发布。
+- `scripts/build-admin.mjs` 的 `--datalayer-port 9461` 保留：它仍能避免与本机 `npm run dev`（占 9000）撞端口。

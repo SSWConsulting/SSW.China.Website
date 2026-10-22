@@ -6,7 +6,7 @@
 ```
 编辑在 /admin/ 改文案、点保存
   └─> TinaCloud 把改动提交到 SSWConsulting/SSW.China.Website 的 main
-       └─> GitHub Actions（服务器上的 runner）构建并发布
+       └─> GitHub Actions：云端构建，服务器上的 runner 拷贝发布
             ├─ 校验失败（必填文案被清空等）→ 停止，线上保持原样
             └─ 校验通过 → 新版本上线
 ```

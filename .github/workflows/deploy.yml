@@ -1,7 +1,13 @@
-# main 更新 → 构建 → 发布到阿里云服务器站点目录。
+# main 更新 → 云端构建 → 服务器拷贝到站点目录。
 #
-# 跑在服务器本机的 self-hosted runner 上，所以"上传"就是本地目录拷贝，
-# 不需要 SSH、不需要密钥、服务器不用开任何入站端口。
+# 两个 job：
+# - build：跑在 GitHub 托管的 ubuntu-latest 上，装依赖、校验、构建，把 dist 上传为 artifact。
+# - publish：跑在服务器本机的 self-hosted runner 上，只下载 artifact 并 robocopy 到 nginx 站点目录。
+#   不需要 SSH、不需要密钥、服务器不用开任何入站端口，也不用装依赖、不用构建。
+#
+# 为什么不在服务器上构建（DECISIONS §110）：tinacms build 要在本机起 datalayer 服务并用回环连接它，
+# 这台服务器上该连接每次都被切断（Connection to leader lost，换端口无效）；
+# 且国内拉 npm 依赖要 7 分钟左右。
 #
 # 设计说明：docs/superpowers/specs/2026-09-22-ci-cd-design.md
 # 服务器配置步骤：docs/DEPLOY-SETUP.md
@@ -21,14 +27,17 @@ concurrency:
   group: deploy-production
   cancel-in-progress: false
 
+# 两个 job 都只需要读代码、读写本次运行的 artifact。
+permissions:
+  contents: read
+
 jobs:
-  deploy:
-    runs-on: [self-hosted, windows, sswcn]
-    # 构建慢于 15 分钟必然是卡住了，别让它占着 runner 不放。
+  build:
+    runs-on: ubuntu-latest
+    # 构建慢于 15 分钟必然是卡住了。
     timeout-minutes: 15
 
     env:
-      DEPLOY_TARGET: C:\SSW\Nginx\html\sswchina
       # TinaCMS 编辑后台（/admin/）连接 TinaCloud 所需的凭据，配置见 docs/TINACMS.md。
       # 未配置时 scripts/build-admin.mjs 会跳过后台，网站照常构建发布。
       PUBLIC_TINA_CLIENT_ID: ${{ secrets.PUBLIC_TINA_CLIENT_ID }}
@@ -36,18 +45,23 @@ jobs:
 
     steps:
       - name: 拉取代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
+      - name: 安装 Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
 
       - name: 安装依赖
         run: npm ci
 
-      # 发布门禁：对比度检查 + 构建（build 内含 typecheck）。
-      # 任一步失败则 job 终止，下面的拷贝不会执行，线上保持上一个版本。
-      #
-      # 刻意不跑 npm run verify —— 它里面的 format:check 和 seo:check 在
-      # Windows 上会因为 git 检出的 CRLF 行尾全量报错（内容其实一致），
-      # 会让每次部署都卡住。这两项属于代码风格守卫，不影响站点能否正常工作，
-      # 留给本地和 code review 把关。
+      # 发布门禁：任一步失败则终止，publish 不会执行，线上保持上一个版本。
+      # 在 Linux 上检出没有 CRLF 问题，format:check / seo:check 也一并把关
+      # （以前在 Windows runner 上构建时只能跳过这两项）。
+      - name: 格式检查
+        run: npm run format:check
+
       - name: 对比度检查
         run: npm run contrast
 
@@ -58,17 +72,54 @@ jobs:
       - name: 构建
         run: npm run build
 
-      # 注意：以下 PowerShell 步骤内的字符串一律用英文。
-      # Windows PowerShell 5.1 按系统 ANSI 编码（中文系统为 GBK）读取 GitHub
-      # 生成的 UTF-8 脚本文件，中文会乱码成非法字符导致引号失配、解析失败。
-      #
-      # 构建产物必须存在才继续 —— 防止构建因故没产出 dist 却返回成功，
-      # 导致下一步把空目录镜像上去、把线上站点清空。
+      - name: SEO 检查
+        run: npm run seo:check
+
+      # 构建产物必须存在才上传 —— 防止构建因故没产出 dist 却返回成功，
+      # 导致服务器把空目录镜像上去、把线上站点清空。
+      - name: 确认产物存在
+        run: test -f dist/index.html
+
+      - name: 上传产物
+        uses: actions/upload-artifact@v5
+        with:
+          name: site
+          path: dist
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: build
+    runs-on: [self-hosted, windows, sswcn]
+    timeout-minutes: 10
+
+    env:
+      DEPLOY_TARGET: C:\SSW\Nginx\html\sswchina
+
+    # 注意：以下 PowerShell 步骤内的字符串一律用英文。
+    # Windows PowerShell 5.1 按系统 ANSI 编码（中文系统为 GBK）读取 GitHub
+    # 生成的 UTF-8 脚本文件，中文会乱码成非法字符导致引号失配、解析失败。
+    #
+    # 产物下载到 runner 的临时目录（RUNNER_TEMP\site）并先清空：工作目录里可能残留
+    # 以前在服务器上构建时的 dist，混进去的旧文件会被 /MIR 一起发布出去。
+    steps:
+      - name: 清空下载目录
+        shell: powershell
+        run: |
+          if (Test-Path "$env:RUNNER_TEMP\site") { Remove-Item "$env:RUNNER_TEMP\site" -Recurse -Force }
+
+      - name: 下载产物
+        uses: actions/download-artifact@v5
+        with:
+          name: site
+          path: ${{ runner.temp }}/site
+
+      # 再确认一次：下载的产物不完整时宁可失败，也不要镜像一个残缺目录上线。
       - name: 确认产物存在
         shell: powershell
         run: |
-          if (-not (Test-Path "dist\index.html")) {
-            Write-Error "dist/index.html not found - build output invalid, aborting deploy"
+          if (-not (Test-Path "$env:RUNNER_TEMP\site\index.html")) {
+            Write-Error "index.html not found in downloaded artifact, aborting deploy"
             exit 1
           }
 
@@ -78,7 +129,7 @@ jobs:
       - name: 发布到站点目录
         shell: powershell
         run: |
-          robocopy "dist" "$env:DEPLOY_TARGET" /MIR /NFL /NDL /NJH /NP /R:2 /W:2
+          robocopy "$env:RUNNER_TEMP\site" "$env:DEPLOY_TARGET" /MIR /NFL /NDL /NJH /NP /R:2 /W:2
           $code = $LASTEXITCODE
           if ($code -ge 8) {
             Write-Error "robocopy failed with exit code $code"
