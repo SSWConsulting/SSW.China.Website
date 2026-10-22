@@ -6,17 +6,22 @@
 
 ## 它是怎么工作的
 
-服务器上跑一个 GitHub runner 服务，**主动外连** GitHub 拉取任务。
-构建和发布都在服务器本机完成，所以不需要 SSH、不需要密钥、
-安全组不用开任何入站端口。
+构建在 GitHub 托管的 `ubuntu-latest` 上完成，产物（dist）上传为 artifact。
+服务器上跑一个 GitHub runner 服务，**主动外连** GitHub 拉取发布任务：只下载产物、拷贝到站点目录。
+所以不需要 SSH、不需要密钥、安全组不用开任何入站端口，服务器上也**不需要装依赖、不构建**
+（原因见 DECISIONS §110）。
 
 ```
 你合并 PR 到 main
-  └─> 服务器上的 runner 收到任务
-       ├─ 拉代码 → npm ci → 对比度 + 类型检查 + 编辑后台 + 构建
-       ├─ 校验失败 → 停止（线上保持原样）
-       └─ 校验通过 → 拷贝 dist 到 C:\SSW\Nginx\html\sswchina
+  ├─> GitHub 托管的 runner（build）
+  │    ├─ 拉代码 → npm ci → 格式 + 对比度 + 类型检查 + 编辑后台 + 构建 + SEO
+  │    ├─ 校验失败 → 停止（线上保持原样）
+  │    └─ 校验通过 → 上传 dist 为 artifact
+  └─> 服务器上的 runner（publish）
+       └─ 下载 artifact → 拷贝到 C:\SSW\Nginx\html\sswchina
 ```
+
+服务器需要能访问 github.com（拉任务、下载 artifact）。
 
 ## 准备工作
 
@@ -116,10 +121,14 @@ Set-Location C:\actions-runner
 → runner 掉线了，或标签没填对。检查 GitHub 上 runner 是否 Idle，
 以及注册时标签是否为 `windows,sswcn`。
 
-**校验失败**
-→ 代码本身有问题（类型错误或对比度不达标）。
+**校验失败（build job）**
+→ 代码本身有问题（格式、类型错误、对比度或 SEO 不达标）。
 线上没有被改动，修完再合一次即可。
-本地跑 `npm run typecheck` 和 `npm run contrast` 能复现同样的错误。
+本地跑 `npm run verify` 能复现同样的错误。
+
+**下载产物失败（publish job）**
+→ 服务器到 GitHub 的网络不通或很慢。build 成功的产物保留 7 天，
+网络恢复后在 Actions 页面对该次运行点 **Re-run failed jobs** 即可，不用重新构建。
 
 **服务没起来**
 → 检查服务状态：

@@ -39,9 +39,10 @@ GitHub 文件列表旁显示的就是提交信息首行）。引用页面上的�
 
 ## 生产部署
 
-`main` 有 push ⇒ `.github/workflows/deploy.yml` 在阿里云服务器上的 self-hosted Windows runner
-（标签 `windows,sswcn`）里构建，`robocopy /MIR` 到 nginx 站点目录。CI 只跑 `contrast` + `build`，
-**不跑 `format:check` / `seo:check`**（Windows 检出的 CRLF 会让它们全量报错），这两项靠本地 `verify` 把关。
+`main` 有 push ⇒ `.github/workflows/deploy.yml` 两个 job：`build` 在 GitHub 托管的 `ubuntu-latest` 上跑
+`format:check` + `contrast` + `build` + `seo:check`，把 `dist/` 上传为 artifact；`publish` 在阿里云服务器上的
+self-hosted Windows runner（标签 `windows,sswcn`）里只下载 artifact、`robocopy /MIR` 到 nginx 站点目录。
+**不要把构建挪回服务器**：`tinacms build` 的本机回环连接在那台服务器上会被切断（DECISIONS §110）。
 TinaCloud 把后台的编辑直接提交到 `main`，所以每次编辑都会触发一次部署。服务器配置见 `docs/DEPLOY-SETUP.md`。
 
 ## 云端预览发布（WorkBuddy）

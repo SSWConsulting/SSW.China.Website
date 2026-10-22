@@ -24,10 +24,10 @@ if (!hasCloud) {
   process.exit(0);
 }
 
-// tinacms build 索引时会在本机起一个 datalayer 服务，默认端口 9000。
-// 生产服务器（Windows + nginx）上 9000 已被别的进程占用，Tina 连到它就报
-// 「Connection to leader lost / ERR_INDEXING_FAILED」（2026-10-22 实测），所以换一个冷门端口。
-// 也顺带避开本机开着 npm run dev 时它占用的 9000。
+// tinacms build 索引时会在本机起一个 datalayer 服务，默认端口 9000 —— 和 npm run dev 占用的相同，
+// 本机开着 dev 时构建会撞端口，所以换一个冷门端口。
+// （曾以为生产服务器上的「Connection to leader lost」是 9000 被占用所致，换端口后照旧，
+// 最终改为在 GitHub 托管的 runner 上构建，见 DECISIONS §110。）
 const DATALAYER_PORT = '9461';
 
 const r = spawnSync(
