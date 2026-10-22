@@ -32,18 +32,19 @@ npm install
 npm run dev        # http://localhost:5173 , admin at http://localhost:5173/admin/index.html
 ```
 
-| Command                | What it does                                                                                                                        |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`          | Local dev server plus the Tina admin in local mode (saving writes straight to local files); page documents open with a live preview |
-| `npm run dev:site`     | Site only, without the admin                                                                                                        |
-| `npm run build`        | Type check + admin (only when TinaCloud credentials are set) + production build into `dist/`                                        |
-| `npm run preview`      | Preview the production build (http://localhost:4173)                                                                                |
-| `npm run typecheck`    | `astro check` (covers `.astro` templates and TS)                                                                                    |
-| `npm run contrast`     | Checks contrast using the real tokens from `tokens.css`, and blocks brand red as a text colour                                      |
-| `npm run check:assets` | Prints the missing-assets table; exits non-zero when there are publish blockers                                                     |
-| `npm run fonts:sync`   | Copies the Inter Latin subset from `node_modules` into `public/fonts/`                                                              |
-| `npm run verify`       | Type check + format check + contrast + build + SEO check (should be green day to day)                                               |
-| `npm run preflight`    | `verify` + asset check — **the pre-release gate**; fails while assets are still missing                                             |
+| Command                 | What it does                                                                                                                        |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`           | Local dev server plus the Tina admin in local mode (saving writes straight to local files); page documents open with a live preview |
+| `npm run dev:site`      | Site only, without the admin                                                                                                        |
+| `npm run build`         | Type check + admin (only when TinaCloud credentials are set) + production build into `dist/`                                        |
+| `npm run build:preview` | Visual-editing preview site for Vercel (needs TinaCloud credentials); see `docs/TINACMS.md`                                         |
+| `npm run preview`       | Preview the production build (http://localhost:4173)                                                                                |
+| `npm run typecheck`     | `astro check` (covers `.astro` templates and TS)                                                                                    |
+| `npm run contrast`      | Checks contrast using the real tokens from `tokens.css`, and blocks brand red as a text colour                                      |
+| `npm run check:assets`  | Prints the missing-assets table; exits non-zero when there are publish blockers                                                     |
+| `npm run fonts:sync`    | Copies the Inter Latin subset from `node_modules` into `public/fonts/`                                                              |
+| `npm run verify`        | Type check + format check + contrast + build + SEO check (should be green day to day)                                               |
+| `npm run preflight`     | `verify` + asset check — **the pre-release gate**; fails while assets are still missing                                             |
 
 There is no test suite; `verify` is the regression guard.
 

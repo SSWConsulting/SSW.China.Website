@@ -3646,3 +3646,25 @@ self-hosted runner 上，只下载 artifact、沿用原来的 `robocopy /MIR`。
 - 产物下载到 `RUNNER_TEMP\site` 并先清空，不用工作目录：工作目录里可能残留以前服务器构建的 `dist/`，
   混进去会被 `/MIR` 一起发布。
 - `scripts/build-admin.mjs` 的 `--datalayer-port 9461` 保留：它仍能避免与本机 `npm run dev`（占 9000）撞端口。
+
+## §111 线上可视化编辑：Vercel 上的预览站
+
+用户 2026-10-22 要求线上后台也能「左边表单、右边实时预览」，在三个方案里选了「预览服务放到 Vercel」
+（另两个：保持现状；在阿里云服务器上常驻 Node 服务 —— 那台服务器的回环连接会被切断，见 §110）。
+
+- **ssw.cn 不变。** 线上构建仍是纯静态、无适配器，`npm run build` 的产物与接入前逐字节相同（已对比）。
+  `https://ssw.cn/admin/` 仍是表单编辑。
+- **预览站 = 同一份代码 + 一个开关。** `npm run build:preview`（`scripts/build-preview.mjs`）在 `npm run build` 之外设
+  `TINA_PUBLIC_VISUAL_EDITING=1`（后台带 router，同本地 dev）与 `SSW_VISUAL_PREVIEW=1`：`astro.config.mjs` 挂
+  `@astrojs/vercel`，`dev/visual-editing/` 的 `/tina-island` 端点按需渲染，`Editable.astro` 输出编辑标记
+  （由 `vite.define` 的 `__SSW_VISUAL_PREVIEW__` 决定）。页面本身仍是预渲染的静态页，只有端点在 Vercel Function 里跑。
+- 预览端点用 `tinacms build` 生成的客户端读 TinaCloud 的内容 API，再叠加后台正在编辑的草稿；所以预览站构建**必须**有
+  TinaCloud 凭据，没有就直接失败（`scripts/build-admin.mjs`），不会产出一个打不开预览的后台。
+- `/admin/bridge.js`：本地由 `@tinacms/astro` 的 dev 中间件提供；预览站由 `build-admin.mjs` 从 `@tinacms/bridge`
+  拷进 `public/admin/`（不靠 `@tinacms/astro` 的 `astro:build:done`，那一步与 Vercel 适配器拷贝静态文件的先后不确定）。
+  `@tinacms/bridge` 因此列为直接依赖，版本与 `@tinacms/astro` 依赖的一致。
+- 后台与预览同源（都在预览站域名下），不需要 `PUBLIC_TINA_ADMIN_ORIGIN` 跨域配置。
+- 只构建 `main`（`vercel.json` 的 `ignoreCommand`）：其他分支没在 TinaCloud 建索引，构建会失败；Tina 的 `branch` 仍是 `main`。
+- 预览站全站 `X-Robots-Tag: noindex, nofollow`，页面的 canonical 本来就指向 ssw.cn，不会和正式站抢收录。
+- **代价**：Vercel 在海外，国内编辑者访问可能慢或不稳定；打不开时退回 ssw.cn 的表单编辑，保存效果相同。
+  依赖 `@tinacms/astro` 的实验性岛 API（同 §108），升级 Astro / Tina 时要在预览站上回归一次。

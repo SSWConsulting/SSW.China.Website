@@ -8,6 +8,7 @@
     "dev": "node scripts/dev.mjs",
     "dev:site": "astro dev",
     "build": "npm run typecheck && node scripts/build-admin.mjs && astro build",
+    "build:preview": "node scripts/build-preview.mjs",
     "preview": "astro preview --port 4173",
     "typecheck": "astro check",
     "check:assets": "node scripts/check-assets.mjs",
@@ -22,8 +23,10 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
+    "@astrojs/vercel": "11.0.16",
     "@fontsource-variable/inter": "^5.2.5",
     "@tinacms/astro": "0.7.1",
+    "@tinacms/bridge": "0.3.1",
     "@tinacms/cli": "4.0.2",
     "@types/node": "^26.6.1",
     "prettier": "^3.4.2",
