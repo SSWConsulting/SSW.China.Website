@@ -11,9 +11,19 @@
  * 网站本身不依赖 Tina：页面在 astro build 时直接读 content/ 下的 JSON。
  */
 import { spawnSync } from 'node:child_process';
-import { rmSync } from 'node:fs';
+import { copyFileSync, rmSync } from 'node:fs';
+import { createRequire } from 'node:module';
 
 const hasCloud = Boolean(process.env.PUBLIC_TINA_CLIENT_ID && process.env.TINA_TOKEN);
+// 预览站（npm run build:preview）：预览端点要用 tinacms build 生成的客户端读 TinaCloud，没有凭据就做不出来。
+const visualPreview = process.env.SSW_VISUAL_PREVIEW === '1';
+
+if (!hasCloud && visualPreview) {
+  console.error(
+    '\n✖ 预览站构建需要 PUBLIC_TINA_CLIENT_ID 与 TINA_TOKEN（在 Vercel 项目的环境变量里配置）。\n',
+  );
+  process.exit(1);
+}
 
 if (!hasCloud) {
   rmSync('public/admin', { recursive: true, force: true });
@@ -43,4 +53,11 @@ const r = spawnSync(
   ],
   { stdio: 'inherit', shell: process.platform === 'win32' },
 );
-process.exit(r.status ?? 1);
+if (r.status !== 0) process.exit(r.status ?? 1);
+
+// 预览站页面里的启动脚本从 /admin/bridge.js 加载 bridge（dev 下由 @tinacms/astro 的 dev 中间件提供）。
+// 放进 public/admin/，随 astro build 进入产物。线上构建不需要它。
+if (visualPreview) {
+  const require = createRequire(import.meta.url);
+  copyFileSync(require.resolve('@tinacms/bridge'), 'public/admin/bridge.js');
+}

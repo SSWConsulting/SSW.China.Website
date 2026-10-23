@@ -40,3 +40,4 @@ desktop.ini
 .astro/
 public/admin/
 tina/__generated__/
+.vercel/

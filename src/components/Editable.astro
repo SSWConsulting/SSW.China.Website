@@ -1,9 +1,10 @@
 ---
 /**
- * 可视化编辑的「岛」包裹元素 —— **只在本地 dev 下生效**。
+ * 可视化编辑的「岛」包裹元素 —— **只在本地 dev 与预览站构建下生效**。
  *
  * - `astro build`（线上）：只输出 `<Tag {...attrs}>`，和不包裹时的标记逐字相同，不带任何 Tina 代码。
- * - `astro dev`：额外带上 `data-tina-island`，并在第一个岛前输出一段启动脚本，
+ * - `astro dev` 与预览站（`npm run build:preview`，DECISIONS §111）：额外带上 `data-tina-island`，
+ *   并在第一个岛前输出一段启动脚本，
  *   让后台 iframe 里的 bridge 找到这些区域、注册表单，每次按键把草稿 POST 到
  *   `/tina-island/<name>`（dev/visual-editing/ 注入的端点），用返回的 HTML 替换本元素。
  *
@@ -33,7 +34,7 @@ interface Props {
 
 const { island, as = 'div', params, primary = false, staticPreview = false, ...attrs } = Astro.props;
 const Tag = as;
-const dev = import.meta.env.DEV;
+const dev = import.meta.env.DEV || __SSW_VISUAL_PREVIEW__;
 const marker = `/tina-island/${island}${params ? `?${new URLSearchParams(params)}` : ''}`;
 ---
 

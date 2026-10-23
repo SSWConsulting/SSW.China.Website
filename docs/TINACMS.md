@@ -33,7 +33,20 @@
 
 配置之后，下一次部署产物里就会带上 `/admin/`。**没配置时 `/admin/` 不会发布**（见 `scripts/build-admin.mjs`），网站本身不受影响。
 
-### 3. 邀请编辑
+### 3. 可视化编辑预览站（Vercel）
+
+ssw.cn 是纯静态站，没有能实时渲染预览的服务，所以可视化编辑放在 Vercel 上的一个**预览站**：
+同一份代码用 `npm run build:preview` 构建（`vercel.json` 已配置），它自己的 `/admin/` 打开文档就是「左表单、右预览」。
+在预览站保存与在 ssw.cn 保存完全一样：TinaCloud 提交到 `main` ⇒ ssw.cn 重新部署。预览站对搜索引擎声明 noindex。
+
+1. 在 Vercel 新建项目，导入 `SSWConsulting/SSW.China.Website`（Framework 选 Astro，其余用 `vercel.json` 的默认）。
+2. 项目 **Settings → Environment Variables** 加 `PUBLIC_TINA_CLIENT_ID` 与 `TINA_TOKEN`（与 GitHub secret 相同的值）。
+3. 部署成功后，把预览站域名（如 `https://<项目名>.vercel.app`）加进 TinaCloud 项目的 **Site URLs**。
+4. 编辑者打开 `https://<预览站域名>/admin/` 登录即可。
+
+只有 `main` 的提交会触发预览站构建（`vercel.json` 的 `ignoreCommand`），每次保存后预览站与 ssw.cn 都会更新。
+
+### 4. 邀请编辑
 
 在 TinaCloud 项目的 Collaborators 里邀请编辑人员。他们打开 `https://ssw.cn/admin/`，用 TinaCloud 账号登录即可。
 
@@ -76,7 +89,8 @@ npm run dev        # 网站 + 本地编辑后台：http://localhost:5173/admin/i
 
 ## 已知限制与后续可做
 
-- **线上是表单编辑；本地的页面支持可视化编辑。** `npm run dev` 后在本地后台打开任意一个「页面：…」，左边是表单，右边是实时预览：输入时预览立刻更新，点预览里的文字会跳到对应字段。「全站通用」「站点设置」和线上后台仍是表单编辑。线上要支持可视化编辑，需要在服务器上常驻一个 Node 服务（纯静态部署下不可行）。实现与限制见 DECISIONS §108、§109。
+- **可视化编辑在预览站和本地。** 在预览站的 `/admin/`（或本地 `npm run dev` 的后台）打开任意一个「页面：…」，左边是表单，右边是实时预览：输入时预览立刻更新，点预览里的文字会跳到对应字段。「全站通用」「站点设置」仍是表单编辑。`https://ssw.cn/admin/` 是表单编辑：ssw.cn 是纯静态部署，没有渲染预览的服务。实现与限制见 DECISIONS §108、§109、§111。
+- **预览站部署在 Vercel，服务器在海外。** 国内打开可能偏慢或不稳定；打不开时用 `https://ssw.cn/admin/` 的表单编辑，保存效果一样。
 - **编辑直接提交到 main。** 每次保存都会触发一次部署。如果需要「先提 PR、审核后再上线」，可以开启 TinaCloud 的 Editorial Workflow（付费功能），由它为每次编辑建分支并开 PR。
 - **TinaCloud 的服务器在海外。** 国内编辑打开后台可能偏慢，但访客访问网站不经过 TinaCloud，不受影响。
 - 「Organization」结构化数据（法定名称、地址、sameAs 等）仍写在 `src/components/partials/Head.astro` 里。它们是已核实的主体信息，改动前需要核实，所以没有放进后台。
