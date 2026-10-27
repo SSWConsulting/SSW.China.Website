@@ -3772,3 +3772,14 @@ nginx 配置不在发布流程里，换预览站域名时要同时改 `deploy/ng
 
 **代价**：服务器多一个常驻进程与一个计划任务（安装步骤见 DEPLOY-SETUP）；`supervisor.mjs` 自身改动需要手动重启任务。
 §116 的 `deploy/nginx-admin-proxy.conf` 删除，§116 的 `/admin/preview/` 结构沿用。
+
+## §118 预览服务产物里的构建路径改成带盘符的假路径
+
+§117 的服务在服务器上启动即退出：`ERR_INVALID_FILE_URL_PATH`。`@astrojs/node` 把构建机上 server/client 目录的
+绝对 file URL（CI 上是 `file:///home/runner/…`）写进产物，启动时用 `fileURLToPath` 解析来推算 client 目录；
+Windows 上的 Node 不接受不带盘符的 file URL。
+
+`build-island-server.mjs` 构建后把产物里 `file:///<构建目录>/` 统一替换成 `file:///C:/ssw-build/`：
+Windows 解析为 `C:\ssw-build\…`，Linux/macOS 解析为 `/C:/ssw-build/…`，两边都合法；运行时只用 server 与 client 的
+相对位置，真正的目录仍按 `entry.mjs` 所在位置向上找（已用 `path.win32` 模拟验证得到 `C:\SSW\island-server\client\`）。
+一处都没替换到时构建失败 —— 适配器产物格式变了要回来检查。产物里其余的构建路径是组件 ID 等字符串，不作路径解析。
