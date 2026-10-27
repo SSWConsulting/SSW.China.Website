@@ -33,6 +33,9 @@ export default defineConfig({
     assets: 'assets',
     // 全站共用一份 CSS（与改版前相同），不把小样式表内联进每个页面。
     inlineStylesheets: 'never',
+    // 预览站：打包资源从 /admin/preview/assets/… 引用（vercel.json 改写回 /assets/），
+    // 经 ssw.cn 的 /admin/ 反代时取到的是预览站自己的资源，不会和线上同名文件混用（DECISIONS §116）。
+    ...(visualPreview ? { assetsPrefix: '/admin/preview' } : {}),
   },
   server: { port: 5173 },
   devToolbar: { enabled: false },

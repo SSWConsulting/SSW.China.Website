@@ -3724,3 +3724,26 @@ Tina 的登录流程会访问上层窗口，跨域时被浏览器拦下。这在
 **取舍**：`/admin/index.html` 恢复为 §113 的跳转页（地址栏会变成预览站域名），§113 的规则与文案原样生效。
 想要 ssw.cn 名下的地址，可行的路是给预览站绑子域名（如 `edit.ssw.cn`，在 Vercel 加域名 + DNS 加 CNAME），
 并把它加进 TinaCloud 的 Site URLs、改 `build-admin.mjs` 的 `PREVIEW_ADMIN`。
+
+## §116 ssw.cn/admin 由 nginx 反代到预览站
+
+编辑者要求地址栏保持 `ssw.cn/admin`（§114 的 iframe 登录失败，§115）。查 tinacms 源码（`resolvePreviewPath`）：
+后台**只预览与自己同源的页面**，router 返回别的域名会被改成 `/`。所以预览页必须也在 ssw.cn 名下 ——
+唯一做法是 ssw.cn 的 nginx 把相关路径反代到预览站。
+
+为了让反代规则简单、不碰线上页面，预览站把预览页挂到 `/admin/preview/` 下：
+
+- `tina/collections/common.ts`：router 返回值加 `TINA_PUBLIC_PREVIEW_BASE` 前缀（只有 `build:preview` 设为 `/admin/preview`；
+  本地 dev 不设，仍是根路径）。
+- `astro.config.mjs`：预览站构建 `build.assetsPrefix: '/admin/preview'`，打包资源从 `/admin/preview/assets/…` 引用，
+  不会经反代取到线上同名路径的文件。`public/` 下的文件（字体、`/media/`）两边相同，仍按根路径取。
+- `scripts/build-preview.mjs`：构建后把页面与资源复制一份到 `.vercel/output/static/admin/preview/`（不含 `admin/`、`media/`）。
+  不用 `vercel.json` 的 rewrites：它与适配器的兜底路由谁先生效，本地验证不了。
+- 反代只需两段：`^~ /admin/`（后台、bridge、预览页）与 `^~ /tina-island/`（实时重渲染端点）；
+  `^~ /admin/forms/` 留在本地（表单编辑退路）。配置见 `deploy/nginx-admin-proxy.conf`，步骤见 DEPLOY-SETUP。
+- 后台的 JS 经反代从 ssw.cn 源提供，TinaCloud 登录在顶层窗口完成，Site URLs 里的 `https://ssw.cn` 已覆盖。
+- 线上构建（`npm run build`）产物与改动前逐字节相同（已实测）。站点目录里的 `/admin/index.html` 跳转页保留：
+  未配反代或撤回反代时，它就是 §113 的行为。
+
+**代价**：编辑时每次输入都经阿里云服务器 → Vercel，速度取决于这条链路；配置前先在服务器上测连通与耗时。
+nginx 配置不在发布流程里，换预览站域名时要同时改 `deploy/nginx-admin-proxy.conf` 与服务器。
