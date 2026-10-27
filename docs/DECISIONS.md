@@ -3685,3 +3685,18 @@ Vercel 导入页搜索仍然找不到该仓库，原因在 Vercel 一侧，我�
   留着无害 —— 将来若改回 Git 集成，仍只构建 `main`。到那时要删掉 `preview.yml`，避免重复部署。
 - Vercel CLI 固定版本（`VERCEL_CLI`），升级时手动改。
 - 连续保存时 `cancel-in-progress` 只保留最新一次部署（预览站不需要每个中间版本）。
+
+## §113 ssw.cn 的 /admin/ 跳转到预览站后台，表单编辑挪到 /admin/forms/
+
+编辑者希望打开 `ssw.cn/admin` 就得到「左表单、右预览」。ssw.cn 是纯静态部署，渲染不了实时预览（§111），
+所以不在 ssw.cn 上复刻，而是让入口统一：
+
+- ssw.cn 构建时 `tinacms build` 的输出目录改为 `admin/forms`（`tina/config.ts` 读 `TINA_ADMIN_FOLDER`，由
+  `scripts/build-admin.mjs` 设置），Tina 的资源路径随之变为 `/admin/forms/assets/…`（已实测）。
+- `/admin/index.html` 由 `build-admin.mjs` 生成：立即跳转到 `https://ssw-china-preview.vercel.app/admin/index.html`，
+  带上 `#` 后的后台路由（旧书签落到同一页）；`noindex`。页面上的两句中文提示是新增文案，**需文案负责人确认**。
+- 表单编辑的后台保留在 `/admin/forms/`，作为预览站（海外）在国内打不开时的退路，保存效果相同。
+- 预览站与本地 dev 的后台位置不变（`/admin/`）。未配置 Tina 凭据时仍不产出任何 `/admin/`。
+- 预览站域名写死在 `build-admin.mjs`（`PREVIEW_ADMIN`）；改域名（如换成自定义域名）时改这一处，并加进 TinaCloud 的 Site URLs。
+
+**否决**：在 ssw.cn 的后台里跨域嵌入预览站（`PUBLIC_TINA_ADMIN_ORIGIN`）—— 配置多、排错难，体验与跳转相同。
