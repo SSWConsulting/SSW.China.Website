@@ -3783,3 +3783,20 @@ Windows 上的 Node 不接受不带盘符的 file URL。
 Windows 解析为 `C:\ssw-build\…`，Linux/macOS 解析为 `/C:/ssw-build/…`，两边都合法；运行时只用 server 与 client 的
 相对位置，真正的目录仍按 `entry.mjs` 所在位置向上找（已用 `path.win32` 模拟验证得到 `C:\SSW\island-server\client\`）。
 一处都没替换到时构建失败 —— 适配器产物格式变了要回来检查。产物里其余的构建路径是组件 ID 等字符串，不作路径解析。
+
+## §119 可视化后台默认落到首页预览
+
+编辑者反馈（2026-10-27）：登录 `ssw.cn/admin/` 后左侧没有表单，要手动点「首页」切到 `#/~/admin/preview/` 才能编辑。
+原因：Tina 可视化后台没有指定文档时走路由 `#/~`，预览网站根路径 `/` —— 那是线上页面，没有编辑标记。
+Tina 的默认预览路径只能由 `build.basePath` 影响，而它会连带改掉后台资源路径，不可用。
+
+`build-admin.mjs` 往可视化后台的 `index.html` 注入一段在后台脚本之前运行的脚本：
+
+- 打开时地址为空、`#/`、`#/~`、`#/~/` ⇒ 换成 `#/~/admin/preview/`（首页预览）。
+- 包装 `history.pushState` / `replaceState`（后台用 HashRouter，改 hash 不触发 `hashchange`）：
+  跳到 `#/~` 或 `#/~/`（如登录后）也换成首页预览；其他路由原样放行。
+- `index.html` 里找不到 `<script` 时构建失败（Tina 产物格式变了要回来检查）。
+
+已用本地构建的后台验证：打开 `/admin/` 落到 `#/~/admin/preview/`；`pushState('#/~')` 被改写，
+`#/~/admin/preview/services/…`、`#/collections/home` 不受影响。登录后的实际跳转需在线上确认。
+表单编辑的 `/admin/forms/` 不注入（它本来就没有预览）。

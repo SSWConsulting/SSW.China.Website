@@ -14,7 +14,7 @@
  * 网站本身不依赖 Tina：页面在 astro build 时直接读 content/ 下的 JSON。
  */
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, rmSync } from 'node:fs';
+import { copyFileSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
 const hasCloud = Boolean(process.env.PUBLIC_TINA_CLIENT_ID && process.env.TINA_TOKEN);
@@ -82,3 +82,35 @@ if (!visualPreview) tinaBuild('admin/forms', false);
 // 预览页里的启动脚本从 /admin/bridge.js 加载 bridge（dev 下由 @tinacms/astro 的 dev 中间件提供）。
 const require = createRequire(import.meta.url);
 copyFileSync(require.resolve('@tinacms/bridge'), 'public/admin/bridge.js');
+
+// 可视化后台默认预览网站根路径 `/`（路由 #/~）—— 那是线上页面，没有编辑标记，左侧表单出不来；
+// Tina 没有设默认预览页的选项（build.basePath 会连带改后台资源路径）。注入一段在后台脚本之前运行的脚本：
+// 凡是要落到 #/~ 或空地址（首次打开、登录后跳转），都换成首页的预览 #/~/admin/preview/（DECISIONS §119）。
+// 后台用 HashRouter（history.pushState/replaceState 改 hash，不触发 hashchange），所以包一层这两个方法。
+const LANDING = `<script>
+(function () {
+  var HOME = '#/~/admin/preview/';
+  var isDefault = function (hash) { return hash === '' || hash === '#' || hash === '#/' || hash === '#/~' || hash === '#/~/'; };
+  if (isDefault(location.hash)) history.replaceState(history.state, '', HOME);
+  ['pushState', 'replaceState'].forEach(function (name) {
+    var original = history[name];
+    history[name] = function (state, title, url) {
+      if (url != null) {
+        var next = new URL(String(url), location.href);
+        if (next.pathname === location.pathname && (next.hash === '#/~' || next.hash === '#/~/')) url = next.pathname + next.search + HOME;
+      }
+      return original.call(this, state, title, url);
+    };
+  });
+})();
+</script>
+`;
+const adminHtml = 'public/admin/index.html';
+const html = readFileSync(adminHtml, 'utf8');
+if (!html.includes('<script')) {
+  console.error(
+    '\n✖ public/admin/index.html 里没有 <script>，Tina 后台的产物格式可能变了，检查后再改这里。\n',
+  );
+  process.exit(1);
+}
+writeFileSync(adminHtml, html.replace('<script', `${LANDING}    <script`));
