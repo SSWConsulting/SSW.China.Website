@@ -3,9 +3,10 @@
  * 构建 TinaCMS 编辑后台（产出 public/admin/，随站点一起发布到 /admin/）。
  *
  * - 有 PUBLIC_TINA_CLIENT_ID 与 TINA_TOKEN ⇒ 构建连接 TinaCloud 的正式后台。
- *   ssw.cn：后台在 /admin/forms/（表单编辑），/admin/ 是跳转到预览站后台的页面（DECISIONS §113）。
- *   预览站（SSW_VISUAL_PREVIEW=1）：后台就在 /admin/。
  *   `--content=local`：直接读仓库里的 content/，不依赖 TinaCloud 是否已索引当前分支。
+ *   - /admin/：可视化编辑（左表单、右预览）。预览页在 /admin/preview/，实时重渲染由
+ *     /tina-island/ 端点完成：ssw.cn 上是服务器本机的预览服务，预览站上是 Vercel Function（DECISIONS §117）。
+ *   - /admin/forms/（只在 ssw.cn）：表单编辑，不依赖预览服务。预览服务停了时用它（§113）。
  * - 没有 ⇒ 跳过并删掉旧的 public/admin/，网站照常构建。
  *   **不会**退而构建本地模式的后台 —— 那个版本连的是 localhost:4001，
  *   发布到线上只会是一个打不开的 /admin/。
@@ -13,7 +14,7 @@
  * 网站本身不依赖 Tina：页面在 astro build 时直接读 content/ 下的 JSON。
  */
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, rmSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
 const hasCloud = Boolean(process.env.PUBLIC_TINA_CLIENT_ID && process.env.TINA_TOKEN);
@@ -27,8 +28,9 @@ if (!hasCloud && visualPreview) {
   process.exit(1);
 }
 
+rmSync('public/admin', { recursive: true, force: true });
+
 if (!hasCloud) {
-  rmSync('public/admin', { recursive: true, force: true });
   console.warn(
     '\n⚠ 未设置 PUBLIC_TINA_CLIENT_ID / TINA_TOKEN：跳过编辑后台，本次产物不含 /admin/。\n' +
       '  网站页面不受影响。凭据在 app.tina.io 的项目设置里取得，配置方法见 docs/TINACMS.md。\n',
@@ -42,62 +44,41 @@ if (!hasCloud) {
 // 最终改为在 GitHub 托管的 runner 上构建，见 DECISIONS §110。）
 const DATALAYER_PORT = '9461';
 
-// ssw.cn 是纯静态部署，渲染不了实时预览：它的 /admin/ 只是一个跳转页，把编辑者送到预览站的后台；
-// 表单编辑的后台挪到 /admin/forms/，留作预览站打不开时的退路（DECISIONS §113）。
-// 预览站自己的后台仍在 /admin/。
-const PREVIEW_ADMIN = 'https://ssw-china-preview.vercel.app/admin/index.html';
-const adminFolder = visualPreview ? 'admin' : 'admin/forms';
-
-// 清掉上一次构建的后台（两种布局之间切换时不留旧文件）。
-rmSync('public/admin', { recursive: true, force: true });
-
-const r = spawnSync(
-  'npx',
-  [
-    'tinacms',
-    'build',
-    '--content=local',
-    '--skip-search-index',
-    '--noTelemetry',
-    '--datalayer-port',
-    DATALAYER_PORT,
-  ],
-  {
-    stdio: 'inherit',
-    shell: process.platform === 'win32',
-    env: { ...process.env, TINA_ADMIN_FOLDER: adminFolder },
-  },
-);
-if (r.status !== 0) process.exit(r.status ?? 1);
-
-// 预览站页面里的启动脚本从 /admin/bridge.js 加载 bridge（dev 下由 @tinacms/astro 的 dev 中间件提供）。
-// 放进 public/admin/，随 astro build 进入产物。线上构建不需要它。
-if (visualPreview) {
-  const require = createRequire(import.meta.url);
-  copyFileSync(require.resolve('@tinacms/bridge'), 'public/admin/bridge.js');
+/**
+ * 跑一次 tinacms build，输出到 public/<folder>/。
+ * visual：后台带 router（tina/collections/common.ts），打开文档即「左表单、右预览」，
+ * 预览页地址带 /admin/preview 前缀。
+ */
+function tinaBuild(folder, visual) {
+  const r = spawnSync(
+    'npx',
+    [
+      'tinacms',
+      'build',
+      '--content=local',
+      '--skip-search-index',
+      '--noTelemetry',
+      '--datalayer-port',
+      DATALAYER_PORT,
+    ],
+    {
+      stdio: 'inherit',
+      shell: process.platform === 'win32',
+      env: {
+        ...process.env,
+        TINA_ADMIN_FOLDER: folder,
+        TINA_PUBLIC_VISUAL_EDITING: visual ? '1' : '',
+        TINA_PUBLIC_PREVIEW_BASE: visual ? '/admin/preview' : '',
+      },
+    },
+  );
+  if (r.status !== 0) process.exit(r.status ?? 1);
 }
 
-if (!visualPreview) {
-  mkdirSync('public/admin', { recursive: true });
-  writeFileSync('public/admin/index.html', redirectPage());
-}
+// 先 admin 再 admin/forms：后者在前者的目录里，反过来可能被前者的构建清掉。
+tinaBuild('admin', true);
+if (!visualPreview) tinaBuild('admin/forms', false);
 
-/** /admin/ 的跳转页。带上 # 后面的后台路由，旧书签（#/collections/…）直接落到预览站的同一页。 */
-function redirectPage() {
-  return `<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex, nofollow" />
-    <title>编辑后台</title>
-    <meta http-equiv="refresh" content="0; url=${PREVIEW_ADMIN}" />
-    <script>location.replace(${JSON.stringify(PREVIEW_ADMIN)} + location.hash);</script>
-  </head>
-  <body>
-    <p>正在前往可视化编辑后台：<a href="${PREVIEW_ADMIN}">${PREVIEW_ADMIN}</a></p>
-    <p>打不开时，使用 <a href="/admin/forms/index.html">表单编辑后台</a>，保存效果相同。</p>
-  </body>
-</html>
-`;
-}
+// 预览页里的启动脚本从 /admin/bridge.js 加载 bridge（dev 下由 @tinacms/astro 的 dev 中间件提供）。
+const require = createRequire(import.meta.url);
+copyFileSync(require.resolve('@tinacms/bridge'), 'public/admin/bridge.js');

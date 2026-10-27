@@ -27,9 +27,8 @@ export const ctaOverride = group(
  * 线上没有预览端点，设了反而只剩「form fields will appear here」（DECISIONS §106、§108）。
  * Tina 打包后台时把 TINA_PUBLIC_* 替换成常量。不能用 NODE_ENV：实测 `tinacms build` 打包时它不是 production。
  *
- * 预览站构建另设 TINA_PUBLIC_PREVIEW_BASE=/admin/preview：预览页的地址都挂在 /admin/ 下，
- * ssw.cn 的 nginx 只需把 /admin/ 整体反代到预览站，ssw.cn/admin 就是「左表单、右预览」（DECISIONS §116）。
- * Tina 后台只预览同源页面，所以预览页必须经 ssw.cn 自己的地址提供。
+ * scripts/build-admin.mjs 构建可视化后台时另设 TINA_PUBLIC_PREVIEW_BASE=/admin/preview：预览页挂在 /admin/preview/ 下，
+ * 与线上页面分开（DECISIONS §116、§117）。Tina 后台只预览同源页面，所以预览页必须在 ssw.cn 自己名下。
  */
 type Router = NonNullable<NonNullable<Collection['ui']>['router']>;
 

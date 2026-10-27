@@ -72,6 +72,24 @@ jobs:
       - name: 构建
         run: npm run build
 
+      # 可视化编辑的预览服务（DECISIONS §117）：预览页进 dist/admin/preview/，
+      # Node 服务在 dist-island/server/，发布到服务器上由 supervisor 常驻运行。
+      - name: 构建预览服务
+        run: npm run build:island-server
+
+      # 冒烟测试：在没有 node_modules 的目录里起服务，请求一次首页首屏，
+      # 拿到带 data-tina-field 的 HTML 才算能用（能从 TinaCloud 读到内容、依赖都已打包）。
+      - name: 预览服务冒烟测试
+        run: |
+          mkdir -p /tmp/island/client
+          cp -R dist-island/server /tmp/island/server
+          (cd /tmp/island && HOST=127.0.0.1 PORT=4330 node server/entry.mjs > /tmp/island.log 2>&1 &)
+          for i in $(seq 1 20); do curl -s -o /dev/null http://127.0.0.1:4330/ && break; sleep 1; done
+          curl -sf -X POST http://127.0.0.1:4330/tina-island/hero \
+            -H 'content-type: application/x-tina-preview+json' -d '{}' > /tmp/hero.html \
+            || { cat /tmp/island.log; exit 1; }
+          grep -q 'data-tina-field' /tmp/hero.html || { cat /tmp/hero.html /tmp/island.log; exit 1; }
+
       - name: SEO 检查
         run: npm run seo:check
 
@@ -88,6 +106,19 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      - name: 准备预览服务产物
+        run: cp deploy/island-server/supervisor.mjs dist-island/
+
+      - name: 上传预览服务
+        uses: actions/upload-artifact@v5
+        with:
+          name: island-server
+          path: |
+            dist-island/server
+            dist-island/supervisor.mjs
+          if-no-files-found: error
+          retention-days: 7
+
   publish:
     needs: build
     runs-on: [self-hosted, windows, sswcn]
@@ -95,6 +126,8 @@ jobs:
 
     env:
       DEPLOY_TARGET: C:\SSW\Nginx\html\sswchina
+      # 预览服务目录（DECISIONS §117，安装步骤见 docs/DEPLOY-SETUP.md）。不存在时跳过，不影响网站发布。
+      ISLAND_TARGET: C:\SSW\island-server
 
     # 注意：以下 PowerShell 步骤内的字符串一律用英文。
     # Windows PowerShell 5.1 按系统 ANSI 编码（中文系统为 GBK）读取 GitHub
@@ -107,6 +140,7 @@ jobs:
         shell: powershell
         run: |
           if (Test-Path "$env:RUNNER_TEMP\site") { Remove-Item "$env:RUNNER_TEMP\site" -Recurse -Force }
+          if (Test-Path "$env:RUNNER_TEMP\island") { Remove-Item "$env:RUNNER_TEMP\island" -Recurse -Force }
 
       - name: 下载产物
         uses: actions/download-artifact@v5
@@ -136,4 +170,33 @@ jobs:
             exit $code
           }
           Write-Host "Deploy complete. robocopy exit code $code (less than 8 means success)"
+          exit 0
+
+      # 网站发布完再更新预览服务：这一步出问题不影响网站。
+      # 只镜像 server\ 目录；supervisor 发现文件变化后自动重启服务（不需要停止/启动服务的权限）。
+      - name: 下载预览服务
+        uses: actions/download-artifact@v5
+        with:
+          name: island-server
+          path: ${{ runner.temp }}/island
+
+      - name: 发布预览服务
+        shell: powershell
+        run: |
+          if (-not (Test-Path "$env:ISLAND_TARGET")) {
+            Write-Warning "$env:ISLAND_TARGET not found, island server not installed yet, skipping (see docs/DEPLOY-SETUP.md)"
+            exit 0
+          }
+          if (-not (Test-Path "$env:RUNNER_TEMP\island\server\entry.mjs")) {
+            Write-Error "entry.mjs not found in downloaded island-server artifact"
+            exit 1
+          }
+          Copy-Item "$env:RUNNER_TEMP\island\supervisor.mjs" "$env:ISLAND_TARGET\supervisor.mjs" -Force
+          robocopy "$env:RUNNER_TEMP\island\server" "$env:ISLAND_TARGET\server" /MIR /NFL /NDL /NJH /NP /R:2 /W:2
+          $code = $LASTEXITCODE
+          if ($code -ge 8) {
+            Write-Error "robocopy failed with exit code $code"
+            exit $code
+          }
+          Write-Host "Island server updated. robocopy exit code $code (less than 8 means success)"
           exit 0

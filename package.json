@@ -19,10 +19,12 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "verify": "npm run typecheck && npm run format:check && npm run contrast && astro build && npm run seo:check",
-    "preflight": "npm run verify && npm run check:assets"
+    "preflight": "npm run verify && npm run check:assets",
+    "build:island-server": "node scripts/build-island-server.mjs"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
+    "@astrojs/node": "11.1.9",
     "@astrojs/vercel": "11.0.16",
     "@fontsource-variable/inter": "^5.2.5",
     "@tinacms/astro": "0.7.1",
