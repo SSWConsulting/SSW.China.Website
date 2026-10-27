@@ -3800,3 +3800,22 @@ Tina 的默认预览路径只能由 `build.basePath` 影响，而它会连带改
 已用本地构建的后台验证：打开 `/admin/` 落到 `#/~/admin/preview/`；`pushState('#/~')` 被改写，
 `#/~/admin/preview/services/…`、`#/collections/home` 不受影响。登录后的实际跳转需在线上确认。
 表单编辑的 `/admin/forms/` 不注入（它本来就没有预览）。
+
+## §120 后台预览的就是线上页面：页面始终带编辑标记
+
+编辑者要求登录后地址就是 `ssw.cn/admin/index.html#/~`，右侧直接是可编辑的首页。Tina 后台的预览地址就是 `#/~` 后面的路径，
+`#/~` 预览的是 `/`，所以唯一的做法是让线上页面本身可编辑（编辑者在两个方案中选定：页面带标记 / nginx 按请求头换内容）。
+
+- `Editable.astro` 始终输出 `data-tina-island`（及 `-primary`、`-static-preview`）属性，不再看 dev / 预览开关；
+  原来每个岛前内联一份启动脚本（首页 7 份），改为 `src/scripts/visual-editing.ts`，由 `main.ts` 与 `deck.ts` 最先调用：
+  只有页面在 iframe 里、父页面同源且路径在 `/admin/`（不含 `/admin/forms/`）下、页面上有岛时，
+  才关掉滚动入场并动态加载 `/admin/bridge.js`。访客访问、或被别的网站嵌入（读不到父页面地址）时什么都不做。
+  bridge 不打进站点脚本（`@vite-ignore` 的运行时地址）。
+- **线上页面产物因此改变**（推翻 §108、§111「线上产物逐字节不变」的约束）：各页多出 `data-tina-island` 属性；
+  站点脚本多一个约 2.4 KB 的共享块（内含 dom 工具与这段判断，无 Tina 代码）。已对比 main 的产物：
+  去掉这些属性与脚本文件名后，所有页面逐字节相同。
+- 随之删除 §116、§117 的 `/admin/preview/` 副本：router 不再加前缀（`TINA_PUBLIC_PREVIEW_BASE`）、预览构建不再设 `assetsPrefix`、
+  `build-island-server.mjs` 与 `build-preview.mjs` 不再复制页面；§119 的默认落地脚本也删除（`#/~` 本身就可编辑了）。
+  `vite.define` 的 `__SSW_VISUAL_PREVIEW__` 与 `src/globals.d.ts` 不再需要，删除。
+- 已用本地 dev 验证：打开后台落在 `#/~`，右侧是 `/`，左侧出现首页表单，改首屏按钮文字右侧立即更新（未保存）。
+- 预览里点页面内的链接跳到的也是可编辑的线上页面。

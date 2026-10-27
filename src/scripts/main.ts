@@ -8,7 +8,10 @@ import { initReveal, revealAll, cancelOneShots } from './reveal';
 import { initSplitWords } from './split-words';
 import { initWecomModal } from './wecom-modal';
 import { motionOff, onMotionChange } from './motion';
+import { initVisualEditing } from './visual-editing';
 
+// 必须最先：在编辑后台里打开时先关掉滚动入场（见 visual-editing.ts）。
+initVisualEditing();
 initTheme();
 initRegionMenu();
 initRipple();

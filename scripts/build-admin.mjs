@@ -4,7 +4,7 @@
  *
  * - 有 PUBLIC_TINA_CLIENT_ID 与 TINA_TOKEN ⇒ 构建连接 TinaCloud 的正式后台。
  *   `--content=local`：直接读仓库里的 content/，不依赖 TinaCloud 是否已索引当前分支。
- *   - /admin/：可视化编辑（左表单、右预览）。预览页在 /admin/preview/，实时重渲染由
+ *   - /admin/：可视化编辑（左表单、右预览，预览的是网站页面本身，DECISIONS §120）。实时重渲染由
  *     /tina-island/ 端点完成：ssw.cn 上是服务器本机的预览服务，预览站上是 Vercel Function（DECISIONS §117）。
  *   - /admin/forms/（只在 ssw.cn）：表单编辑，不依赖预览服务。预览服务停了时用它（§113）。
  * - 没有 ⇒ 跳过并删掉旧的 public/admin/，网站照常构建。
@@ -14,7 +14,7 @@
  * 网站本身不依赖 Tina：页面在 astro build 时直接读 content/ 下的 JSON。
  */
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, rmSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
 const hasCloud = Boolean(process.env.PUBLIC_TINA_CLIENT_ID && process.env.TINA_TOKEN);
@@ -46,8 +46,7 @@ const DATALAYER_PORT = '9461';
 
 /**
  * 跑一次 tinacms build，输出到 public/<folder>/。
- * visual：后台带 router（tina/collections/common.ts），打开文档即「左表单、右预览」，
- * 预览页地址带 /admin/preview 前缀。
+ * visual：后台带 router（tina/collections/common.ts），打开文档即「左表单、右预览」，预览的是网站页面本身。
  */
 function tinaBuild(folder, visual) {
   const r = spawnSync(
@@ -68,7 +67,6 @@ function tinaBuild(folder, visual) {
         ...process.env,
         TINA_ADMIN_FOLDER: folder,
         TINA_PUBLIC_VISUAL_EDITING: visual ? '1' : '',
-        TINA_PUBLIC_PREVIEW_BASE: visual ? '/admin/preview' : '',
       },
     },
   );
@@ -82,35 +80,3 @@ if (!visualPreview) tinaBuild('admin/forms', false);
 // 预览页里的启动脚本从 /admin/bridge.js 加载 bridge（dev 下由 @tinacms/astro 的 dev 中间件提供）。
 const require = createRequire(import.meta.url);
 copyFileSync(require.resolve('@tinacms/bridge'), 'public/admin/bridge.js');
-
-// 可视化后台默认预览网站根路径 `/`（路由 #/~）—— 那是线上页面，没有编辑标记，左侧表单出不来；
-// Tina 没有设默认预览页的选项（build.basePath 会连带改后台资源路径）。注入一段在后台脚本之前运行的脚本：
-// 凡是要落到 #/~ 或空地址（首次打开、登录后跳转），都换成首页的预览 #/~/admin/preview/（DECISIONS §119）。
-// 后台用 HashRouter（history.pushState/replaceState 改 hash，不触发 hashchange），所以包一层这两个方法。
-const LANDING = `<script>
-(function () {
-  var HOME = '#/~/admin/preview/';
-  var isDefault = function (hash) { return hash === '' || hash === '#' || hash === '#/' || hash === '#/~' || hash === '#/~/'; };
-  if (isDefault(location.hash)) history.replaceState(history.state, '', HOME);
-  ['pushState', 'replaceState'].forEach(function (name) {
-    var original = history[name];
-    history[name] = function (state, title, url) {
-      if (url != null) {
-        var next = new URL(String(url), location.href);
-        if (next.pathname === location.pathname && (next.hash === '#/~' || next.hash === '#/~/')) url = next.pathname + next.search + HOME;
-      }
-      return original.call(this, state, title, url);
-    };
-  });
-})();
-</script>
-`;
-const adminHtml = 'public/admin/index.html';
-const html = readFileSync(adminHtml, 'utf8');
-if (!html.includes('<script')) {
-  console.error(
-    '\n✖ public/admin/index.html 里没有 <script>，Tina 后台的产物格式可能变了，检查后再改这里。\n',
-  );
-  process.exit(1);
-}
-writeFileSync(adminHtml, html.replace('<script', `${LANDING}    <script`));

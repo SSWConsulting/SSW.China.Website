@@ -1,4 +1,8 @@
 import { qs, qsa, on } from './dom';
+import { initVisualEditing } from './visual-editing';
+
+// 在编辑后台里打开时按「无脚本」排版（见 visual-editing.ts）。
+initVisualEditing();
 
 /**
  * 展会／交流会现场用的全屏轮播（/deck/）。
