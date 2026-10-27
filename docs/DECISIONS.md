@@ -3668,3 +3668,20 @@ self-hosted runner 上，只下载 artifact、沿用原来的 `robocopy /MIR`。
 - 预览站全站 `X-Robots-Tag: noindex, nofollow`，页面的 canonical 本来就指向 ssw.cn，不会和正式站抢收录。
 - **代价**：Vercel 在海外，国内编辑者访问可能慢或不稳定；打不开时退回 ssw.cn 的表单编辑，保存效果相同。
   依赖 `@tinacms/astro` 的实验性岛 API（同 §108），升级 Astro / Tina 时要在预览站上回归一次。
+
+## §112 预览站由 GitHub Actions 部署到 Vercel，不用 Vercel 的 GitHub 集成
+
+§111 原计划在 Vercel 导入仓库、由 Vercel 的 GitHub 集成在 `main` 更新时自动构建。2026-10-27 实际操作：
+组织管理员已把 `SSW.China.Website` 加进 Vercel GitHub App 的授权仓库（GitHub 侧确认在列），
+Vercel 导入页搜索仍然找不到该仓库，原因在 Vercel 一侧，我们无从排查。
+
+**取舍**：改由 `.github/workflows/preview.yml` 在 `main` 更新时用 Vercel CLI（`vercel build` + `vercel deploy --prebuilt --prod`）
+构建并上传到公司团队的 `ssw-china-preview` 项目（第一次运行时自动创建）。
+
+- 不依赖 Vercel GitHub App 的授权；只要两个配置：secret `VERCEL_TOKEN`、variable `VERCEL_SCOPE`（团队 slug）。
+  未配置时跳过并给出提示，不算失败，不影响 ssw.cn 的发布。
+- 构建在 GitHub 托管的 runner 上，Tina 凭据直接取自仓库已有的 secret，Vercel 项目里不需要另配环境变量。
+- `vercel.json` 的 `buildCommand` 仍是唯一的构建入口（`vercel build` 读取它）；`ignoreCommand` 只对 Git 集成生效，
+  留着无害 —— 将来若改回 Git 集成，仍只构建 `main`。到那时要删掉 `preview.yml`，避免重复部署。
+- Vercel CLI 固定版本（`VERCEL_CLI`），升级时手动改。
+- 连续保存时 `cancel-in-progress` 只保留最新一次部署（预览站不需要每个中间版本）。

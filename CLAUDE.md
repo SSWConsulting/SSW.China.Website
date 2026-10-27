@@ -110,7 +110,7 @@ tina/collections/*.ts     对应的后台表单（字段说明就是给编辑看
   （正文组件在 `sections/home/`），其他页面整块 `<main>`（`components/pages/`）。正文组件只依赖 props，
   页面与端点共用；端点与注册表在 `dev/visual-editing/`（只在 `astro dev` 与预览站构建注入）。改页面结构时改正文组件即可。
   包裹元素只能是只带 class 的元素（bridge 替换后其他属性会丢）。线上产物不受影响，细节见 DECISIONS §108、§109。
-  线上编辑者用 Vercel 上的**预览站**（`npm run build:preview`，`vercel.json`）：同一份代码多开 `SSW_VISUAL_PREVIEW=1`，
+  线上编辑者用 Vercel 上的**预览站**（`npm run build:preview`，`vercel.json`，由 `.github/workflows/preview.yml` 部署）：同一份代码多开 `SSW_VISUAL_PREVIEW=1`，
   挂 Vercel 适配器、带编辑标记，它自己的 `/admin/` 就是「左表单、右预览」；ssw.cn 的 `/admin/` 仍是表单编辑（§111）。
   改 `astro.config.mjs` / `Editable.astro` 后要确认 `npm run build` 的产物与改前逐字节相同。
   **router 只能挂在这个开关后面**：没有预览端点的环境设了 router，后台只剩「form fields will appear here」。
