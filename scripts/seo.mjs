@@ -180,6 +180,8 @@ const robots = () =>
     '# 由 scripts/seo.mjs 生成，请勿手工编辑；改动后跑 npm run seo',
     'User-agent: *',
     'Allow: /',
+    // 编辑后台与它的预览页（/admin/preview/，带编辑标记的页面副本）不该被收录（DECISIONS §117）。
+    'Disallow: /admin/',
     '',
     `Sitemap: ${origin}/sitemap.xml`,
     '',

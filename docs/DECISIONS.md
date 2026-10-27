@@ -3747,3 +3747,28 @@ Tina 的登录流程会访问上层窗口，跨域时被浏览器拦下。这在
 
 **代价**：编辑时每次输入都经阿里云服务器 → Vercel，速度取决于这条链路；配置前先在服务器上测连通与耗时。
 nginx 配置不在发布流程里，换预览站域名时要同时改 `deploy/nginx-admin-proxy.conf` 与服务器。
+
+## §117 可视化编辑的预览服务放在 ssw.cn 服务器上，不经 Vercel
+
+§116 的反代在服务器上实测（2026-10-27）走不通：服务器解析 `ssw-china-preview.vercel.app` 得到被污染的 IP；
+改连 Vercel 的真实 IP 后，TLS 握手只要 SNI 是 `*.vercel.app` 就被重置（同 IP 换成 `vercel.com` 的 SNI 则正常）。
+绑自定义子域名可绕过，但编辑者要求只出现 ssw.cn，不要任何其他域名。所以把预览需要的东西全放在 ssw.cn：
+
+- **后台**：`build-admin.mjs` 在有凭据时构建两份 —— `/admin/`（可视化，router 带 `/admin/preview` 前缀）与
+  `/admin/forms/`（表单编辑，不依赖预览服务）。先 `admin` 后 `admin/forms`（已实测两者共存）。§113 的跳转页不再生成。
+- **预览页**：`npm run build:island-server` 用 Node 适配器（`@astrojs/node`，standalone）再构建一次，
+  带编辑标记的页面与资源复制进 `dist/admin/preview/`，随网站一起发布，是普通静态文件。
+- **实时重渲染**：同一次构建的 `dist-island/server/` 是只服务 `/tina-island/` 的 Node 服务。
+  `vite.ssr.noExternal: true` 把依赖全部打进产物，服务器上不装 node_modules（已在无 node_modules 的目录实测启动与渲染）。
+  Node 适配器要求目录名为 `server` 且旁边有 `client` 目录（可为空），supervisor 会建空的 `client\`。
+- **常驻**：`deploy/island-server/supervisor.mjs` 由计划任务（SYSTEM，开机启动）运行，监听 127.0.0.1:4330；
+  子进程退出 5 秒后重启，`server\` 文件变化后 5 秒内重启。发布流程只需写入目录，不需要服务管理权限。
+  服务器到 `content.tinajs.io` 实测可达（约 2 秒/次新连接，Node 复用连接后更快）。
+- **nginx**：只加一段 `^~ /tina-island/` → `http://127.0.0.1:4330`（`deploy/nginx-island.conf`）。
+- **CI**：build job 在无 node_modules 的目录起服务并请求首页首屏，拿到带 `data-tina-field` 的 HTML 才继续，
+  证明依赖已打包、能读到 TinaCloud。publish job 先发布网站，再更新预览服务；服务目录不存在时跳过。
+- `robots.txt` 增加 `Disallow: /admin/`：预览页是线上页面的副本，不该被收录。这是本条唯一改变网站页面产物的地方。
+- Vercel 预览站保留（`preview.yml`），在国外可用；国内编辑者用 ssw.cn/admin。
+
+**代价**：服务器多一个常驻进程与一个计划任务（安装步骤见 DEPLOY-SETUP）；`supervisor.mjs` 自身改动需要手动重启任务。
+§116 的 `deploy/nginx-admin-proxy.conf` 删除，§116 的 `/admin/preview/` 结构沿用。

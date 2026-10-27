@@ -93,43 +93,68 @@ Set-Location C:\actions-runner
 
 **第一次建议在旁边看着跑**，确认站点目录结果正常之后就可以完全放手了。
 
-## ssw.cn/admin 反代到预览站（可视化编辑）
+## 可视化编辑的预览服务（ssw.cn/admin）
 
-让 `https://ssw.cn/admin` 直接是「左表单、右预览」，地址栏不变（DECISIONS §116）。
-配置在 [`deploy/nginx-admin-proxy.conf`](../deploy/nginx-admin-proxy.conf)，要在服务器上手工加一次 ——
-nginx 配置不在发布流程里。下面的命令都在服务器的 PowerShell 里执行。
+`https://ssw.cn/admin/` 是可视化编辑（左表单、右预览）。后台和预览页都是静态文件，随网站发布；
+右侧预览随输入实时更新，靠服务器本机的一个小 Node 服务（DECISIONS §117）：
 
-**1. 先确认服务器连得上预览站**（不通就停在这一步，别改 nginx）：
-
-```powershell
-curl.exe -s -o NUL -w "%{http_code} %{time_total}s`n" https://ssw-china-preview.vercel.app/admin/index.html
-curl.exe -s -o NUL -w "%{http_code} %{time_total}s`n" https://ssw-china-preview.vercel.app/admin/preview/
+```
+浏览器 ──> ssw.cn/admin/、/admin/preview/   nginx 直接给静态文件
+       └─> ssw.cn/tina-island/…            nginx 转给 127.0.0.1:4330（预览服务）──> TinaCloud 读内容
 ```
 
-两条都应是 `200`，耗时最好在 1 秒左右；多跑几次，若经常超时或几秒以上，编辑时预览会很卡。
+- 服务目录 `C:\SSW\island-server\`：`supervisor.mjs`（守护进程）、`server\`（服务本体）、`island-server.log`（日志）。
+- 计划任务「SSW island server」开机以 SYSTEM 启动 supervisor；它负责拉起服务、崩溃后重启、
+  发现 `server\` 有更新就重启。发布流程只往 `server\` 里镜像新文件，**不需要**停止或启动服务的权限。
+- 服务目录不存在时，发布流程跳过这一步，网站照常发布。
+- 预览服务停了：后台仍能打开但右侧不更新、可能只剩「form fields will appear here」，
+  这时用 `https://ssw.cn/admin/forms/`（表单编辑，不依赖预览服务）。
 
-**2. 找到 ssw.cn 的 server 块并备份**：
+### 一次性安装（服务器上，管理员 PowerShell）
+
+**1. 确认 Node 版本**：`node -v` 应为 `v22.18` 或更高。没装或太旧，到 nodejs.org 装 LTS 版本。
+
+**2. 建目录，并让 runner 能写入**：
 
 ```powershell
-cd C:\SSW\Nginx
-Select-String -Path conf\*.conf, conf\*\*.conf -Pattern "server_name.*ssw\.cn"
-Copy-Item <上一步找到的文件> <同名文件>.bak-admin-proxy
+New-Item -ItemType Directory -Force C:\SSW\island-server
+Get-CimInstance Win32_Service | Where-Object Name -like 'actions.runner*' | Select-Object Name, StartName
+icacls C:\SSW\island-server /grant "<上一条显示的 StartName>:(OI)(CI)M"
 ```
 
-**3. 把 `deploy/nginx-admin-proxy.conf` 的内容粘进那个 `server { }` 块**（和已有的 `location` 并列），然后检查并重载：
+**3. 让发布流程把服务送上来**：在 GitHub 的 Actions 里手动重跑一次「构建并发布」（或等下一次发布），
+完成后 `C:\SSW\island-server\server\entry.mjs` 应已存在。
+
+**4. 注册并启动计划任务**：
 
 ```powershell
-.\nginx.exe -t
-.\nginx.exe -s reload
+$node = (Get-Command node).Source
+$action = New-ScheduledTaskAction -Execute 'cmd.exe' -WorkingDirectory 'C:\SSW\island-server' `
+  -Argument "/c `"`"$node`" C:\SSW\island-server\supervisor.mjs >> C:\SSW\island-server\island-server.log 2>&1`""
+$trigger = New-ScheduledTaskTrigger -AtStartup
+$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit ([TimeSpan]::Zero) -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
+Register-ScheduledTask -TaskName 'SSW island server' -Action $action -Trigger $trigger -Settings $settings -User 'SYSTEM' -RunLevel Highest
+Start-ScheduledTask -TaskName 'SSW island server'
 ```
 
-`-t` 报错就不要 reload，先把错误发出来。
+**5. 在服务器上直接测服务**（应输出 `200`）：
 
-**4. 验证**：浏览器打开 `https://ssw.cn/admin/`，地址栏不跳走，登录 TinaCloud 后打开任意「页面：…」，
-应是左表单、右预览，输入时右侧实时更新。`https://ssw.cn/admin/forms/` 仍是表单编辑。
+```powershell
+(Invoke-WebRequest http://127.0.0.1:4330/tina-island/hero -Method Post -ContentType 'application/x-tina-preview+json' -Body '{}' -UseBasicParsing).StatusCode
+Get-Content C:\SSW\island-server\island-server.log -Tail 20
+```
 
-**撤回**：用备份文件替换回去，`nginx -t` 后 `nginx -s reload`。`/admin/` 回到站点目录里的跳转页（§113），
-编辑者照样能用（地址栏会变成预览站域名）。
+**6. 配 nginx**：备份 ssw.cn 所在的配置文件，把 [`deploy/nginx-island.conf`](../deploy/nginx-island.conf)
+的内容粘进 ssw.cn 的 `server { }` 块，`.\nginx.exe -t` 通过后 `.\nginx.exe -s reload`。
+
+**7. 验证**：打开 `https://ssw.cn/admin/` 登录，打开任意「页面：…」，在左侧改字，右侧应立即更新。
+
+### 日常与排查
+
+- 改了 `deploy/island-server/supervisor.mjs`：发布会更新文件，但要 `Restart-ScheduledTask`（或重启服务器）才生效。
+  服务本体（`server\`）的更新是自动的。
+- 右侧预览不更新：看 `island-server.log`；`Get-ScheduledTask 'SSW island server'` 看任务状态。
+- 撤回：删掉 nginx 里那一段并 reload，`Disable-ScheduledTask 'SSW island server'`。
 
 ## 回滚
 

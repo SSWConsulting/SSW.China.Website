@@ -42,6 +42,7 @@ GitHub 文件列表旁显示的就是提交信息首行）。引用页面上的�
 `main` 有 push ⇒ `.github/workflows/deploy.yml` 两个 job：`build` 在 GitHub 托管的 `ubuntu-latest` 上跑
 `format:check` + `contrast` + `build` + `seo:check`，把 `dist/` 上传为 artifact；`publish` 在阿里云服务器上的
 self-hosted Windows runner（标签 `windows,sswcn`）里只下载 artifact、`robocopy /MIR` 到 nginx 站点目录。
+预览服务（`dist-island/server/`）随同一次发布更新到 `C:\SSW\island-server\server\`，由 supervisor 自动重启（§117）。
 **不要把构建挪回服务器**：`tinacms build` 的本机回环连接在那台服务器上会被切断（DECISIONS §110）。
 TinaCloud 把后台的编辑直接提交到 `main`，所以每次编辑都会触发一次部署。服务器配置见 `docs/DEPLOY-SETUP.md`。
 
@@ -111,8 +112,9 @@ tina/collections/*.ts     对应的后台表单（字段说明就是给编辑看
   页面与端点共用；端点与注册表在 `dev/visual-editing/`（只在 `astro dev` 与预览站构建注入）。改页面结构时改正文组件即可。
   包裹元素只能是只带 class 的元素（bridge 替换后其他属性会丢）。线上产物不受影响，细节见 DECISIONS §108、§109。
   线上编辑者用 Vercel 上的**预览站**（`npm run build:preview`，`vercel.json`，由 `.github/workflows/preview.yml` 部署）：同一份代码多开 `SSW_VISUAL_PREVIEW=1`，
-  挂 Vercel 适配器、带编辑标记，它自己的 `/admin/` 就是「左表单、右预览」；ssw.cn 的 `/admin/` 由 nginx 反代到预览站（`deploy/nginx-admin-proxy.conf`；未配反代时是站点目录里的跳转页），表单编辑的后台留在 `/admin/forms/` 作退路（§111、§113、§116）。
-  预览站的预览页挂在 `/admin/preview/` 下（`build-preview.mjs` 复制、`assetsPrefix`、router 前缀三处一起），反代因此只需 `/admin/` 与 `/tina-island/`。
+  挂 Vercel 适配器、带编辑标记，它自己的 `/admin/` 就是「左表单、右预览」；ssw.cn 的 `/admin/` 同样是可视化编辑：后台与预览页（`/admin/preview/`）是静态文件，`/tina-island/` 由 nginx 转给服务器本机的
+  Node 预览服务（`npm run build:island-server`、`deploy/island-server/`、`deploy/nginx-island.conf`，DEPLOY-SETUP）；
+  表单编辑的后台留在 `/admin/forms/` 作退路（§113、§117）。预览页地址由 router 前缀、`assetsPrefix` 与复制步骤三处一起决定。
   改 `astro.config.mjs` / `Editable.astro` 后要确认 `npm run build` 的产物与改前逐字节相同。
   **router 只能挂在这个开关后面**：没有预览端点的环境设了 router，后台只剩「form fields will appear here」。
 - 结构化数据由 `components/JsonLd.astro` 输出，从同一份文案生成 —— FAQPage 与可见问答天然一致。

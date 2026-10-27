@@ -1,5 +1,6 @@
 # 由 scripts/seo.mjs 生成，请勿手工编辑；改动后跑 npm run seo
 User-agent: *
 Allow: /
+Disallow: /admin/
 
 Sitemap: https://ssw.cn/sitemap.xml

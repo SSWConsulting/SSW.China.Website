@@ -13,3 +13,4 @@ tina/tina-lock.json
 
 # content/ 由 TinaCMS 后台读写，格式以 Tina 的输出为准
 content
+dist-island

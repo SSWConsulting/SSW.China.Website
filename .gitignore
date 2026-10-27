@@ -1,6 +1,7 @@
 node_modules
 dist
 dist-preview
+dist-island
 .DS_Store
 *.log
 

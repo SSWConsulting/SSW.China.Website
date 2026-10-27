@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import node from '@astrojs/node';
 import vercel from '@astrojs/vercel';
 import visualEditing from './dev/visual-editing/integration.mjs';
 
@@ -8,6 +9,11 @@ import visualEditing from './dev/visual-editing/integration.mjs';
  * 只有它挂适配器、带编辑标记；线上构建不设这个开关，产物不变。
  */
 const visualPreview = process.env.SSW_VISUAL_PREVIEW === '1';
+/**
+ * 预览构建挂哪个适配器：默认 Vercel（预览站）；`node` 是 ssw.cn 服务器上的预览服务
+ * （`npm run build:island-server`，DECISIONS §117）—— 依赖全部打进产物，服务器上不用装 node_modules。
+ */
+const islandServer = process.env.SSW_PREVIEW_ADAPTER === 'node';
 
 /**
  * 纯静态输出：`astro build` 产出 `dist/`，部署方式与改版前完全一致
@@ -22,7 +28,7 @@ export default defineConfig({
   // 可视化编辑：astro dev 与预览站构建下生效，线上构建不受影响，见 dev/visual-editing/。
   integrations: [visualEditing({ preview: visualPreview })],
   // 预览站的 /tina-island 端点按需渲染，需要适配器；页面本身仍是预渲染的静态页。
-  ...(visualPreview ? { adapter: vercel() } : {}),
+  ...(visualPreview ? { adapter: islandServer ? node({ mode: 'standalone' }) : vercel() } : {}),
   // 不压缩 HTML：Astro 的压缩会删掉行内元素之间跨行的空白（「中国 当前」→「中国当前」、
   // 「适合场景 公司准备…」粘连），改变渲染结果。改版前的产物保留源码空白，这里保持一致。
   compressHTML: false,
@@ -46,6 +52,7 @@ export default defineConfig({
     // 之后若 Vite 因故重新预构建，新结果里没有 cobe，已编译的 globe.ts 仍指向旧地址 ⇒ 504，
     // 地球在 dev 下不显示（2026-10-19 实测）。启动时就预构建它，地址从一开始就稳定。只影响 dev。
     optimizeDeps: { include: ['cobe'] },
+    ...(islandServer ? { ssr: { noExternal: true } } : {}),
     build: {
       target: 'es2022',
       cssTarget: 'chrome111',
