@@ -30,7 +30,8 @@ export default defineConfig({
   token: process.env.TINA_TOKEN ?? null,
 
   build: {
-    outputFolder: 'admin',
+    // ssw.cn 的构建把后台放在 admin/forms，/admin/ 改为跳转到预览站（scripts/build-admin.mjs，DECISIONS §113）。
+    outputFolder: process.env.TINA_ADMIN_FOLDER || 'admin',
     publicFolder: 'public',
   },
   media: {
