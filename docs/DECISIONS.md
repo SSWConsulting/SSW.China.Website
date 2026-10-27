@@ -3714,3 +3714,13 @@ Vercel 导入页搜索仍然找不到该仓库，原因在 Vercel 一侧，我�
 
 **否决**：nginx 反向代理到 Vercel —— 后台 iframe 里的预览页地址是 `ssw.cn/` 等正式页，要按请求头区分才能转到预览站，
 且页面引用的资源要两边一致，脆弱；还要改不在仓库里的服务器配置。
+
+## §115 撤回 §114：ssw.cn/admin/ 改回跳转
+
+§114 的整页 iframe 上线后实测（2026-10-27）：后台能在 iframe 里打开，但 TinaCloud 登录报
+`Authentication Error`（`SecurityError: Blocked a frame with origin "https://ssw-china-preview.vercel.app" from accessing a cross-origin frame`）——
+Tina 的登录流程会访问上层窗口，跨域时被浏览器拦下。这在 Tina 内部，我们的配置改不了。
+
+**取舍**：`/admin/index.html` 恢复为 §113 的跳转页（地址栏会变成预览站域名），§113 的规则与文案原样生效。
+想要 ssw.cn 名下的地址，可行的路是给预览站绑子域名（如 `edit.ssw.cn`，在 Vercel 加域名 + DNS 加 CNAME），
+并把它加进 TinaCloud 的 Site URLs、改 `build-admin.mjs` 的 `PREVIEW_ADMIN`。
