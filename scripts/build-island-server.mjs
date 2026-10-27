@@ -11,8 +11,9 @@
  * 不影响 dist/ 里的网站页面。
  */
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, readdirSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const OUT = 'dist-island';
 
@@ -28,6 +29,27 @@ const r = spawnSync('npx', ['astro', 'build', '--outDir', OUT], {
   env: { ...process.env, SSW_VISUAL_PREVIEW: '1', SSW_PREVIEW_ADAPTER: 'node' },
 });
 if (r.status !== 0) process.exit(r.status ?? 1);
+
+// 产物里写死了构建机的绝对路径（file:///home/runner/…，适配器启动时据此推算 client 目录）。
+// Windows 上的 Node 解析不了不带盘符的 file URL，服务一启动就报 ERR_INVALID_FILE_URL_PATH（2026-10-27 实测）。
+// 换成带盘符的假路径：Windows 解析为 C:\ssw-build\…，Linux/macOS 解析为 /C:/ssw-build/…，两边都合法；
+// 运行时只用到 server 与 client 的相对位置，不访问这个路径本身。
+const buildRoot = `${pathToFileURL(process.cwd()).href}/`;
+let replaced = 0;
+for (const file of readdirSync(join(OUT, 'server'), { recursive: true })) {
+  if (!String(file).endsWith('.mjs')) continue;
+  const p = join(OUT, 'server', String(file));
+  const src = readFileSync(p, 'utf8');
+  if (!src.includes(buildRoot)) continue;
+  writeFileSync(p, src.replaceAll(buildRoot, 'file:///C:/ssw-build/'));
+  replaced++;
+}
+if (replaced === 0) {
+  console.error(
+    `\n✖ 预览服务产物里没找到构建路径 ${buildRoot}，适配器的产物格式可能变了，检查后再改这里。\n`,
+  );
+  process.exit(1);
+}
 
 // Node 适配器把静态文件放在 <outDir>/client/。admin/ 是后台本身，media/ 两边按根路径引用，不复制。
 const STATIC = join(OUT, 'client');
