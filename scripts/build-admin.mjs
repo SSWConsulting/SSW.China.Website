@@ -3,7 +3,7 @@
  * 构建 TinaCMS 编辑后台（产出 public/admin/，随站点一起发布到 /admin/）。
  *
  * - 有 PUBLIC_TINA_CLIENT_ID 与 TINA_TOKEN ⇒ 构建连接 TinaCloud 的正式后台。
- *   ssw.cn：后台在 /admin/forms/（表单编辑），/admin/ 是跳转到预览站后台的页面（DECISIONS §113）。
+ *   ssw.cn：后台在 /admin/forms/（表单编辑），/admin/ 是装着预览站后台的 iframe 页面（DECISIONS §113、§114）。
  *   预览站（SSW_VISUAL_PREVIEW=1）：后台就在 /admin/。
  *   `--content=local`：直接读仓库里的 content/，不依赖 TinaCloud 是否已索引当前分支。
  * - 没有 ⇒ 跳过并删掉旧的 public/admin/，网站照常构建。
@@ -42,8 +42,9 @@ if (!hasCloud) {
 // 最终改为在 GitHub 托管的 runner 上构建，见 DECISIONS §110。）
 const DATALAYER_PORT = '9461';
 
-// ssw.cn 是纯静态部署，渲染不了实时预览：它的 /admin/ 只是一个跳转页，把编辑者送到预览站的后台；
-// 表单编辑的后台挪到 /admin/forms/，留作预览站打不开时的退路（DECISIONS §113）。
+// ssw.cn 是纯静态部署，渲染不了实时预览：它的 /admin/ 是一个整页 iframe，里面是预览站的后台，
+// 地址栏保持 ssw.cn/admin/（DECISIONS §113、§114）；
+// 表单编辑的后台挪到 /admin/forms/，留作预览站打不开时的退路（§113）。
 // 预览站自己的后台仍在 /admin/。
 const PREVIEW_ADMIN = 'https://ssw-china-preview.vercel.app/admin/index.html';
 const adminFolder = visualPreview ? 'admin' : 'admin/forms';
@@ -79,11 +80,16 @@ if (visualPreview) {
 
 if (!visualPreview) {
   mkdirSync('public/admin', { recursive: true });
-  writeFileSync('public/admin/index.html', redirectPage());
+  writeFileSync('public/admin/index.html', framePage());
 }
 
-/** /admin/ 的跳转页。带上 # 后面的后台路由，旧书签（#/collections/…）直接落到预览站的同一页。 */
-function redirectPage() {
+/**
+ * /admin/ 的套壳页：整页 iframe 装预览站的后台。
+ * 带上 # 后面的后台路由，旧书签（#/collections/…）打开的仍是同一个文档；
+ * 之后在后台里切换文档，地址栏不会跟着变（跨域读不到 iframe 的地址）。
+ * 不加 sandbox：TinaCloud 登录要从 iframe 里弹窗。
+ */
+function framePage() {
   return `<!doctype html>
 <html lang="zh-CN">
   <head>
@@ -91,12 +97,16 @@ function redirectPage() {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>编辑后台</title>
-    <meta http-equiv="refresh" content="0; url=${PREVIEW_ADMIN}" />
-    <script>location.replace(${JSON.stringify(PREVIEW_ADMIN)} + location.hash);</script>
+    <style>
+      html, body { height: 100%; margin: 0; }
+      iframe { display: block; width: 100%; height: 100%; border: 0; }
+    </style>
   </head>
   <body>
-    <p>正在前往可视化编辑后台：<a href="${PREVIEW_ADMIN}">${PREVIEW_ADMIN}</a></p>
-    <p>打不开时，使用 <a href="/admin/forms/index.html">表单编辑后台</a>，保存效果相同。</p>
+    <iframe id="admin" title="编辑后台" allow="clipboard-read; clipboard-write"></iframe>
+    <script>
+      document.getElementById('admin').src = ${JSON.stringify(PREVIEW_ADMIN)} + location.hash;
+    </script>
   </body>
 </html>
 `;

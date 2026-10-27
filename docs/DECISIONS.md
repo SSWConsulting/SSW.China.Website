@@ -3700,3 +3700,17 @@ Vercel 导入页搜索仍然找不到该仓库，原因在 Vercel 一侧，我�
 - 预览站域名写死在 `build-admin.mjs`（`PREVIEW_ADMIN`）；改域名（如换成自定义域名）时改这一处，并加进 TinaCloud 的 Site URLs。
 
 **否决**：在 ssw.cn 的后台里跨域嵌入预览站（`PUBLIC_TINA_ADMIN_ORIGIN`）—— 配置多、排错难，体验与跳转相同。
+
+## §114 ssw.cn/admin/ 由跳转改为整页 iframe，地址栏保持 ssw.cn/admin
+
+§113 的跳转会把地址栏换成 Vercel 的域名，编辑者希望保持 `ssw.cn/admin`。`/admin/index.html` 改为整页 iframe，
+装 `https://ssw-china-preview.vercel.app/admin/index.html`（带上 `#` 后的后台路由）。§113 跳转页的两句提示随之删除。
+
+- iframe 不加 `sandbox`：TinaCloud 登录要从 iframe 里弹窗；预览站不发 `X-Frame-Options` / `frame-ancestors`，可以被嵌。
+- 登录态存在预览站源下、按 ssw.cn 分区的存储里（浏览器的第三方存储分区），与直接打开预览站各自登录一次。
+  **风险**：Safari 等对 iframe 内第三方存储限制更严，可能要重复登录或登录不上。上线后先在常用浏览器实测，
+  不行就改回 §113 的跳转（`build-admin.mjs` 里换回跳转页即可）。
+- 跨域读不到 iframe 的地址：后台里切换文档时地址栏不变，收藏只能到后台首页（或手动带 `#/collections/…`）。
+
+**否决**：nginx 反向代理到 Vercel —— 后台 iframe 里的预览页地址是 `ssw.cn/` 等正式页，要按请求头区分才能转到预览站，
+且页面引用的资源要两边一致，脆弱；还要改不在仓库里的服务器配置。
