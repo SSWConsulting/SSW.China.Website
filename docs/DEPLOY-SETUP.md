@@ -95,11 +95,11 @@ Set-Location C:\actions-runner
 
 ## 可视化编辑的预览服务（ssw.cn/admin）
 
-`https://ssw.cn/admin/` 是可视化编辑（左表单、右预览）。后台和预览页都是静态文件，随网站发布；
-右侧预览随输入实时更新，靠服务器本机的一个小 Node 服务（DECISIONS §117）：
+`https://ssw.cn/admin/` 是可视化编辑（左表单、右预览，预览的就是网站页面本身）。后台是静态文件，随网站发布；
+右侧预览随输入实时更新，靠服务器本机的一个小 Node 服务（DECISIONS §117、§120）：
 
 ```
-浏览器 ──> ssw.cn/admin/、/admin/preview/   nginx 直接给静态文件
+浏览器 ──> ssw.cn/admin/、网站页面          nginx 直接给静态文件
        └─> ssw.cn/tina-island/…            nginx 转给 127.0.0.1:4330（预览服务）──> TinaCloud 读内容
 ```
 

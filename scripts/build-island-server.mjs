@@ -3,15 +3,14 @@
  * `npm run build:island-server`：ssw.cn 服务器上的可视化编辑预览服务（DECISIONS §117）。
  * 在 `npm run build` 之后运行（要用它生成的 TinaCloud 客户端与 dist/）。
  *
- * 同一份代码以 SSW_VISUAL_PREVIEW=1 + Node 适配器再构建一次，产出两样东西：
- * - 预览页（带编辑标记，资源走 /admin/preview 前缀）：复制进 dist/admin/preview/，随网站一起发布。
- * - dist-island/server/：只负责 /tina-island/ 的 Node 服务，依赖已全部打进产物，
- *   服务器上用 deploy/island-server/supervisor.mjs 常驻运行，nginx 把 /tina-island/ 转给它。
+ * 同一份代码以 SSW_VISUAL_PREVIEW=1 + Node 适配器再构建一次，只取 dist-island/server/：
+ * 只负责 /tina-island/ 的 Node 服务，依赖已全部打进产物，服务器上用 deploy/island-server/supervisor.mjs
+ * 常驻运行，nginx 把 /tina-island/ 转给它。后台预览的是网站页面本身（DECISIONS §120），不需要另一份页面。
  *
- * 不影响 dist/ 里的网站页面。
+ * 不影响 dist/。
  */
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -49,13 +48,4 @@ if (replaced === 0) {
     `\n✖ 预览服务产物里没找到构建路径 ${buildRoot}，适配器的产物格式可能变了，检查后再改这里。\n`,
   );
   process.exit(1);
-}
-
-// Node 适配器把静态文件放在 <outDir>/client/。admin/ 是后台本身，media/ 两边按根路径引用，不复制。
-const STATIC = join(OUT, 'client');
-const SKIP = new Set(['admin', 'media']);
-const PREVIEW = 'dist/admin/preview';
-rmSync(PREVIEW, { recursive: true, force: true });
-for (const name of readdirSync(STATIC)) {
-  if (!SKIP.has(name)) cpSync(join(STATIC, name), join(PREVIEW, name), { recursive: true });
 }

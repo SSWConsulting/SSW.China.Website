@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SSW.cn 2026 改版：Astro（纯静态输出）+ 原生 TypeScript + 原生 CSS 的多页站，
 文案与素材在 `content/` 下的 JSON 里，由 TinaCMS（TinaCloud）后台编辑。
-运行时依赖只有 `cobe`（WebGL 点阵地球，动态 import 按需加载，所有宽度都显示）；Tina 只参与 `/admin/`，不进页面。
+运行时依赖只有 `cobe`（WebGL 点阵地球，动态 import 按需加载，所有宽度都显示）；Tina 只参与 `/admin/`；页面只带编辑标记（几个 data 属性），编辑代码只在后台里打开时才加载（DECISIONS §120）。
 
 `README.md` 已覆盖命令表、页面清单、目录结构与补充素材的流程 —— **本文件只记那些
 需要读多个文件才能发现的约定**，不重复 README。
@@ -105,18 +105,18 @@ tina/collections/*.ts     对应的后台表单（字段说明就是给编辑看
   **不要往 `site.json` 里写 `null`。**
 - 改 schema 要两边一起改：`src/lib/*.ts`（zod，页面读取）与 `tina/collections/*.ts`（后台表单）。
 - 多行字段（标题断行、地址）用 `br()` 把换行变成 `<br />`：`<Fragment set:html={br(x)} />`。
-- **可视化编辑（本地 dev 与 Vercel 预览站，全部页面集合）**：`npm run dev`（`scripts/dev.mjs`）设
-  `TINA_PUBLIC_VISUAL_EDITING=1`，页面集合因此带 `ui.router`（`tina/collections/common.ts` 的 `localPreview`），
-  后台打开即「左表单、右预览」。可编辑区域用 `src/components/Editable.astro` 包裹：首页逐区块
-  （正文组件在 `sections/home/`），其他页面整块 `<main>`（`components/pages/`）。正文组件只依赖 props，
-  页面与端点共用；端点与注册表在 `dev/visual-editing/`（只在 `astro dev` 与预览站构建注入）。改页面结构时改正文组件即可。
-  包裹元素只能是只带 class 的元素（bridge 替换后其他属性会丢）。线上产物不受影响，细节见 DECISIONS §108、§109。
-  线上编辑者用 Vercel 上的**预览站**（`npm run build:preview`，`vercel.json`，由 `.github/workflows/preview.yml` 部署）：同一份代码多开 `SSW_VISUAL_PREVIEW=1`，
-  挂 Vercel 适配器、带编辑标记，它自己的 `/admin/` 就是「左表单、右预览」；ssw.cn 的 `/admin/` 同样是可视化编辑：后台与预览页（`/admin/preview/`）是静态文件，`/tina-island/` 由 nginx 转给服务器本机的
-  Node 预览服务（`npm run build:island-server`、`deploy/island-server/`、`deploy/nginx-island.conf`，DEPLOY-SETUP）；
-  表单编辑的后台留在 `/admin/forms/` 作退路（§113、§117）。预览页地址由 router 前缀、`assetsPrefix` 与复制步骤三处一起决定。
-  改 `astro.config.mjs` / `Editable.astro` 后要确认 `npm run build` 的产物与改前逐字节相同。
-  **router 只能挂在这个开关后面**：没有预览端点的环境设了 router，后台只剩「form fields will appear here」。
+- **可视化编辑（ssw.cn、Vercel 预览站与本地 dev，全部页面集合）**：后台带 `ui.router`（`TINA_PUBLIC_VISUAL_EDITING=1`，
+  `tina/collections/common.ts` 的 `localPreview`；由 `scripts/dev.mjs` 与 `scripts/build-admin.mjs` 的 `/admin/` 设置）⇒「左表单、右预览」，
+  **预览的就是网站页面本身**（§120）。可编辑区域用 `src/components/Editable.astro` 包裹（线上页面也带 `data-tina-island` 标记）：
+  首页逐区块（正文组件在 `sections/home/`），其他页面整块 `<main>`（`components/pages/`）。
+  `src/scripts/visual-editing.ts`（`main.ts`、`deck.ts` 最先调用）只在页面被本站 `/admin/` 用 iframe 打开时加载 `/admin/bridge.js`。
+  正文组件只依赖 props，页面与 `/tina-island/<name>` 端点共用；端点与注册表在 `dev/visual-editing/`
+  （只在 `astro dev` 与 `SSW_VISUAL_PREVIEW=1` 的构建注入）。改页面结构时改正文组件即可。
+  包裹元素只能是只带 class 的元素（bridge 替换后其他属性会丢），细节见 DECISIONS §108、§109。
+  端点在哪：本地是 `astro dev`；ssw.cn 是服务器本机的 Node 预览服务（`npm run build:island-server`、`deploy/island-server/`、
+  `deploy/nginx-island.conf`，DEPLOY-SETUP，§117）；Vercel 预览站（`npm run build:preview`、`.github/workflows/preview.yml`）是 Vercel Function。
+  表单编辑的后台留在 `/admin/forms/` 作退路（§113）。
+  **router 只能挂在有端点的环境**：没有端点时设了 router，后台只剩「form fields will appear here」。
 - 结构化数据由 `components/JsonLd.astro` 输出，从同一份文案生成 —— FAQPage 与可见问答天然一致。
 - `.astro` 里的说明性注释写成 `{/* */}`（不进产物）；不要写 `<!-- -->`，它会原样输出。
   JSX 表达式里，元素前面不能放 JS 注释（`cond && ( /* … */ <section>` 会让编译器报错），把注释挪到表达式外面。
