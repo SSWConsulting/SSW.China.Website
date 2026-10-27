@@ -93,6 +93,44 @@ Set-Location C:\actions-runner
 
 **第一次建议在旁边看着跑**，确认站点目录结果正常之后就可以完全放手了。
 
+## ssw.cn/admin 反代到预览站（可视化编辑）
+
+让 `https://ssw.cn/admin` 直接是「左表单、右预览」，地址栏不变（DECISIONS §116）。
+配置在 [`deploy/nginx-admin-proxy.conf`](../deploy/nginx-admin-proxy.conf)，要在服务器上手工加一次 ——
+nginx 配置不在发布流程里。下面的命令都在服务器的 PowerShell 里执行。
+
+**1. 先确认服务器连得上预览站**（不通就停在这一步，别改 nginx）：
+
+```powershell
+curl.exe -s -o NUL -w "%{http_code} %{time_total}s`n" https://ssw-china-preview.vercel.app/admin/index.html
+curl.exe -s -o NUL -w "%{http_code} %{time_total}s`n" https://ssw-china-preview.vercel.app/admin/preview/
+```
+
+两条都应是 `200`，耗时最好在 1 秒左右；多跑几次，若经常超时或几秒以上，编辑时预览会很卡。
+
+**2. 找到 ssw.cn 的 server 块并备份**：
+
+```powershell
+cd C:\SSW\Nginx
+Select-String -Path conf\*.conf, conf\*\*.conf -Pattern "server_name.*ssw\.cn"
+Copy-Item <上一步找到的文件> <同名文件>.bak-admin-proxy
+```
+
+**3. 把 `deploy/nginx-admin-proxy.conf` 的内容粘进那个 `server { }` 块**（和已有的 `location` 并列），然后检查并重载：
+
+```powershell
+.\nginx.exe -t
+.\nginx.exe -s reload
+```
+
+`-t` 报错就不要 reload，先把错误发出来。
+
+**4. 验证**：浏览器打开 `https://ssw.cn/admin/`，地址栏不跳走，登录 TinaCloud 后打开任意「页面：…」，
+应是左表单、右预览，输入时右侧实时更新。`https://ssw.cn/admin/forms/` 仍是表单编辑。
+
+**撤回**：用备份文件替换回去，`nginx -t` 后 `nginx -s reload`。`/admin/` 回到站点目录里的跳转页（§113），
+编辑者照样能用（地址栏会变成预览站域名）。
+
 ## 回滚
 
 在 GitHub 上 revert 那个提交并合回 main，流水线会自动重新发布上一版本。
