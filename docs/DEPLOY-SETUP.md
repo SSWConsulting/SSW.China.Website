@@ -82,7 +82,7 @@ Set-Location C:\actions-runner
 ## 编辑后台（TinaCMS）的凭据
 
 `/admin/` 编辑后台需要两个 GitHub secret：`PUBLIC_TINA_CLIENT_ID` 与 `TINA_TOKEN`。
-取得与配置方法见 [`TINACMS.md`](TINACMS.md)。没配置时部署照常进行，只是产物里不含 `/admin/`。配置后 `/admin/` 是装着预览站后台的 iframe 页面，表单编辑的后台在 `/admin/forms/`（DECISIONS §113）。
+取得与配置方法见 [`TINACMS.md`](TINACMS.md)。没配置时部署照常进行，只是产物里不含 `/admin/`。配置后 `/admin/` 是跳转到预览站后台的页面，表单编辑的后台在 `/admin/forms/`（DECISIONS §113）。
 
 编辑在后台保存后，TinaCloud 会把改动提交到 main，从而触发这里的部署流程，不需要另外配置。
 
