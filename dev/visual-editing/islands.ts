@@ -12,7 +12,8 @@ import { requestWithMetadata } from '@tinacms/astro';
 import type { IslandConfig, IslandRegistry } from '@tinacms/astro/experimental';
 import client from '../../tina/__generated__/client';
 import { about, chinafy, deck, home } from '../../src/lib/pages.ts';
-import { site } from '../../src/config/site.ts';
+import { clientLogo, site, statistic, toSiteConfig } from '../../src/config/site.ts';
+import siteRaw from '../../content/settings/site.json' with { type: 'json' };
 import {
   loadApps,
   loadService,
@@ -32,6 +33,8 @@ import FdeBody from '../../src/components/sections/home/FdeBody.astro';
 import WhyUsBody from '../../src/components/sections/home/WhyUsBody.astro';
 import EcosystemBody from '../../src/components/sections/home/EcosystemBody.astro';
 import GlobeHead from '../../src/components/sections/home/GlobeHead.astro';
+import AdvantageBody from '../../src/components/sections/home/AdvantageBody.astro';
+import ClientsBody from '../../src/components/sections/home/ClientsBody.astro';
 
 /**
  * 编辑过程中字段可能被清空：GraphQL 返回 null，列表变成 null。正文组件按构建期校验过的形状写，
@@ -105,6 +108,43 @@ function pageIsland(
   };
 }
 
+/**
+ * 首页上取「站点设置」文档的岛（数据统计、客户标识）。不设 primary：后台默认展开的仍是首页表单。
+ *
+ * 渲染用 toSiteConfig() 收敛后的值（开关、缺省、过滤无效项与构建期一致）；它会重建对象、丢掉元数据，
+ * 所以另把通过校验的草稿项按同一规则挑出来（与收敛结果一一对应），交给正文组件打点选标记。
+ * 编辑中把必填项（如正式域名）清空时 toSiteConfig() 会抛错，此时退回构建期的值，预览不卡住。
+ */
+function settingsIsland(
+  component: IslandConfig['component'],
+  wrapperClass: string,
+  toProps: (draft: Record<string, unknown>, cfg: typeof site) => Record<string, unknown>,
+): IslandConfig {
+  return {
+    fetch: () => requestWithMetadata(client.queries.settings({ relativePath: 'site.json' })),
+    component,
+    wrapper: { tag: 'div', className: wrapperClass },
+    propsFromData: (result) => {
+      const draft =
+        (result as { data?: { settings?: Record<string, unknown> } }).data?.settings ?? {};
+      let cfg = site;
+      try {
+        cfg = toSiteConfig(withShape(draft, siteRaw));
+      } catch {
+        // 退回构建期的值
+      }
+      return toProps(draft, cfg);
+    },
+  };
+}
+
+const part = (draft: Record<string, unknown>, key: string) => {
+  const v = draft[key];
+  return v && typeof v === 'object' ? (v as Record<string, unknown>) : undefined;
+};
+const validItems = (list: unknown, check: (v: unknown) => unknown) =>
+  (Array.isArray(list) ? list : []).filter((v) => check(v) !== null) as object[];
+
 const doc = <T>(query: Promise<T>) => requestWithMetadata(query, { priority: 'primary' });
 const slugOf = (params: URLSearchParams): ServiceSlug =>
   params.get('slug') === 'ai-workflow' ? 'ai-workflow' : 'ai-platform';
@@ -125,6 +165,14 @@ export const islands: IslandRegistry = {
   whyUs: homeIsland('whyUs', WhyUsBody, 'container', (copy) => ({ copy, why: site.whyUs })),
   ecosystem: homeIsland('ecosystem', EcosystemBody, 'container', (eco) => ({ eco })),
   globe: homeIsland('globe', GlobeHead, 'globe__head', (globe) => ({ globe })),
+  advantage: settingsIsland(AdvantageBody, 'container', (draft, cfg) => {
+    const src = part(draft, 'advantage');
+    return { adv: cfg.advantage, src, srcStats: validItems(src?.stats, statistic) };
+  }),
+  clients: settingsIsland(ClientsBody, 'clients__viewport', (draft, cfg) => ({
+    clients: cfg.clients,
+    srcLogos: validItems(part(draft, 'clients')?.logos, clientLogo),
+  })),
 
   service: pageIsland(
     (params) => doc(client.queries.service({ relativePath: `${slugOf(params)}.json` })),
