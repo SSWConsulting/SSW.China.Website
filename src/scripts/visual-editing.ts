@@ -11,8 +11,9 @@
 function insideAdmin(): boolean {
   if (window.self === window.top) return false;
   try {
+    // nginx 对不带结尾斜杠的 /admin 也直接返回后台，不跳转补斜杠（§121）。
     const path = window.parent.location.pathname;
-    return path.startsWith('/admin/') && !path.startsWith('/admin/forms/');
+    return /^\/admin(\/|$)/.test(path) && !/^\/admin\/forms(\/|$)/.test(path);
   } catch {
     return false;
   }

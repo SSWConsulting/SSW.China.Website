@@ -3819,3 +3819,12 @@ Tina 的默认预览路径只能由 `build.basePath` 影响，而它会连带改
   `vite.define` 的 `__SSW_VISUAL_PREVIEW__` 与 `src/globals.d.ts` 不再需要，删除。
 - 已用本地 dev 验证：打开后台落在 `#/~`，右侧是 `/`，左侧出现首页表单，改首屏按钮文字右侧立即更新（未保存）。
 - 预览里点页面内的链接跳到的也是可编辑的线上页面。
+
+## §121 不带结尾斜杠的 `/admin` 同样启用可视化编辑
+
+2026-10-28 实测：用 `ssw.cn/admin#/~` 打开后台，左侧只剩「TinaCMS form fields will appear here」，右侧点不了组件；
+`ssw.cn/admin/#/~`、`ssw.cn/admin/index.html#/~` 正常。nginx 对 `/admin` 直接返回后台页面，不跳转补斜杠，
+父页面路径是 `/admin`，§120 的 `startsWith('/admin/')` 判断不成立，预览页就不加载 bridge。
+
+- `visual-editing.ts` 改为按路径段匹配：`/admin` 或 `/admin/…` 算后台，`/admin/forms` 或 `/admin/forms/…` 仍排除。
+- 不改 nginx 让 `/admin` 跳转到 `/admin/`：页面侧的判断本来就该与 nginx 的行为一致，改代码不需要动服务器配置。
