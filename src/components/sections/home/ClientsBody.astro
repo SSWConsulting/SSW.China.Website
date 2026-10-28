@@ -1,0 +1,31 @@
+---
+/** Clients.astro 里 `.clients__viewport` 的内容：页面与本地可视化编辑端点（dev/visual-editing/）共用，只依赖 props。 */
+import type { ClientsConfig } from '../../../config/types.ts';
+
+interface Props {
+  /** 站点设置里的客户标识跑马灯。可视化编辑时关掉开关会变成 null，此时不渲染内容。 */
+  clients: ClientsConfig | null;
+  /**
+   * 只在可视化编辑端点里传：`logos` 里通过校验的各项草稿（带 Tina 元数据），与 `clients.logos` 一一对应。
+   * 三条轨道都标：可视区里大多是后两条复本（第一条常在视口外），只标第一条基本点不到。
+   */
+  srcLogos?: object[];
+}
+
+const { clients, srcLogos = [] } = Astro.props;
+import { tf } from '../../../lib/tina-field.ts';
+---
+    {/* 三条相同的轨道：名单只维护「站点设置 → 客户标识跑马灯」这一份。
+         卡片上由 CSS 滤镜统一转白 —— 新增标识必须是**透明底**，
+         否则不透明背景会被染成一整块黑方块。全部是第三方商标，用量与授权见 DECISIONS §35、§41。 */}
+    {
+      clients && [false, true, true].map((hidden) => (
+        <ul class="clients__track" aria-hidden={hidden ? 'true' : undefined}>
+          {clients.logos.map((logo, i) => (
+            <li class="clients__item" data-tina-field={srcLogos[i] && tf(srcLogos[i], 'src')}>
+              <img src={logo.src} alt={logo.name} width={logo.w} height={logo.h} loading="lazy" />
+            </li>
+          ))}
+        </ul>
+      ))
+    }

@@ -1,0 +1,41 @@
+---
+/** Advantage.astro 里 `.container` 的内容：页面与本地可视化编辑端点（dev/visual-editing/）共用，只依赖 props。 */
+import type { AdvantageConfig } from '../../../config/types.ts';
+
+interface Props {
+  /** 站点设置里的数据统计。可视化编辑时关掉开关会变成 null，此时不渲染内容。 */
+  adv: AdvantageConfig | null;
+  /**
+   * 只在可视化编辑端点里传：带 Tina 元数据的草稿（`advantage` 本身与 `stats` 里通过校验的各项，
+   * 与 `adv.stats` 一一对应）。`toSiteConfig()` 会重建对象、丢掉元数据，点选定位只能靠它们。
+   */
+  src?: object;
+  srcStats?: object[];
+}
+
+const { adv, src, srcStats = [] } = Astro.props;
+import { tf } from '../../../lib/tina-field.ts';
+---
+{adv && (
+    <div class="advantage__grid" data-reveal-group>
+      <div class="advantage__cell advantage__cell--head" data-reveal>
+        <h2 id="advantage-title" class="advantage__title" data-tina-field={src && tf(src, 'title')}>{adv.title}</h2>
+      </div>
+
+      {
+        adv.stats.slice(0, 3).map((stat, i) => {
+          const s = srcStats[i];
+          return (
+            <div class="advantage__cell" data-reveal>
+              <p class="advantage__figure" data-tina-field={s && tf(s, 'figure')}>
+                <span class="advantage__number">{stat.figure}</span>
+                {stat.suffix && <span class="advantage__suffix">{stat.suffix}</span>}
+              </p>
+              <h3 class="advantage__label" data-tina-field={s && tf(s, 'label')}>{stat.label}</h3>
+              <p class="advantage__note" data-tina-field={s && tf(s, 'note')}>{stat.note}</p>
+            </div>
+          );
+        })
+      }
+    </div>
+)}

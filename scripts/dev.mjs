@@ -8,10 +8,16 @@
  */
 import { spawn } from 'node:child_process';
 
-const child = spawn('npx', ['tinacms', 'dev', '--noTelemetry', '-c', 'astro dev'], {
-  stdio: 'inherit',
-  shell: process.platform === 'win32',
-  env: { ...process.env, TINA_PUBLIC_VISUAL_EDITING: '1' },
-});
+const win = process.platform === 'win32';
+// Windows 上 shell: true 会把参数原样拼成一条命令行，不加引号 `astro dev` 会被拆成两个参数，tinacms 报 Command not found。
+const child = spawn(
+  'npx',
+  ['tinacms', 'dev', '--noTelemetry', '-c', win ? '"astro dev"' : 'astro dev'],
+  {
+    stdio: 'inherit',
+    shell: win,
+    env: { ...process.env, TINA_PUBLIC_VISUAL_EDITING: '1' },
+  },
+);
 child.on('exit', (code) => process.exit(code ?? 0));
 for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => child.kill(signal));

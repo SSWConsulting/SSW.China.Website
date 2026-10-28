@@ -1,5 +1,14 @@
 ---
 import { site } from '../../config/site.ts';
+import Editable from '../Editable.astro';
+import ClientsBody from './home/ClientsBody.astro';
+
+interface Props {
+  /** 包成可视化编辑的岛（只在首页传）。关于我们页上本区块在整块 <main> 的岛里，再包一层就成了岛中岛。 */
+  editable?: boolean;
+}
+
+const { editable = false } = Astro.props;
 const clients = site.clients;
 ---
 
@@ -16,21 +25,10 @@ const clients = site.clients;
 <section class="clients" aria-labelledby="clients-title">
   <h2 id="clients-title" class="sr-only">{clients.title}</h2>
 
-  <div class="clients__viewport">
-    {/* 三条相同的轨道：名单只维护「站点设置 → 客户标识跑马灯」这一份。
-         卡片上由 CSS 滤镜统一转白 —— 新增标识必须是**透明底**，
-         否则不透明背景会被染成一整块黑方块。全部是第三方商标，用量与授权见 DECISIONS §35、§41。 */}
-    {
-      [false, true, true].map((hidden) => (
-        <ul class="clients__track" aria-hidden={hidden ? 'true' : undefined}>
-          {clients.logos.map((logo) => (
-            <li class="clients__item">
-              <img src={logo.src} alt={logo.name} width={logo.w} height={logo.h} loading="lazy" />
-            </li>
-          ))}
-        </ul>
-      ))
-    }
-  </div>
+  {editable ? (
+    <Editable island="clients" class="clients__viewport"><ClientsBody clients={clients} /></Editable>
+  ) : (
+    <div class="clients__viewport"><ClientsBody clients={clients} /></div>
+  )}
 </section>
 </>)}

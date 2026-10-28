@@ -70,7 +70,8 @@ function ecosystemEntry(v: unknown, fallbackName: string): EcosystemEntry {
   };
 }
 
-function statistic(v: unknown): Statistic | null {
+/** 导出给可视化编辑端点（dev/visual-editing/islands.ts）：按同一规则挑出通过校验的草稿项。 */
+export function statistic(v: unknown): Statistic | null {
   const o = obj(v);
   const figure = str(o?.figure);
   const label = str(o?.label);
@@ -93,7 +94,8 @@ function caseStudy(v: unknown): CaseStudy | null {
   };
 }
 
-function clientLogo(v: unknown): ClientLogo | null {
+/** 同上，导出给可视化编辑端点。 */
+export function clientLogo(v: unknown): ClientLogo | null {
   const img = image(v);
   const name = str(obj(v)?.name);
   return img && name ? { ...img, name } : null;

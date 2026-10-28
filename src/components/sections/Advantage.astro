@@ -1,5 +1,17 @@
 ---
 import { site } from '../../config/site.ts';
+import Editable from '../Editable.astro';
+import AdvantageBody from './home/AdvantageBody.astro';
+
+interface Props {
+  /**
+   * 包成可视化编辑的岛（只在首页传）。关于我们、AI 应用定制页上本区块在整块 <main> 的岛里，
+   * 再包一层就成了岛中岛。
+   */
+  editable?: boolean;
+}
+
+const { editable = false } = Astro.props;
 const adv = site.advantage;
 ---
 
@@ -12,25 +24,10 @@ const adv = site.advantage;
      记在 docs/DECISIONS.md 里，页面上按用户要求不再显示。
      ══════════════════════════════════════════════════════════════════════ */}
 <section class="advantage" id="advantage" aria-labelledby="advantage-title">
-  <div class="container">
-    <div class="advantage__grid" data-reveal-group>
-      <div class="advantage__cell advantage__cell--head" data-reveal>
-        <h2 id="advantage-title" class="advantage__title">{adv.title}</h2>
-      </div>
-
-      {
-        adv.stats.slice(0, 3).map((stat) => (
-          <div class="advantage__cell" data-reveal>
-            <p class="advantage__figure">
-              <span class="advantage__number">{stat.figure}</span>
-              {stat.suffix && <span class="advantage__suffix">{stat.suffix}</span>}
-            </p>
-            <h3 class="advantage__label">{stat.label}</h3>
-            <p class="advantage__note">{stat.note}</p>
-          </div>
-        ))
-      }
-    </div>
-  </div>
+  {editable ? (
+    <Editable island="advantage" class="container"><AdvantageBody adv={adv} /></Editable>
+  ) : (
+    <div class="container"><AdvantageBody adv={adv} /></div>
+  )}
 </section>
 </>)}

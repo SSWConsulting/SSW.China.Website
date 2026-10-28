@@ -3828,3 +3828,22 @@ Tina 的默认预览路径只能由 `build.basePath` 影响，而它会连带改
 
 - `visual-editing.ts` 改为按路径段匹配：`/admin` 或 `/admin/…` 算后台，`/admin/forms` 或 `/admin/forms/…` 仍排除。
 - 不改 nginx 让 `/admin` 跳转到 `/admin/`：页面侧的判断本来就该与 nginx 的行为一致，改代码不需要动服务器配置。
+
+## §122 首页的数据统计、客户标识跑马灯可点选编辑
+
+2026-10-28 用户要求首页上点不了的区块也能在后台点选。这两块的内容在「站点设置」（`content/settings/site.json`），
+此前的岛只取首页文档，它们没有包进 `Editable`，预览里也打不出 `data-tina-field`。
+
+- 拆出 `sections/home/AdvantageBody.astro`（`.container` 的内容）、`ClientsBody.astro`（`.clients__viewport` 的内容），
+  在 `islands.ts` 注册 `advantage`、`clients` 两个岛，取 `settings` 文档。不设 primary，后台默认展开的仍是首页表单。
+- `toSiteConfig()` 会重建对象、丢掉 Tina 元数据，所以渲染用收敛后的值，打点选标记用草稿里按同一规则
+  （`site.ts` 导出的 `statistic`、`clientLogo`）挑出的有效项，两者一一对应。编辑中清空必填项（如正式域名）
+  导致 `toSiteConfig()` 抛错时退回构建期的值，预览不卡住。
+- 只在首页包岛（`<Advantage editable />`、`<Clients editable />`）：关于我们、AI 应用定制页上这两块在整块 `<main>`
+  的岛里，再包一层就成了岛中岛。那两页上它们仍不可点选，要在「站点设置」表单里改。
+- 跑马灯三条轨道都打标记：静止时第一条常在视口外，可视区里大多是 aria-hidden 的复本，只标第一条基本点不到。
+  同一字段出现多次不影响定位。
+- 关掉区块开关时预览里只清空内容，外层 `<section>` 的留白还在；保存后的构建会整段不渲染。
+- 线上产物：除首页多两个 `data-tina-island` 属性外，各页只差块级容器之间的几处空白（与 PR #1 的对比口径相同）。
+- 本地已验证：点「1,800」左侧跳到「站点设置 / 数据统计 / 数字」，输入后右侧即时更新；点客户标识跳到对应条目。
+- 顺带修了 `scripts/dev.mjs` 在 Windows 上起不来的问题：`shell: true` 下 `-c astro dev` 被拆成两个参数，需要加引号。
