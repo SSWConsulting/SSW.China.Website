@@ -114,7 +114,7 @@ tina/collections/*.ts     对应的后台表单（字段说明就是给编辑看
   （只在 `astro dev` 与 `SSW_VISUAL_PREVIEW=1` 的构建注入）。改页面结构时改正文组件即可。
   包裹元素只能是只带 class 的元素（bridge 替换后其他属性会丢），细节见 DECISIONS §108、§109。
   端点在哪：本地是 `astro dev`；ssw.cn 是服务器本机的 Node 预览服务（`npm run build:island-server`、`deploy/island-server/`、
-  `deploy/nginx-island.conf`，DEPLOY-SETUP，§117）；Vercel 预览站（`npm run build:preview`、`.github/workflows/preview.yml`）是 Vercel Function。
+  `deploy/nginx-island.conf`，DEPLOY-SETUP，§117）；Vercel 预览站（`npm run build:preview`，Vercel 的 GitHub 集成部署：`main` ⇒ 正式，其他分支与 PR ⇒ PR 预览，§121）是 Vercel Function。
   表单编辑的后台留在 `/admin/forms/` 作退路（§113）。
   **router 只能挂在有端点的环境**：没有端点时设了 router，后台只剩「form fields will appear here」。
 - 结构化数据由 `components/JsonLd.astro` 输出，从同一份文案生成 —— FAQPage 与可见问答天然一致。

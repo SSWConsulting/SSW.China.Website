@@ -3847,3 +3847,16 @@ Tina 的默认预览路径只能由 `build.basePath` 影响，而它会连带改
 - 线上产物：除首页多两个 `data-tina-island` 属性外，各页只差块级容器之间的几处空白（与 PR #1 的对比口径相同）。
 - 本地已验证：点「1,800」左侧跳到「站点设置 / 数据统计 / 数字」，输入后右侧即时更新；点客户标识跳到对应条目。
 - 顺带修了 `scripts/dev.mjs` 在 Windows 上起不来的问题：`shell: true` 下 `-c astro dev` 被拆成两个参数，需要加引号。
+
+## §121 预览站改回 Vercel 的 GitHub 集成，开启 PR 预览
+
+§112 因 Vercel 导入页找不到仓库，改用 `.github/workflows/preview.yml` 以 CLI 部署。2026-10-28 编辑者已把 Vercel 与 GitHub 连好，
+按 §112 的约定改回 Git 集成，并借此开启 PR 预览：
+
+- 删除 `vercel.json` 的 `ignoreCommand`（原来只构建 `main`）：`main` ⇒ 预览站正式部署，其他分支与 PR ⇒ 各自的预览部署。
+  §111 当时只构建 `main` 的理由（其他分支没在 TinaCloud 建索引）不成立：Vercel 上没有 `GITHUB_REF_NAME`，
+  `tina/config.ts` 的分支落到 `main`，`tinacms build --content=local` 读本地内容，PR 分支照样能构建。
+- 删除 `.github/workflows/preview.yml`，避免与 Git 集成重复部署 `main`。仓库的 `VERCEL_TOKEN` secret 与 `VERCEL_SCOPE` variable 不再使用。
+- Tina 凭据改由 Vercel 项目的环境变量提供（Production 与 Preview）。
+- 代价：PR 预览的后台写的是 `main`（分支固定），只用来看页面，不用来改文案（写进 TINACMS.md）。
+  若将来要「每个 PR 在自己的分支上编辑」，需要 TinaCloud 为分支建索引并把 `TINA_BRANCH` 设为 `VERCEL_GIT_COMMIT_REF`，另议。

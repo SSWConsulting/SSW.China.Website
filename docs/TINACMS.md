@@ -39,16 +39,23 @@ ssw.cn 是纯静态站，没有能实时渲染预览的服务，所以可视化�
 同一份代码用 `npm run build:preview` 构建（`vercel.json` 已配置），它自己的 `/admin/` 打开文档就是「左表单、右预览」。
 在预览站保存与在 ssw.cn 保存完全一样：TinaCloud 提交到 `main` ⇒ ssw.cn 重新部署。预览站对搜索引擎声明 noindex。
 
-部署由 GitHub Actions 完成（`.github/workflows/preview.yml`），**不用** Vercel 的 GitHub 集成（DECISIONS §112）：
+部署用 Vercel 的 GitHub 集成（DECISIONS §121）：Vercel 项目连接本仓库后，
 
-1. 在 Vercel 账号设置的 **Tokens** 里创建 token，Scope 选公司团队；在 GitHub 仓库的 Actions secrets 里加为 `VERCEL_TOKEN`。
-2. 在同一页的 **Variables** 标签加 `VERCEL_SCOPE` = 公司团队的 slug（`vercel.com/<slug>` 里的那段）。
-3. 在 Actions 页面手动运行「预览站（Vercel）」，或等下一次 `main` 更新。第一次运行会在团队下建项目 `ssw-china-preview`。
-   Tina 凭据直接取自仓库已有的 secret，不用在 Vercel 项目里配环境变量。
-4. 把预览站域名（Vercel 项目的 **Domains**，通常是 `https://ssw-china-preview.vercel.app`）加进 TinaCloud 项目的 **Site URLs**。
-5. 编辑者打开 `https://<预览站域名>/admin/` 登录即可。
+- `main` 的每次更新（包括后台保存）⇒ 预览站的正式部署（`https://ssw-china-preview.vercel.app`），与 ssw.cn 同时更新。
+- 其他分支与每个 PR ⇒ 各自的 **PR 预览**部署，Vercel 在 PR 里贴出链接，用来在合并前看页面改动。
 
-每次 `main` 更新（包括后台保存）都会同时更新预览站与 ssw.cn。
+Vercel 一侧要配置：
+
+1. 项目 **Settings → Environment Variables**：`PUBLIC_TINA_CLIENT_ID` 与 `TINA_TOKEN`，勾选 **Production** 与 **Preview**
+   （值与 GitHub 仓库 secret 相同）。没有它们构建会直接失败（`scripts/build-admin.mjs`）。
+2. 项目 **Settings → Git**：Production Branch 为 `main`。
+3. 预览站域名（通常是 `https://ssw-china-preview.vercel.app`）加进 TinaCloud 项目的 **Site URLs**。
+4. PR 预览默认受 Vercel 的 Deployment Protection 保护，只有 Vercel 团队成员能打开；要给团队外的人看，在
+   **Settings → Deployment Protection** 里调整。
+
+**PR 预览只用来看页面，不要在它的 `/admin/` 里改文案**：Tina 的分支在 Vercel 上固定为 `main`
+（`tina/config.ts` 读 `GITHUB_REF_NAME`，Vercel 上没有），在 PR 预览里保存会直接提交到 `main`；
+右侧预览显示的是 PR 的页面代码配上 `main` 的内容。PR 预览的域名每次不同，也不在 TinaCloud 的 Site URLs 里，后台通常登录不了。
 
 ### 4. 邀请编辑
 
