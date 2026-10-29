@@ -82,9 +82,9 @@ Set-Location C:\actions-runner
 ## 编辑后台（TinaCMS）的凭据
 
 `/admin/` 编辑后台需要两个 GitHub secret：`PUBLIC_TINA_CLIENT_ID` 与 `TINA_TOKEN`。
-取得与配置方法见 [`TINACMS.md`](TINACMS.md)。没配置时部署照常进行，只是产物里不含 `/admin/`。配置后 `/admin/` 是跳转到预览站后台的页面，表单编辑的后台在 `/admin/forms/`（DECISIONS §113）。
+取得与配置方法见 [`TINACMS.md`](TINACMS.md)。没配置时部署照常进行，只是产物里不含 `/admin/`。配置后 `/admin/` 是可视化编辑后台（见下文「可视化编辑的预览服务」），表单编辑的后台在 `/admin/forms/`（DECISIONS §113、§120）。
 
-编辑在后台保存后，TinaCloud 会把改动提交到 main，从而触发这里的部署流程，不需要另外配置。
+编辑在后台保存后，TinaCloud 建分支并开 PR（Editorial Workflow，DECISIONS §124）；PR 合并进 main 后触发这里的部署流程，不需要另外配置。
 
 ## 首次发布
 
@@ -145,7 +145,7 @@ Get-Content C:\SSW\island-server\island-server.log -Tail 20
 ```
 
 **6. 配 nginx**：备份 ssw.cn 所在的配置文件，把 [`deploy/nginx-island.conf`](../deploy/nginx-island.conf)
-的内容粘进 ssw.cn 的 `server { }` 块，`.\nginx.exe -t` 通过后 `.\nginx.exe -s reload`。
+的内容粘进 ssw.cn 的 `server { }` 块，`.\nginx.exe -t` 通过后重新加载（见下文「nginx 的缓存头与重新加载」）。
 
 **7. 验证**：打开 `https://ssw.cn/admin/` 登录，打开任意「页面：…」，在左侧改字，右侧应立即更新。
 
@@ -155,6 +155,56 @@ Get-Content C:\SSW\island-server\island-server.log -Tail 20
   服务本体（`server\`）的更新是自动的。
 - 右侧预览不更新：看 `island-server.log`；`Get-ScheduledTask 'SSW island server'` 看任务状态。
 - 撤回：删掉 nginx 里那一段并 reload，`Disable-ScheduledTask 'SSW island server'`。
+
+## nginx 的缓存头与重新加载
+
+配置文件是 `C:\SSW\Nginx\conf\nginx.conf`（同机多个站点共用一个文件），**不在仓库里**，改之前先备份。
+
+### ssw.cn 的缓存头（2026-10-28 已配置，DECISIONS §124）
+
+ssw.cn 的 `server { }` 块里，HTML 每次都向服务器确认，构建产物长期缓存：
+
+```nginx
+    location /assets/ {
+        root html/sswchina;
+        expires 1y;
+        add_header Cache-Control "public, immutable" always;
+        add_header Strict-Transport-Security "max-age=15552000; includeSubDomains; preload" always;
+    }
+
+    location / {
+        root html/sswchina;
+        index index.html;
+        try_files $uri $uri/index.html $uri/ =404;
+        add_header Cache-Control "no-cache" always;
+        add_header Strict-Transport-Security "max-age=15552000; includeSubDomains; preload" always;
+    }
+```
+
+- 没有这条时，浏览器会按启发式缓存继续用旧的 HTML：部署后（包括后台编辑的 PR 合并后）看不到新内容，后台右侧预览也可能还是旧页面。
+- `no-cache` 不是不缓存，而是每次先问服务器；没变就返回 304，几乎不耗流量。`/assets/` 的文件名带哈希，内容变了文件名就变，可以缓存一年。
+- **location 里一旦写了 `add_header`，server 级的 `add_header` 就不再继承**，所以 HSTS 要在每个这样的 location 里重复写。
+- 不要改用 `location ~* \.html$` 来加头：`/`、`/about/` 这类干净 URL 由 `location /` 的 `try_files` 直接返回 `index.html`，
+  不会再去匹配那个正则 location，头加不上。
+
+### 重新加载（必须以 SYSTEM 身份）
+
+nginx 由 SYSTEM 启动，**管理员 PowerShell 里的 `.\nginx.exe -s reload` 也会报**
+`OpenEvent("Global\ngx_reload_…") failed (5: Access is denied)`，配置并没有生效。先检查语法，再借一个一次性的 SYSTEM 计划任务重新加载（不断线）：
+
+```powershell
+cd C:\SSW\Nginx
+.\nginx.exe -t
+schtasks /create /tn "nginx-reload-once" /tr "C:\SSW\Nginx\nginx.exe -p C:\SSW\Nginx\ -s reload" /sc once /st 23:59 /ru SYSTEM /f
+schtasks /run /tn "nginx-reload-once"
+Start-Sleep -Seconds 3
+schtasks /query /tn "nginx-reload-once" /v /fo list | Select-String "Last Result|上次运行结果"
+schtasks /delete /tn "nginx-reload-once" /f
+```
+
+- `Last Result` 为 `0` 即成功。`-p` 必须带，计划任务的工作目录不是 nginx 目录。
+- `-t` 时出现 `duplicate MIME type "text/html"` 的警告是 aisec 站点 `sub_filter_types` 里多写了默认类型，与 ssw.cn 无关，不影响运行。
+- 服务器上没有 `curl.exe`。验证响应头可以在本机用 `curl -sI https://ssw.cn/`，或在浏览器开发者工具的 Network 里看。
 
 ## 回滚
 

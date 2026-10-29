@@ -35,11 +35,11 @@
 
 ### 3. 可视化编辑预览站（Vercel）
 
-ssw.cn 是纯静态站，没有能实时渲染预览的服务，所以可视化编辑放在 Vercel 上的一个**预览站**：
-同一份代码用 `npm run build:preview` 构建（`vercel.json` 已配置），它自己的 `/admin/` 打开文档就是「左表单、右预览」。
-在预览站保存与在 ssw.cn 保存完全一样：TinaCloud 提交到 `main` ⇒ ssw.cn 重新部署。预览站对搜索引擎声明 noindex。
+编辑者日常用 `https://ssw.cn/admin/`（实时预览靠服务器本机的预览服务，见 DEPLOY-SETUP）。
+Vercel 上另有一个**预览站**：同一份代码用 `npm run build:preview` 构建（`vercel.json` 已配置），它自己的 `/admin/` 打开文档也是「左表单、右预览」，
+主要用途是下面的 PR 预览。在预览站保存与在 ssw.cn 保存完全一样：走 Editorial Workflow 建分支开 PR（见「已知限制」）。预览站对搜索引擎声明 noindex。
 
-部署用 Vercel 的 GitHub 集成（DECISIONS §121）：Vercel 项目连接本仓库后，
+部署用 Vercel 的 GitHub 集成（DECISIONS §123）：Vercel 项目连接本仓库后，
 
 - `main` 的每次更新（包括后台保存）⇒ 预览站的正式部署（`https://ssw-china-preview.vercel.app`），与 ssw.cn 同时更新。
 - 其他分支与每个 PR ⇒ 各自的 **PR 预览**部署，Vercel 在 PR 里贴出链接，用来在合并前看页面改动。
@@ -54,8 +54,8 @@ Vercel 一侧要配置：
    **Settings → Deployment Protection** 里调整。
 
 **PR 预览只用来看页面，不要在它的 `/admin/` 里改文案**：Tina 的分支在 Vercel 上固定为 `main`
-（`tina/config.ts` 读 `GITHUB_REF_NAME`，Vercel 上没有），在 PR 预览里保存会直接提交到 `main`；
-右侧预览显示的是 PR 的页面代码配上 `main` 的内容。PR 预览的域名每次不同，也不在 TinaCloud 的 Site URLs 里，后台通常登录不了。
+（`tina/config.ts` 读 `GITHUB_REF_NAME`，Vercel 上没有），在 PR 预览里保存不会改到这个 PR，而是另建一个 `tina/…` 分支和 PR
+（`main` 受保护，不会直接写进 `main`，§124）；右侧预览显示的是 PR 的页面代码配上 `main` 的内容。PR 预览的域名每次不同，也不在 TinaCloud 的 Site URLs 里，后台通常登录不了。
 
 ### 4. 邀请编辑
 
@@ -100,8 +100,11 @@ npm run dev        # 网站 + 本地编辑后台：http://localhost:5173/admin/i
 
 ## 已知限制与后续可做
 
-- **可视化编辑在 ssw.cn、预览站和本地。** 在 `https://ssw.cn/admin/`（或预览站的 `/admin/`、本地 `npm run dev` 的后台）打开任意一个「页面：…」，左边是表单，右边是实时预览：输入时预览立刻更新，点预览里的文字会跳到对应字段。「全站通用」「站点设置」仍是表单编辑。ssw.cn 的实时预览靠服务器本机的预览服务（见 DEPLOY-SETUP）；它停了时用 `https://ssw.cn/admin/forms/` 的表单编辑。实现与限制见 DECISIONS §108、§109、§111、§113、§117。
+- **可视化编辑在 ssw.cn、预览站和本地。** 在 `https://ssw.cn/admin/`（或预览站的 `/admin/`、本地 `npm run dev` 的后台）打开任意一个「页面：…」，左边是表单，右边是实时预览：输入时预览立刻更新，点预览里的文字会跳到对应字段。「全站通用」（导航、页脚等）仍是表单编辑；「站点设置」里只有首页的数据统计与客户标识可在预览里点选（§122），其余在表单里改。ssw.cn 的实时预览靠服务器本机的预览服务（见 DEPLOY-SETUP）；它停了时用 `https://ssw.cn/admin/forms/` 的表单编辑。实现与限制见 DECISIONS §108、§109、§111、§113、§117。
 - **预览站部署在 Vercel，`*.vercel.app` 在国内被拦截。** 国内编辑者用 `https://ssw.cn/admin/`。
-- **编辑直接提交到 main。** 每次保存都会触发一次部署。如果需要「先提 PR、审核后再上线」，可以开启 TinaCloud 的 Editorial Workflow（付费功能），由它为每次编辑建分支并开 PR。
+- **保存后先开 PR，合并后才上线（Editorial Workflow，§124）。** TinaCloud 项目开了 Editorial Workflow 并把 `main` 设为受保护分支，GitHub 上也有规则集 `Protect main`（合并前必须走 PR）。在后台保存时会要求起分支名，TinaCloud 建 `tina/…` 分支、提交并开 PR；PR 合并进 `main` 后才触发部署。
+  - 默认分支名按文档生成（如 `tina/pages/home`）。仓库开了「合并后自动删除分支」，正常不会重名；若同一页面上一个 PR 还没合并又保存，会提示「A branch with this name already exists」，改个分支名即可。
+  - 不想上线的测试 PR 直接关闭，并删除它的分支。
+  - 合并后线上约 3 分钟更新；HTML 带 `Cache-Control: no-cache`（服务器 nginx 配置，见 DEPLOY-SETUP），正常刷新即可看到新内容。
 - **TinaCloud 的服务器在海外。** 国内编辑打开后台可能偏慢，但访客访问网站不经过 TinaCloud，不受影响。
 - 「Organization」结构化数据（法定名称、地址、sameAs 等）仍写在 `src/components/partials/Head.astro` 里。它们是已核实的主体信息，改动前需要核实，所以没有放进后台。

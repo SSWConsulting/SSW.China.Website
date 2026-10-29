@@ -3848,7 +3848,7 @@ Tina 的默认预览路径只能由 `build.basePath` 影响，而它会连带改
 - 本地已验证：点「1,800」左侧跳到「站点设置 / 数据统计 / 数字」，输入后右侧即时更新；点客户标识跳到对应条目。
 - 顺带修了 `scripts/dev.mjs` 在 Windows 上起不来的问题：`shell: true` 下 `-c astro dev` 被拆成两个参数，需要加引号。
 
-## §121 预览站改回 Vercel 的 GitHub 集成，开启 PR 预览
+## §123 预览站改回 Vercel 的 GitHub 集成，开启 PR 预览
 
 §112 因 Vercel 导入页找不到仓库，改用 `.github/workflows/preview.yml` 以 CLI 部署。2026-10-28 编辑者已把 Vercel 与 GitHub 连好，
 按 §112 的约定改回 Git 集成，并借此开启 PR 预览：
@@ -3860,3 +3860,18 @@ Tina 的默认预览路径只能由 `build.basePath` 影响，而它会连带改
 - Tina 凭据改由 Vercel 项目的环境变量提供（Production 与 Preview）。
 - 代价：PR 预览的后台写的是 `main`（分支固定），只用来看页面，不用来改文案（写进 TINACMS.md）。
   若将来要「每个 PR 在自己的分支上编辑」，需要 TinaCloud 为分支建索引并把 `TINA_BRANCH` 设为 `VERCEL_GIT_COMMIT_REF`，另议。
+
+## §124 后台编辑改为先开 PR、合并后上线；ssw.cn 的 HTML 不再被浏览器长期缓存
+
+2026-10-28 起（均为仓库外的设置，这里记下以免与 §104 的「直接提交 main」混淆）：
+
+- **TinaCloud 开启 Editorial Workflow**，Protected Branches 设为 `main`。在后台保存时要求起分支名，
+  TinaCloud 建 `tina/…` 分支、提交并开 PR；合并进 `main` 才触发 `deploy.yml`。§104 所说「保存即提交 main 并部署」不再成立。
+  已实测一次完整流程：PR #18（首页服务区标题「但」→「却」）合并后约 3 分钟线上更新。
+- **GitHub 规则集 `Protect main`**（Active，目标为默认分支）：禁止删除与强推，合并前必须走 PR，不要求状态检查
+  （本仓库的 PR 上只有 Vercel 预览，`deploy.yml` 不在 PR 上运行，要求检查会让 PR 永远等不到）。TinaCloud 不在 bypass 列表里。
+- **仓库开启「合并后自动删除分支」**。Tina 的默认分支名按文档生成（如 `tina/pages/home`），PR #18 合并后分支未删，
+  下一次保存首页时报「A branch with this name already exists」。同一页面上一个 PR 未合并时再保存仍会重名，改分支名即可，属 Tina 的命名方式。
+- **ssw.cn 的 nginx**：`location /` 加 `Cache-Control: no-cache`，`location /assets/` 一年 immutable，两处都重复 HSTS。
+  起因是 PR #16 部署后，后台右侧 iframe 仍用浏览器缓存的旧首页（引用旧脚本），看起来像修复没生效。配置与以 SYSTEM 身份 reload 的做法见 DEPLOY-SETUP。
+- 编号：PR #16 与 PR #17 同时各加了一条 §121，后合并的「预览站改回 Vercel 的 GitHub 集成」改为 §123，CLAUDE.md、TINACMS.md 的引用随之更新，内容未改。
