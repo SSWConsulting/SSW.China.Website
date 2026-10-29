@@ -1,6 +1,6 @@
 # SSW.cn (2026 redesign)
 
-The Chinese-language SSW website in deep charcoal and SSW red `#CC4141`: a home page, three AI service pages and a few supporting pages. Stack: [Astro](https://astro.build) (fully static output) with plain TypeScript and plain CSS. Copy and assets are edited in a [TinaCMS](https://tina.io) admin (see [`docs/TINACMS.md`](docs/TINACMS.md)).
+The Chinese-language SSW website in deep charcoal and SSW red `#CC4141`: a home page, three AI service pages and a few supporting pages. Stack: [Astro](https://astro.build) (fully static output) with plain TypeScript and plain CSS. Copy and assets are edited in a [TinaCMS](https://tina.io) admin at [ssw.cn/admin](https://ssw.cn/admin/), with a live visual preview (see [`docs/TINACMS.md`](docs/TINACMS.md)).
 
 The navigation bar and hero follow the layout of [ssw.com.au](https://www.ssw.com.au). This site adds a "SSW around the world" section and a light/dark theme switch.
 The only runtime dependency is [`cobe`](https://www.npmjs.com/package/cobe) (13 KB, a WebGL dotted globe). It is loaded on demand (a separate chunk, not part of the main bundle) and shown at every width: beside the office list on desktop, above it on narrow screens.
@@ -32,23 +32,28 @@ npm install
 npm run dev        # http://localhost:5173 , admin at http://localhost:5173/admin/index.html
 ```
 
-| Command                 | What it does                                                                                                                        |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`           | Local dev server plus the Tina admin in local mode (saving writes straight to local files); page documents open with a live preview |
-| `npm run dev:site`      | Site only, without the admin                                                                                                        |
-| `npm run build`         | Type check + admin (only when TinaCloud credentials are set) + production build into `dist/`                                        |
-| `npm run build:preview` | Visual-editing preview site for Vercel (needs TinaCloud credentials); see `docs/TINACMS.md`                                         |
-| `npm run preview`       | Preview the production build (http://localhost:4173)                                                                                |
-| `npm run typecheck`     | `astro check` (covers `.astro` templates and TS)                                                                                    |
-| `npm run contrast`      | Checks contrast using the real tokens from `tokens.css`, and blocks brand red as a text colour                                      |
-| `npm run check:assets`  | Prints the missing-assets table; exits non-zero when there are publish blockers                                                     |
-| `npm run fonts:sync`    | Copies the Inter Latin subset from `node_modules` into `public/fonts/`                                                              |
-| `npm run verify`        | Type check + format check + contrast + build + SEO check (should be green day to day)                                               |
-| `npm run preflight`     | `verify` + asset check — **the pre-release gate**; fails while assets are still missing                                             |
+| Command                       | What it does                                                                                                                        |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                 | Local dev server plus the Tina admin in local mode (saving writes straight to local files); page documents open with a live preview |
+| `npm run dev:site`            | Site only, without the admin                                                                                                        |
+| `npm run build`               | Type check + admin (only when TinaCloud credentials are set) + production build into `dist/`                                        |
+| `npm run build:preview`       | Visual-editing preview site for Vercel (needs TinaCloud credentials); see `docs/TINACMS.md`                                         |
+| `npm run build:island-server` | After `build`: the Node preview service that renders live edits for ssw.cn/admin, into `dist-island/`; see `docs/DEPLOY-SETUP.md`   |
+| `npm run preview`             | Preview the production build (http://localhost:4173)                                                                                |
+| `npm run typecheck`           | `astro check` (covers `.astro` templates and TS)                                                                                    |
+| `npm run contrast`            | Checks contrast using the real tokens from `tokens.css`, and blocks brand red as a text colour                                      |
+| `npm run check:assets`        | Prints the missing-assets table; exits non-zero when there are publish blockers                                                     |
+| `npm run fonts:sync`          | Copies the Inter Latin subset from `node_modules` into `public/fonts/`                                                              |
+| `npm run verify`              | Type check + format check + contrast + build + SEO check (should be green day to day)                                               |
+| `npm run preflight`           | `verify` + asset check — **the pre-release gate**; fails while assets are still missing                                             |
 
 There is no test suite; `verify` is the regression guard.
 
 ## Editing copy and adding assets: use the admin
+
+Editors open [`https://ssw.cn/admin/`](https://ssw.cn/admin/) and sign in with their TinaCloud account. Each page document opens with the form on the left and the real page on the right: the preview updates as you type, and clicking text in the preview jumps to its field. If the live preview is unavailable, [`/admin/forms/`](https://ssw.cn/admin/forms/) is a form-only fallback.
+
+Saving does not publish straight away. The TinaCloud editorial workflow creates a `tina/…` branch and opens a pull request; the site updates about three minutes after that PR is merged into `main` (which is protected).
 
 Page copy is edited in the admin's page collections. Images, the QR code, the ICP filing, case studies, client logos and the publish gates live under 站点设置 (Site settings), backed by [`content/settings/site.json`](content/settings/site.json). Images can be uploaded to `public/media/` directly from the admin; always enter the image's **original pixel dimensions** along with it. Setup and usage are covered in [`docs/TINACMS.md`](docs/TINACMS.md).
 
@@ -65,6 +70,13 @@ Every field left empty has a defined, honest fallback (rendered conditionally at
 5. **About page recognition list** (Microsoft partner, MVPs, Regional Director, etc.) needs the same confirmation.
 
 Never toggle a gate just to make the check pass. Other missing assets (searchable WeCom ID, legal entity name, privacy policy link) do not block release; the page simply omits them instead of leaving empty boxes.
+
+## Deployment
+
+- **ssw.cn (production).** Every push to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml): the build runs on a GitHub-hosted Ubuntu runner, then a self-hosted Windows runner on the Aliyun server copies `dist/` into nginx and updates the visual-editing preview service (`/tina-island/`, proxied by nginx to a local Node process). Server setup is in [`docs/DEPLOY-SETUP.md`](docs/DEPLOY-SETUP.md).
+- **Vercel.** The Vercel GitHub integration builds `npm run build:preview`: `main` deploys to https://ssw-china-preview.vercel.app, and every other branch and pull request gets its own preview link in the PR. Use PR previews to review page changes before merging; they are not for editing copy. `*.vercel.app` is blocked in mainland China, so editors there use ssw.cn/admin.
+
+The site itself stays fully static: visitors never load Tina or any editing code. Pages only carry a few `data-tina-island` markers, and the editing bridge loads only when a page is opened inside the site's own admin.
 
 ## Light and dark themes
 
@@ -89,12 +101,15 @@ src/components/        Sections (sections/), shared partials (partials/), servic
 src/lib/               content.ts loads and validates content/; pages.ts, shared.ts, service.ts hold the schemas
 src/config/            site.ts normalises Site settings and reports publish blockers; types.ts is the asset contract
 src/styles/            tokens.css is the closed token set; motion.css holds every @keyframes and the only motion switch
-src/scripts/           nav / wecom-modal / reveal / motion, all progressive enhancement
+src/scripts/           nav / wecom-modal / reveal / motion, all progressive enhancement; visual-editing.ts loads the Tina bridge inside the admin only
 content/               Copy and asset settings (JSON), read and written by the TinaCMS admin
 tina/                  TinaCMS config and admin collection definitions
+dev/visual-editing/    /tina-island/ preview endpoints (dev server, Vercel and the ssw.cn preview service)
+deploy/                ssw.cn preview service supervisor and the nginx snippet that proxies /tina-island/
 docs/DECISIONS.md      Every value inferred during implementation (not specified in the docs), with reasoning
 docs/VERIFY.md         Acceptance checklist and the verification results
 docs/TINACMS.md        Admin setup, editing rules and known limitations
+docs/DEPLOY-SETUP.md   Production server, self-hosted runner, nginx and preview service setup
 ```
 
 Two review rules: **every `@keyframes` lives in `motion.css` only**, and **no duration or offset literals outside `tokens.css`**.
