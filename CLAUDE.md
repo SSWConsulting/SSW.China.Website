@@ -44,7 +44,8 @@ GitHub 文件列表旁显示的就是提交信息首行）。引用页面上的�
 self-hosted Windows runner（标签 `windows,sswcn`）里只下载 artifact、`robocopy /MIR` 到 nginx 站点目录。
 预览服务（`dist-island/server/`）随同一次发布更新到 `C:\SSW\island-server\server\`，由 supervisor 自动重启（§117）。
 **不要把构建挪回服务器**：`tinacms build` 的本机回环连接在那台服务器上会被切断（DECISIONS §110）。
-TinaCloud 把后台的编辑直接提交到 `main`，所以每次编辑都会触发一次部署。服务器配置见 `docs/DEPLOY-SETUP.md`。
+后台编辑走 TinaCloud 的 Editorial Workflow：`main` 受保护（GitHub 规则集 `Protect main`，合并前必须走 PR），
+保存时 TinaCloud 建 `tina/…` 分支并开 PR，**合并后**才触发部署；PR 合并后分支自动删除（§124）。服务器配置见 `docs/DEPLOY-SETUP.md`。
 
 ## 云端预览发布（WorkBuddy）
 
@@ -114,7 +115,7 @@ tina/collections/*.ts     对应的后台表单（字段说明就是给编辑看
   （只在 `astro dev` 与 `SSW_VISUAL_PREVIEW=1` 的构建注入）。改页面结构时改正文组件即可。
   包裹元素只能是只带 class 的元素（bridge 替换后其他属性会丢），细节见 DECISIONS §108、§109。
   端点在哪：本地是 `astro dev`；ssw.cn 是服务器本机的 Node 预览服务（`npm run build:island-server`、`deploy/island-server/`、
-  `deploy/nginx-island.conf`，DEPLOY-SETUP，§117）；Vercel 预览站（`npm run build:preview`，Vercel 的 GitHub 集成部署：`main` ⇒ 正式，其他分支与 PR ⇒ PR 预览，§121）是 Vercel Function。
+  `deploy/nginx-island.conf`，DEPLOY-SETUP，§117）；Vercel 预览站（`npm run build:preview`，Vercel 的 GitHub 集成部署：`main` ⇒ 正式，其他分支与 PR ⇒ PR 预览，§123）是 Vercel Function。
   表单编辑的后台留在 `/admin/forms/` 作退路（§113）。
   **router 只能挂在有端点的环境**：没有端点时设了 router，后台只剩「form fields will appear here」。
 - 结构化数据由 `components/JsonLd.astro` 输出，从同一份文案生成 —— FAQPage 与可见问答天然一致。
