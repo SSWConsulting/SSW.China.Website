@@ -3914,3 +3914,17 @@ Tina 的默认预览路径只能由 `build.basePath` 影响，而它会连带改
 - 首页 AI 服务导语末句：「三类服务**覆盖企业 AI 转型的主要环节**，可以从你需要的一项开始。」；
 - 首页 FAQ 标题与五条问答全文（尤其「可以到现场驻场吗？」里的驻场范围，需业务确认属实）；
 - Organization `description` 里新增的服务区域一句。
+
+## §126 Vercel PR 预览跳过 TinaCloud 的 schema 校验
+
+PR #22（给首页加 FAQ、站点设置加站长验证码）的 Vercel 预览构建失败。原因：`tinacms build --content=local`
+只是改读本地内容，**云端校验照样执行** —— 拿 TinaCloud 上该分支已索引的 GraphQL schema 与本地比对。
+Vercel 上 `tina/config.ts` 的分支落到 `main`（§123），PR 一加字段，本地 schema 就与 `main` 的不一致，构建必败。
+§123 说「PR 分支照样能构建」只对不改 schema 的 PR 成立（当时的 PR #21 只改文档）。
+
+- `scripts/build-admin.mjs`：`VERCEL_ENV=preview` 时给 `tinacms build` 加 `--skip-cloud-checks`。
+  正式部署（Vercel 的 `main` 与 GitHub Actions 的 ssw.cn 构建）照常校验 —— 合并后 `main` 已含新 schema，
+  `waitForDB` 会等 TinaCloud 索引完成再比对。
+- 代价：PR 预览的后台连的是 `main` 的 TinaCloud，PR 新加的字段在那里查不到。预览本就只用来看页面（§123），页面由
+  `astro build` 读本地 `content/` 生成，不受影响。
+- 未采用：把 `TINA_BRANCH` 设为 `VERCEL_GIT_COMMIT_REF`（依赖 TinaCloud 为每个 PR 分支建索引，§123 已列为另议）。

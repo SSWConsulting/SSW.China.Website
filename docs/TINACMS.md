@@ -56,6 +56,7 @@ Vercel 一侧要配置：
 **PR 预览只用来看页面，不要在它的 `/admin/` 里改文案**：Tina 的分支在 Vercel 上固定为 `main`
 （`tina/config.ts` 读 `GITHUB_REF_NAME`，Vercel 上没有），在 PR 预览里保存不会改到这个 PR，而是另建一个 `tina/…` 分支和 PR
 （`main` 受保护，不会直接写进 `main`，§124）；右侧预览显示的是 PR 的页面代码配上 `main` 的内容。PR 预览的域名每次不同，也不在 TinaCloud 的 Site URLs 里，后台通常登录不了。
+PR 预览构建时跳过 TinaCloud 的 schema 校验（`--skip-cloud-checks`），否则改了 schema 的 PR 会因与 `main` 不一致而构建失败（DECISIONS §126）。
 
 ### 4. 邀请编辑
 

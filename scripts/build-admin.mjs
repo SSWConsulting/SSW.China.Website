@@ -44,6 +44,11 @@ if (!hasCloud) {
 // 最终改为在 GitHub 托管的 runner 上构建，见 DECISIONS §110。）
 const DATALAYER_PORT = '9461';
 
+// Vercel 的 PR 预览（VERCEL_ENV=preview）：tina/config.ts 的分支落到 main，云端校验会拿 main 已索引的 schema
+// 比对本地 —— PR 一改 schema（加字段）就必然不一致而构建失败。预览的后台本来只用来看页面（§123），
+// 跳过校验；正式部署（main）照常校验（DECISIONS §126）。
+const skipCloudChecks = process.env.VERCEL_ENV === 'preview';
+
 /**
  * 跑一次 tinacms build，输出到 public/<folder>/。
  * visual：后台带 router（tina/collections/common.ts），打开文档即「左表单、右预览」，预览的是网站页面本身。
@@ -59,6 +64,7 @@ function tinaBuild(folder, visual) {
       '--noTelemetry',
       '--datalayer-port',
       DATALAYER_PORT,
+      ...(skipCloudChecks ? ['--skip-cloud-checks'] : []),
     ],
     {
       stdio: 'inherit',
