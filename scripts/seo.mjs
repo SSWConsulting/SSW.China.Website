@@ -3,7 +3,8 @@
  * SEO / GEO 产物生成与守卫。
  *
  *   node scripts/seo.mjs          生成 public/robots.txt、sitemap.xml、llms.txt 与 llms-full.txt
- *   node scripts/seo.mjs --check  只校验，不写文件（verify 里跑的就是这个）
+ *   node scripts/seo.mjs --output-dir <dir>  构建钩子：生成部署目录中的 SEO 文件
+ *   node scripts/seo.mjs --check  校验 dist/ 中的 SEO 文件，不写文件（verify）
  *
  * 校验读的是**构建产物** dist/ —— 页面由 Astro 渲染，源文件里已经没有完整的
  * <head>。因此 --check 必须在 astro build 之后跑（npm run verify 里已经按此排序）。
@@ -16,8 +17,8 @@
  *   1. PAGES 里每个页面的源文件真实存在（防止列了已删除的页面）；
  *   2. 每个页面都有 <title>、<meta description>、canonical、og:url；
  *   3. canonical 与 PAGES 里登记的路径一致（防止复制粘贴时漏改）；
- *   4. 磁盘上的 sitemap.xml / llms.txt 与当前配置生成的内容一致
- *      （改了域名或加了页面却忘了重新生成，这里会红）。
+ *   4. 部署目录中的 robots.txt / sitemap.xml / llms.txt / llms-full.txt 与当前构建一致
+ *      （构建钩子自动生成，缺失或过期的部署产物会失败）。
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
@@ -27,6 +28,14 @@ import homeCopy from '../content/pages/home.json' with { type: 'json' };
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const origin = siteConfig.seo.origin.replace(/\/$/, '');
+const outputIndex = process.argv.indexOf('--output-dir');
+if (outputIndex !== -1 && !process.argv[outputIndex + 1]) {
+  throw new Error('--output-dir requires a directory');
+}
+const outputDir = outputIndex === -1 ? null : resolve(process.argv[outputIndex + 1]);
+const buildDir = outputDir ?? resolve(root, 'dist');
+const isCheck = process.argv.includes('--check');
+const artifactDir = outputDir ?? resolve(root, isCheck ? 'dist' : 'public');
 
 /**
  * 站点的**公开**页面。
@@ -47,7 +56,7 @@ const PAGES = [
 
 const read = (rel) => readFileSync(resolve(root, rel), 'utf8');
 /** 页面的构建产物路径。 */
-const built = (p) => `dist/${p.src}`;
+const built = (p) => resolve(buildDir, p.src);
 const pick = (html, re) => {
   const m = html.match(re);
   return m ? m[1].replace(/\s+/g, ' ').trim() : null;
@@ -157,7 +166,6 @@ const llmsFull = () => {
   return parts.join('\n');
 };
 
-const isCheck = process.argv.includes('--check');
 const problems = [];
 
 for (const p of PAGES) {
@@ -243,19 +251,19 @@ const robots = () =>
   ].join('\n');
 
 const outputs = [
-  ['public/robots.txt', robots()],
-  ['public/sitemap.xml', sitemap()],
-  ['public/llms.txt', llms()],
-  ['public/llms-full.txt', llmsFull()],
+  [resolve(artifactDir, 'robots.txt'), robots()],
+  [resolve(artifactDir, 'sitemap.xml'), sitemap()],
+  [resolve(artifactDir, 'llms.txt'), llms()],
+  [resolve(artifactDir, 'llms-full.txt'), llmsFull()],
 ];
 
 if (isCheck) {
   for (const [rel, want] of outputs) {
     const abs = resolve(root, rel);
     if (!existsSync(abs)) {
-      problems.push(`${rel} 不存在 —— 跑 npm run seo 生成`);
+      problems.push(`${rel} 不存在 —— 跑 npm run build 重新构建`);
     } else if (read(rel) !== want) {
-      problems.push(`${rel} 与当前配置不一致 —— 跑 npm run seo 重新生成`);
+      problems.push(`${rel} 与当前构建不一致 —— 跑 npm run build 重新构建`);
     }
   }
   if (problems.length) {

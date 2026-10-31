@@ -1263,3 +1263,9 @@ CLAUDE.md 记的那条视口模拟中途失效又出现了一次。该档仍是�
 
 未覆盖：线上 TinaCloud 登录与提交（需要先在 app.tina.io 建项目并配置凭据）；
 Windows runner 上的 `tinacms build`（runner 尚未迁到新仓库）；浏览器里的交互与动效（本次没有改动脚本与样式）。
+
+### PR #22 复审修复验证（2026-10-31）
+
+- Node 24.13.0：`npm run verify` 全部通过。
+- 临时修改首页 FAQ 回答后运行 `astro build` 与 `seo:check`：两者通过，`dist/llms.txt`、`dist/llms-full.txt` 均包含修改，`public/` 快照未变。随后恢复文案并重新运行完整验证。
+- 本地可视化预览构建缺少 Tina 生成客户端和云端凭据，未完成；预览适配器路径还需由 Vercel CI 验证。

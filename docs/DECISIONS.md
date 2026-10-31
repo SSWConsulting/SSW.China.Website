@@ -3928,3 +3928,9 @@ Vercel 上 `tina/config.ts` 的分支落到 `main`（§123），PR 一加字段�
 - 代价：PR 预览的后台连的是 `main` 的 TinaCloud，PR 新加的字段在那里查不到。预览本就只用来看页面（§123），页面由
   `astro build` 读本地 `content/` 生成，不受影响。
 - 未采用：把 `TINA_BRANCH` 设为 `VERCEL_GIT_COMMIT_REF`（依赖 TinaCloud 为每个 PR 分支建索引，§123 已列为另议）。
+
+### §127 — SEO 产物随构建更新
+
+PR #22 复审发现：把全站正文快照加入 `public/` 漂移检查后，Tina 编辑普通正文也会导致发布失败；编辑后台只提交 JSON，不会运行生成脚本。
+
+改为在 Astro 构建完成后，从本次页面产物生成 robots、sitemap、llms 与 llms-full，直接写入实际发布目录。`seo:check` 校验 `dist/` 中交付的文件，仍校验标题、描述、canonical 与 FAQ 结构化数据。`npm run seo` 保留为手动更新 `public/` 快照的命令，快照不再是编辑发布的前置条件。预览构建使用适配器的静态客户端目录，避免引用上一次生产构建的页面。

@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
 import vercel from '@astrojs/vercel';
+import seoArtifacts from './scripts/seo-integration.mjs';
 import visualEditing from './dev/visual-editing/integration.mjs';
 
 /**
@@ -26,7 +27,7 @@ export default defineConfig({
   site: 'https://ssw.cn',
   output: 'static',
   // 可视化编辑：astro dev 与预览站构建下生效，线上构建不受影响，见 dev/visual-editing/。
-  integrations: [visualEditing({ preview: visualPreview })],
+  integrations: [visualEditing({ preview: visualPreview }), seoArtifacts()],
   // 预览站的 /tina-island 端点按需渲染，需要适配器；页面本身仍是预渲染的静态页。
   ...(visualPreview ? { adapter: islandServer ? node({ mode: 'standalone' }) : vercel() } : {}),
   // 不压缩 HTML：Astro 的压缩会删掉行内元素之间跨行的空白（「中国 当前」→「中国当前」、
