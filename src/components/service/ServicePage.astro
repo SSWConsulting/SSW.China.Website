@@ -13,6 +13,7 @@ import JsonLd from '../JsonLd.astro';
 import Editable from '../Editable.astro';
 import ServiceMain from '../pages/ServiceMain.astro';
 import { site } from '../../config/site.ts';
+import { areaServed, serviceType } from '../../lib/structured-data.ts';
 import { loadService, serviceMeta, type ServiceSlug } from '../../lib/service.ts';
 
 interface Props {
@@ -35,8 +36,9 @@ const origin = site.seo.origin;
       name: c.name,
       description: c.seo.description,
       serviceType: c.name,
+      category: serviceType,
       provider: { '@id': `${origin}/#organization` },
-      areaServed: { '@type': 'Country', name: '中国' },
+      areaServed,
       url: `${origin}${path}`,
     }}
   />

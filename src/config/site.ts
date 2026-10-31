@@ -139,6 +139,12 @@ export function toSiteConfig(input: unknown): SiteConfig {
       origin: origin.replace(/\/$/, ''),
       siteName: str(seo?.siteName) ?? 'SSW',
       ogImage: image(seo?.ogImage),
+      verification: {
+        baidu: str(seo?.baiduVerification),
+        bing: str(seo?.bingVerification),
+        so360: str(seo?.so360Verification),
+        sogou: str(seo?.sogouVerification),
+      },
     },
     hero: {
       backgroundImage: heroBg

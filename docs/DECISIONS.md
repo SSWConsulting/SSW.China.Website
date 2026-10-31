@@ -3875,3 +3875,42 @@ Tina 的默认预览路径只能由 `build.basePath` 影响，而它会连带改
 - **ssw.cn 的 nginx**：`location /` 加 `Cache-Control: no-cache`，`location /assets/` 一年 immutable，两处都重复 HSTS。
   起因是 PR #16 部署后，后台右侧 iframe 仍用浏览器缓存的旧首页（引用旧脚本），看起来像修复没生效。配置与以 SYSTEM 身份 reload 的做法见 DEPLOY-SETUP。
 - 编号：PR #16 与 PR #17 同时各加了一条 §121，后合并的「预览站改回 Vercel 的 GitHub 集成」改为 §123，CLAUDE.md、TINACMS.md 的引用随之更新，内容未改。
+
+## §125 全站 SEO / GEO 定位为「企业 AI 转型」，服务区域写进元数据与结构化数据
+
+2026-10-31，用户要求「全站做中国江浙沪地区企业 AI 转型专家的 SEO 和 GEO 改造」，并补充：**可见文案可以改，但不用突出江浙沪**。
+§96 已有完整的技术底座（每页 meta、Organization/Service/FAQPage、sitemap、robots、llms.txt），本次只补「定位」。
+
+**关键词分两层放：**
+
+- **页面可见文案与 `<title>`：「企业 AI 转型」。** 首页 title、首屏导语、AI 服务导语、三个服务页的 title 都带上这个词。
+  不加「江浙沪」标语，不新建城市页 / 专题落地页（内容薄，容易被当成门页，等有真实的区域案例再议）。
+- **区域只放在不显眼、但搜索引擎与生成式引擎会读的位置：**
+  - 首页与「关于我们」的 meta description；
+  - Organization 改为 `['Organization', 'ProfessionalService']`，加 `areaServed`（上海市、江苏省、浙江省、中国）、
+    `knowsAbout`、`geo`（取自「全站通用 → 办公室」的杭州坐标）；`@id` 不变，各页 `provider`/`publisher` 引用不受影响；
+  - 三个 AI 服务页的 Service：`areaServed` 同上，加 `category: '企业 AI 转型'`（取值集中在 `src/lib/structured-data.ts`）。
+    /chinafy/ 是帮海外应用进中国，`areaServed` 仍是「中国」；
+  - llms.txt 开头的定位句与「服务区域」小节。
+  - 页面上唯一出现区域的地方是首页 FAQ「可以到现场驻场吗？」的回答，属事实陈述，不是标语。
+
+**诚实性与广告法：** 只说「团队在杭州」「可以到上海、江苏、浙江驻场」「其他地区远程协作」，
+不暗示杭州以外有办公室（llms.txt 明写「中国区唯一办公室」）；不用「最」「第一」「顶级」「专家」这类自称，
+「专家」的定位靠内容体现，不写进文案。FAQ 回答不含数字与客户名。
+
+**首页新增「企业 AI 转型常见问题」区块**（`sections/Faq.astro` + `home/FaqBody.astro`，岛名 `faq`，可点选编辑），
+放在产品与社区之后、地球之前。沿用服务页的 `.faq__*` 标记，`seo:check` 的「可见问题 ↔ FAQPage」比对自动覆盖首页。
+同一份问答写进 llms.txt。
+
+**GEO：** 新增 `public/llms-full.txt`，由 `scripts/seo.mjs` 从构建产物里每页 `<main>` 提取纯文本，与页面可见内容逐字一致，
+`--check` 一并守卫漂移。robots 仍是 `User-agent: *` 全放行，已包含国内的 Baiduspider、Bytespider 等。
+
+**站长平台验证码：** 「站点设置 → SEO / 域名」加百度、Bing、360、搜狗四个验证码字段，留空不输出。注册与提交 sitemap 的步骤见 DEPLOY-SETUP。
+
+**需文案负责人确认**（以下均为设计说明文档之外的新增或改写文案）：
+
+- 六个公开页面的 SEO title 与 description（/chinafy/ 只改 title，description 未动）；
+- 首页首屏导语：「……SSW 帮助企业**完成 AI 转型**：把 AI 接入现有系统与业务流程，推动方案上线并持续迭代。」（原为「SSW 帮助企业把 AI 接入……」）；
+- 首页 AI 服务导语末句：「三类服务**覆盖企业 AI 转型的主要环节**，可以从你需要的一项开始。」；
+- 首页 FAQ 标题与五条问答全文（尤其「可以到现场驻场吗？」里的驻场范围，需业务确认属实）；
+- Organization `description` 里新增的服务区域一句。

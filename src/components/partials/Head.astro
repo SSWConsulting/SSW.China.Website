@@ -2,8 +2,11 @@
 import '../../styles/index.css';
 import { site } from '../../config/site.ts';
 import JsonLd from '../JsonLd.astro';
+import { areaServed } from '../../lib/structured-data.ts';
+import { shared } from '../../lib/shared.ts';
 
 const origin = site.seo.origin;
+const hangzhou = shared.offices.find((o) => o.slug === 'hangzhou');
 ---
 
 {/* 移动端渲染的前提：没有这一行，手机浏览器会按 980px 桌面宽度排版再整体缩放，
@@ -29,6 +32,12 @@ const origin = site.seo.origin;
 <meta name="twitter:image" content={`${site.seo.origin}${site.seo.ogImage.src}`} />
 </>) : null}
 
+{/* 搜索引擎站长平台的站点验证（站点设置 → SEO / 域名）。留空的不输出。 */}
+{site.seo.verification.baidu ? <meta name="baidu-site-verification" content={site.seo.verification.baidu} /> : null}
+{site.seo.verification.bing ? <meta name="msvalidate.01" content={site.seo.verification.bing} /> : null}
+{site.seo.verification.so360 ? <meta name="360-site-verification" content={site.seo.verification.so360} /> : null}
+{site.seo.verification.sogou ? <meta name="sogou_site_verification" content={site.seo.verification.sogou} /> : null}
+
 {/* ══════════════════════════════════════════════════════════════════════
      结构化数据：Organization（全站共用，每页都输出）。
      既服务传统 SEO（知识面板、富媒体结果），也服务 GEO —— 生成式引擎抓到
@@ -46,7 +55,9 @@ const origin = site.seo.origin;
 <JsonLd
   data={{
     '@context': 'https://schema.org',
-    '@type': 'Organization',
+    // ProfessionalService（LocalBusiness 的子类）让「杭州的 AI 转型服务商」这类本地检索能用上地址、
+    // 坐标与服务区域；Organization 保留，@id 不变，各页 provider/publisher 的引用不受影响（§125）。
+    '@type': ['Organization', 'ProfessionalService'],
     '@id': `${origin}/#organization`,
     name: 'SSW',
     alternateName: 'SSW 中国',
@@ -54,7 +65,9 @@ const origin = site.seo.origin;
     url: `${origin}/`,
     logo: `${origin}/media/ssw-logo.svg`,
     foundingDate: '1990',
-    description: 'SSW 是源于澳大利亚的软件咨询公司，1990 年成立，在全球 15 个国家为企业提供软件开发、技术咨询、数字化转型及创新解决方案。SSW 中国提供 AI 底座中台、AI 业务工作流、AI 应用定制与 FDE 驻场/远程协作服务。',
+    description: 'SSW 是源于澳大利亚的软件咨询公司，1990 年成立，在全球 15 个国家为企业提供软件开发、技术咨询、数字化转型及创新解决方案。SSW 中国的团队在杭州，为上海、江苏、浙江及全国企业提供 AI 转型服务：AI 底座中台、AI 业务工作流、AI 应用定制，以及 FDE 驻场/远程协作。',
+    areaServed,
+    knowsAbout: ['企业 AI 转型', 'AI 中台', 'AI Agent', '业务流程自动化', '大模型应用开发', '软件开发', '技术咨询'],
     email: 'info@ssw.com.au',
     telephone: '+86-571-8517-8910',
     address: {
@@ -65,6 +78,10 @@ const origin = site.seo.origin;
       streetAddress: '拱墅区新天地街 406 号星城发展大厦 2 幢 305 室',
       postalCode: '310004',
     },
+    // 坐标取自首页地球上的杭州办公室（全站通用 → 办公室），同一份数据。
+    ...(hangzhou
+      ? { geo: { '@type': 'GeoCoordinates', latitude: hangzhou.lat, longitude: hangzhou.lng } }
+      : {}),
     sameAs: [
       'https://www.ssw.com.au',
       'https://ssw.fr',

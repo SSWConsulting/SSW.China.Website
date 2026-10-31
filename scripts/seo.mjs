@@ -2,7 +2,7 @@
 /**
  * SEO / GEO 产物生成与守卫。
  *
- *   node scripts/seo.mjs          生成 public/sitemap.xml 与 public/llms.txt
+ *   node scripts/seo.mjs          生成 public/robots.txt、sitemap.xml、llms.txt 与 llms-full.txt
  *   node scripts/seo.mjs --check  只校验，不写文件（verify 里跑的就是这个）
  *
  * 校验读的是**构建产物** dist/ —— 页面由 Astro 渲染，源文件里已经没有完整的
@@ -23,6 +23,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { siteConfig } from '../src/config/site.ts';
+import homeCopy from '../content/pages/home.json' with { type: 'json' };
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const origin = siteConfig.seo.origin.replace(/\/$/, '');
@@ -74,10 +75,17 @@ const llms = () => {
   const lines = [
     `# ${siteConfig.seo.siteName}（SSW 中国）`,
     '',
-    '> 智鹏瑞尔软件（杭州）有限公司是 SSW 在中国的分公司。SSW 1990 年成立于澳大利亚，',
-    '> 30 多年来在全球 15 个国家为超过 1000 家企业和组织提供软件开发、技术咨询、',
-    '> 数字化转型及创新解决方案。中国区聚焦三类可独立采购的 AI 服务，',
+    '> SSW 中国（智鹏瑞尔软件（杭州）有限公司）是一家企业 AI 转型服务商，团队在杭州，',
+    '> 服务上海、江苏、浙江及全国企业：AI 底座中台、AI 业务工作流、AI 应用定制三类服务可独立采购，',
     '> 并提供 FDE（Forward Deployed Engineer）驻场或远程协作。',
+    '> SSW 1990 年成立于澳大利亚，30 多年来在全球 15 个国家为超过 1000 家企业和组织提供软件开发、',
+    '> 技术咨询、数字化转型及创新解决方案。',
+    '',
+    '## 服务区域',
+    '',
+    '- 团队与办公室：浙江省杭州市（中国区唯一办公室）',
+    '- 现场驻场：上海、江苏、浙江',
+    '- 其他地区：远程协作',
     '',
     '## 页面',
     '',
@@ -86,8 +94,10 @@ const llms = () => {
     const m = meta(p);
     lines.push(`- [${m.title}](${origin}${p.route}): ${m.description}`);
   }
+  // 首页「常见问题」原文：与页面可见内容、FAQPage 结构化数据同一份（content/pages/home.json）。
+  lines.push('', `## ${homeCopy.faq.title}`, '');
+  for (const f of homeCopy.faq.items) lines.push(`### ${f.question}`, '', f.answer, '');
   lines.push(
-    '',
     '## 联系方式',
     '',
     '- 邮箱：info@ssw.com.au',
@@ -97,10 +107,54 @@ const llms = () => {
     '## 说明',
     '',
     '- 本文件由 scripts/seo.mjs 生成，内容与站点页面同源，请勿手工编辑。',
+    `- 各页面的完整正文见 ${origin}/llms-full.txt。`,
     '- /deck/ 是展会现场循环播放的轮播页，不属于站点正文，未列入。',
     '',
   );
   return lines.join('\n');
+};
+
+/**
+ * llms-full.txt：每个公开页面 <main> 的纯文本，给生成式引擎一次读全站正文（GEO，DECISIONS §125）。
+ * 从构建产物提取，与页面可见内容逐字一致；去掉脚本、样式、SVG 与仅供读屏的文字。
+ */
+const pageText = (html) => {
+  const main = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/)?.[1] ?? '';
+  return (
+    main
+      .replace(/<(script|style|svg|template)\b[\s\S]*?<\/\1>/g, '')
+      .replace(/<[^>]*class="[^"]*\bsr-only\b[^"]*"[^>]*>[\s\S]*?<\/[a-z]+>/g, '')
+      .replace(/<\/(h[1-6]|p|li|summary|div|section|details|dt|dd|tr)>/g, '\n')
+      .replace(/<br\s*\/?>/g, '\n')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .split('\n')
+      .map((l) => l.replace(/\s+/g, ' ').trim())
+      .filter(Boolean)
+      // 同一段文字连续出现（窄屏/宽屏两套标记、跑马灯复制项）只留一次
+      .filter((l, i, a) => l !== a[i - 1])
+      .join('\n')
+  );
+};
+
+const llmsFull = () => {
+  const parts = [
+    `# ${siteConfig.seo.siteName}（SSW 中国）—— 页面全文`,
+    '',
+    '> 由 scripts/seo.mjs 从构建产物生成，与页面可见内容一致，请勿手工编辑。概要见 llms.txt。',
+    '',
+  ];
+  for (const p of PAGES) {
+    const html = read(built(p));
+    const m = meta(p);
+    parts.push(`## ${m.title}`, '', `URL：${origin}${p.route}`, '', pageText(html), '');
+  }
+  return parts.join('\n');
 };
 
 const isCheck = process.argv.includes('--check');
@@ -171,7 +225,8 @@ for (const p of PAGES) {
  * robots.txt 也由脚本生成 —— 里面的 Sitemap 必须是绝对 URL，
  * 手写就会在换域名时和 seo.origin 脱节。
  *
- * 没有单独给 AI 爬虫（GPTBot / ClaudeBot / PerplexityBot 等）写规则：
+ * 没有单独给 AI 爬虫（GPTBot / ClaudeBot / PerplexityBot，以及国内的 Baiduspider、Bytespider
+ * 等豆包、文心、通义、元宝背后的爬虫）写规则：
  * `User-agent: *` 已经放行全部，这正是 GEO 想要的结果 —— 希望被生成式引擎
  * 抓取和引用。将来若要拦某一个，在这里加对应的 User-agent 段。
  */
@@ -191,6 +246,7 @@ const outputs = [
   ['public/robots.txt', robots()],
   ['public/sitemap.xml', sitemap()],
   ['public/llms.txt', llms()],
+  ['public/llms-full.txt', llmsFull()],
 ];
 
 if (isCheck) {

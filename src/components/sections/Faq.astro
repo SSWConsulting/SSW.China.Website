@@ -1,0 +1,11 @@
+---
+import { home } from '../../lib/pages.ts';
+import Editable from '../Editable.astro';
+import FaqBody from './home/FaqBody.astro';
+---
+
+{/* 首页常见问题：同一份问答也输出为 FAQPage 结构化数据（pages/index.astro）并写进 llms.txt（scripts/seo.mjs）。
+     seo:check 比对可见问题与 JSON-LD，靠的是 .faq__q 这个类名 —— 改标记时保留它。见 docs/DECISIONS.md §125。 */}
+<section class="section home-faq" id="faq" aria-labelledby="faq-title">
+  <Editable island="faq" class="container"><FaqBody faq={home.faq} /></Editable>
+</section>

@@ -1,0 +1,27 @@
+---
+/** Faq.astro 里 `.container` 的内容：页面与本地可视化编辑端点（dev/visual-editing/）共用，只依赖 props。 */
+import type { home } from '../../../lib/pages.ts';
+
+interface Props {
+  faq: (typeof home)['faq'];
+}
+
+const { faq } = Astro.props;
+import { tf } from '../../../lib/tina-field.ts';
+---
+    <div class="section__head" data-reveal-group>
+      <span class="accent-rule" data-reveal aria-hidden="true"></span>
+      <h2 id="faq-title" data-reveal data-tina-field={tf(faq, 'title')}>{faq.title}</h2>
+    </div>
+    <div class="faq__list" data-reveal-group>
+      {
+        faq.items.map((f) => (
+          <details class="faq__item" data-reveal>
+            <summary class="faq__q" data-tina-field={tf(f, 'question')}>{f.question}</summary>
+            <div class="faq__a">
+              <p data-tina-field={tf(f, 'answer')}>{f.answer}</p>
+            </div>
+          </details>
+        ))
+      }
+    </div>

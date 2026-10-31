@@ -33,6 +33,7 @@ import FdeBody from '../../src/components/sections/home/FdeBody.astro';
 import WhyUsBody from '../../src/components/sections/home/WhyUsBody.astro';
 import EcosystemBody from '../../src/components/sections/home/EcosystemBody.astro';
 import GlobeHead from '../../src/components/sections/home/GlobeHead.astro';
+import FaqBody from '../../src/components/sections/home/FaqBody.astro';
 import AdvantageBody from '../../src/components/sections/home/AdvantageBody.astro';
 import ClientsBody from '../../src/components/sections/home/ClientsBody.astro';
 
@@ -164,6 +165,7 @@ export const islands: IslandRegistry = {
   fde: homeIsland('fde', FdeBody, 'container', (fde) => ({ fde })),
   whyUs: homeIsland('whyUs', WhyUsBody, 'container', (copy) => ({ copy, why: site.whyUs })),
   ecosystem: homeIsland('ecosystem', EcosystemBody, 'container', (eco) => ({ eco })),
+  faq: homeIsland('faq', FaqBody, 'container', (faq) => ({ faq })),
   globe: homeIsland('globe', GlobeHead, 'globe__head', (globe) => ({ globe })),
   advantage: settingsIsland(AdvantageBody, 'container', (draft, cfg) => {
     const src = part(draft, 'advantage');
