@@ -206,6 +206,18 @@ schtasks /delete /tn "nginx-reload-once" /f
 - `-t` 时出现 `duplicate MIME type "text/html"` 的警告是 aisec 站点 `sub_filter_types` 里多写了默认类型，与 ssw.cn 无关，不影响运行。
 - 服务器上没有 `curl.exe`。验证响应头可以在本机用 `curl -sI https://ssw.cn/`，或在浏览器开发者工具的 Network 里看。
 
+## 搜索引擎站长平台（DECISIONS §125）
+
+国内收录主要靠百度，其次是 Bing（必应中国）、360、搜狗。各平台都用「HTML 标签验证」，验证码填进后台「站点设置 → SEO / 域名」，
+保存并合并 PR、部署后回平台点「验证」。留空的平台不输出标签。
+
+1. **百度搜索资源平台**（ziyuan.baidu.com）：添加网站 `https://ssw.cn` → HTML 标签验证，复制 `content="…"` 里的值填「百度站点验证码」。
+   验证通过后在「普通收录 → sitemap」提交 `https://ssw.cn/sitemap.xml`。
+2. **Bing 网站管理员工具**（bing.com/webmasters）：可直接从 Google Search Console 导入；否则用 HTML Meta 标记（`msvalidate.01`）验证，提交同一个 sitemap。
+3. **360 站长平台**、**搜狗站长平台**：同样用 meta 标签验证，填对应字段。
+
+`robots.txt`、`sitemap.xml`、`llms.txt`、`llms-full.txt` 都由 `npm run seo` 生成，不要手工改。
+
 ## 回滚
 
 在 GitHub 上 revert 那个提交并合回 main，流水线会自动重新发布上一版本。

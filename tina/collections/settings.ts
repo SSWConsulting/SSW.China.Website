@@ -52,6 +52,19 @@ export const SettingsCollection: Collection = {
       image('ogImage', '社交分享预览图', [], {
         description: '平台推荐 1200×630。留空 ⇒ 不输出 og:image（宁可没有，也不放假图）。',
       }),
+      text('baiduVerification', '百度站点验证码', {
+        description:
+          '百度搜索资源平台 → 添加网站 → HTML 标签验证，只填 content="…" 里的那串值。留空 ⇒ 不输出。',
+      }),
+      text('bingVerification', 'Bing 站点验证码', {
+        description: 'Bing 网站管理员工具 → HTML Meta 标记（msvalidate.01）里的值。留空 ⇒ 不输出。',
+      }),
+      text('so360Verification', '360 站点验证码', {
+        description: '360 站长平台 → 360-site-verification 的值。留空 ⇒ 不输出。',
+      }),
+      text('sogouVerification', '搜狗站点验证码', {
+        description: '搜狗站长平台 → sogou_site_verification 的值。留空 ⇒ 不输出。',
+      }),
     ]),
 
     group('hero', '首页首屏', [

@@ -81,6 +81,26 @@ export const HomeCollection: Collection = {
       ]),
     ]),
     group(
+      'faq',
+      '常见问题',
+      [
+        text('title', '标题', { required: true }),
+        items(
+          'items',
+          '问答',
+          [
+            text('question', '问题', { required: true }),
+            longText('answer', '回答', { required: true }),
+          ],
+          'question',
+        ),
+      ],
+      {
+        description:
+          '同一份问答也输出为 FAQPage 结构化数据，并写进 llms.txt（搜索引擎与 AI 问答会引用）。回答只写可核实的事实。',
+      },
+    ),
+    group(
       'globe',
       'SSW 遍布全球',
       [text('title', '标题', { required: true }), text('subtitle', '副标题', { required: true })],

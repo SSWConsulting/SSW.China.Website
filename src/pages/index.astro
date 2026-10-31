@@ -11,6 +11,7 @@ import Cases from '../components/sections/Cases.astro';
 import Clients from '../components/sections/Clients.astro';
 import WhyUs from '../components/sections/WhyUs.astro';
 import Ecosystem from '../components/sections/Ecosystem.astro';
+import Faq from '../components/sections/Faq.astro';
 import Globe from '../components/sections/Globe.astro';
 import { home } from '../lib/pages.ts';
 ---
@@ -28,6 +29,18 @@ import { home } from '../lib/pages.ts';
     publisher: { '@id': `${site.seo.origin}/#organization` },
   }}
 />
+<JsonLd
+  slot="head"
+  data={{
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: home.faq.items.map((f) => ({
+      '@type': 'Question',
+      name: f.question,
+      acceptedAnswer: { '@type': 'Answer', text: f.answer },
+    })),
+  }}
+/>
 
 
     <main id="main" tabindex="-1">
@@ -41,6 +54,7 @@ import { home } from '../lib/pages.ts';
       <Clients editable />
       <WhyUs />
       <Ecosystem />
+      <Faq />
       <Globe />
       {/*
         收尾 CTA（「你的业务，哪一步最值得用 AI 改进？」）已按用户要求从首页去掉。

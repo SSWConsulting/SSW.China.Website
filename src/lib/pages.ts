@@ -48,6 +48,7 @@ export const home = load(
         stats: list(z.object({ label: req, value: req }), 0),
       }),
     }),
+    faq: z.object({ title: req, items: list(z.object({ question: req, answer: req })) }),
     globe: z.object({ title: req, subtitle: req }),
   }),
 );

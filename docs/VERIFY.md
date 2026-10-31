@@ -1233,6 +1233,17 @@ CLAUDE.md 记的那条视口模拟中途失效又出现了一次。该档仍是�
 
 ---
 
+## 企业 AI 转型 SEO / GEO 定位（2026-10-31，DECISIONS §125）
+
+| 项目               | 结果                                                                                                                                                                                                                       | 结论 |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
+| `npm run verify`   | astro check 0 错误、prettier、对比度、构建、SEO 检查全绿（含首页 FAQ ↔ FAQPage 比对、llms-full.txt 漂移检查）                                                                                                              | 通过 |
+| 构建产物的 JSON-LD | 6 个公开页都输出 `Organization+ProfessionalService`（areaServed 上海/江苏/浙江/中国，含 geo）；三个 AI 服务页 Service 的 areaServed 同上、provider 指向 `#organization`；首页 FAQPage 5 条；/chinafy/ Service 仍为「中国」 | 通过 |
+| 站长验证码字段全空 | 产物里没有任何 `*-site-verification` / `msvalidate.01` 标签                                                                                                                                                                | 通过 |
+| 本地 dev 首页      | title、首屏导语为新文案；「企业 AI 转型常见问题」渲染 5 条，展开正常；`POST /tina-island/faq` 返回 200，含 `data-tina-field`（后台可点选编辑）                                                                             | 通过 |
+
+未覆盖（上线后手工做）：Google Rich Results Test 与百度搜索资源平台的结构化数据检测；站长平台验证码需注册后填入。
+
 ## 迁移到 Astro + TinaCMS 的验证（2026-10-16）
 
 方法：把改版前（`442b555`，Vite 构建）与改版后的 `dist/` 逐页解析成规范化的节点树后做 diff。
@@ -1252,3 +1263,9 @@ CLAUDE.md 记的那条视口模拟中途失效又出现了一次。该档仍是�
 
 未覆盖：线上 TinaCloud 登录与提交（需要先在 app.tina.io 建项目并配置凭据）；
 Windows runner 上的 `tinacms build`（runner 尚未迁到新仓库）；浏览器里的交互与动效（本次没有改动脚本与样式）。
+
+### PR #22 复审修复验证（2026-10-31）
+
+- Node 24.13.0：`npm run verify` 全部通过。
+- 临时修改首页 FAQ 回答后运行 `astro build` 与 `seo:check`：两者通过，`dist/llms.txt`、`dist/llms-full.txt` 均包含修改，`public/` 快照未变。随后恢复文案并重新运行完整验证。
+- 本地可视化预览构建缺少 Tina 生成客户端和云端凭据，未完成；预览适配器路径还需由 Vercel CI 验证。

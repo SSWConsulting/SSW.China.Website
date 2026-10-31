@@ -8,6 +8,7 @@ import JsonLd from '../../components/JsonLd.astro';
 import Editable from '../../components/Editable.astro';
 import AppsMain from '../../components/pages/AppsMain.astro';
 import { site } from '../../config/site.ts';
+import { areaServed, serviceType } from '../../lib/structured-data.ts';
 import { faqText, loadApps } from '../../lib/service.ts';
 
 const c = loadApps();
@@ -24,8 +25,9 @@ const origin = site.seo.origin;
       name: c.name,
       description: c.seo.description,
       serviceType: c.name,
+      category: serviceType,
       provider: { '@id': `${origin}/#organization` },
-      areaServed: { '@type': 'Country', name: '中国' },
+      areaServed,
       url: `${origin}${path}`,
     }}
   />

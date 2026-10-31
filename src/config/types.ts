@@ -262,6 +262,17 @@ export interface SeoConfig {
    * null ⇒ 不输出 og:image 与 twitter:image 标签（宁可没有，也不放假图）。
    */
   ogImage: ImageAsset | null;
+  /**
+   * 搜索引擎站长平台的站点验证码（只填 content 里的那串值）。
+   * 各自输出为 `<meta name="baidu-site-verification">`、`msvalidate.01`、`360-site-verification`、
+   * `sogou_site_verification`。null ⇒ 不输出该标签。见 DEPLOY-SETUP「搜索引擎站长平台」。
+   */
+  verification: {
+    baidu: string | null;
+    bing: string | null;
+    so360: string | null;
+    sogou: string | null;
+  };
 }
 
 export interface SiteConfig {
